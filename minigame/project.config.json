@@ -1,7 +1,12 @@
 {
-  "description": "永夜微光 M1 原型（末世生存经营 · 微信小游戏）",
+  "description": "永夜微光 v2.9 · 末世公路生存（微信小游戏成品）",
   "packOptions": {
-    "ignore": []
+    "ignore": [
+      {
+        "type": "file",
+        "value": "js/core.js"
+      }
+    ]
   },
   "setting": {
     "urlCheck": false,
