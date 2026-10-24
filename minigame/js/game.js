@@ -1103,23 +1103,31 @@ function drawOrb(o) {
   ctx.restore();
 
   if (o.kind === "hazard") {
-    // 闷囊：胀着的黑囊，带刺边
-    ctx.save();
-    ctx.beginPath();
-    for (var i = 0; i < 10; i++) {
-      var a = i / 10 * 6.2832;
-      var rr = i % 2 ? r * 0.78 : r * 1.02;
-      var x = p.x + Math.cos(a) * rr, y = p.y + Math.sin(a) * rr;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    // 闷囊：贴图优先，缺图回退刺囊
+    var himg = IMG.orb_hazard;
+    if (himg) {
+      ctx.save();
+      var hir = r * 2.5 + Math.sin(performance.now() / 300) * r * 0.08;  // 胀气起伏
+      ctx.drawImage(himg, p.x - hir / 2, p.y - hir / 2, hir, hir);
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.beginPath();
+      for (var i = 0; i < 10; i++) {
+        var a = i / 10 * 6.2832;
+        var rr = i % 2 ? r * 0.78 : r * 1.02;
+        var x = p.x + Math.cos(a) * rr, y = p.y + Math.sin(a) * rr;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(255,107,107,.10)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,107,107,.85)";
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+      ctx.restore();
+      txt("囊", p.x, p.y + 1, Math.max(9, r * 0.95), "#ff8f8f", "center", "700");
     }
-    ctx.closePath();
-    ctx.fillStyle = "rgba(255,107,107,.10)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255,107,107,.85)";
-    ctx.lineWidth = 1.3;
-    ctx.stroke();
-    ctx.restore();
-    txt("囊", p.x, p.y + 1, Math.max(9, r * 0.95), "#ff8f8f", "center", "700");
     if (o === S.hint) {
       ctx.save();
       ctx.beginPath(); ctx.arc(p.x, p.y, r + 4.5, 0, 6.2832);
@@ -1129,26 +1137,42 @@ function drawOrb(o) {
     return;
   }
 
-  // 悬浮球：外圈虚线 + 中间封条字
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, r, 0, 6.2832);
-  ctx.fillStyle = "rgba(255,255,255,.035)";
-  ctx.fill();
-  ctx.setLineDash([3, 3]);
-  ctx.strokeStyle = def.col;
-  ctx.globalAlpha = 0.55 + o.flash * 0.45;
-  ctx.lineWidth = 1.1;
-  ctx.stroke();
-  ctx.restore();
+  /* 悬浮球：贴图优先（AI 生成补给囊），缺图回退「外圈虚线 + 封条字」 */
+  var oimg = IMG["orb_" + o.kind];
+  if (oimg) {
+    ctx.save();
+    if (o.flash > 0) {
+      ctx.shadowColor = "rgba(255,107,107,.9)";
+      ctx.shadowBlur = 14 * o.flash;
+    }
+    var oir = r * 2.35;
+    ctx.drawImage(oimg, p.x - oir / 2, p.y - oir / 2, oir, oir);
+    ctx.restore();
+    /* 悬浮高度指示 */
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    line(p.x, p.y + r + 2, p.x, p.y + r + 9, def.col, 1, [2, 3]);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, 6.2832);
+    ctx.fillStyle = "rgba(255,255,255,.035)";
+    ctx.fill();
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = def.col;
+    ctx.globalAlpha = 0.55 + o.flash * 0.45;
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+    ctx.restore();
 
-  txt(def.ch, p.x, p.y + 1, Math.max(9, r * 0.95), def.col, "center", "700");
+    txt(def.ch, p.x, p.y + 1, Math.max(9, r * 0.95), def.col, "center", "700");
 
-  // 悬浮高度指示：一条短竖线 + 小点，暗示球是浮着的
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  line(p.x, p.y + r + 2, p.x, p.y + r + 9, def.col, 1, [2, 3]);
-  ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    line(p.x, p.y + r + 2, p.x, p.y + r + 9, def.col, 1, [2, 3]);
+    ctx.restore();
+  }
 
   // 下一个要面对的球，给一个外圈，让眼睛有落点
   if (o === S.hint) {
@@ -1184,7 +1208,13 @@ function drawPile(p) {
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
-  txt("堆", sp.x, sp.y + 1, Math.max(9, r * 0.85), "#b7c6dc", "center", "700");
+  var pimg = IMG.pile;
+  if (pimg) {
+    var pir = r * 2.6;
+    ctx.drawImage(pimg, sp.x - pir / 2, sp.y - pir * 0.55, pir, pir);
+  } else {
+    txt("堆", sp.x, sp.y + 1, Math.max(9, r * 0.85), "#b7c6dc", "center", "700");
+  }
   txt("+" + p.wood, sp.x, sp.y + r * 1.25, 8, "rgba(183,198,220,.75)", "center", "", "monospace");
 }
 
@@ -1220,21 +1250,39 @@ function drawBuild(b) {
     ctx.restore();
   }
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(p.x - w / 2, p.y - h / 2, w, h);
   var heat = def.dmg ? Math.min(1, b.flash) : 0;
-  ctx.fillStyle = "rgba(255,207,122," + (0.10 + heat * 0.35) + ")";
-  ctx.fill();
-  ctx.strokeStyle = b.type === "fire" ? "rgba(255,157,92,.85)"
-    : b.type === "beacon" ? "rgba(160,200,255,.8)"
-    : b.type === "barrel" ? "rgba(255,157,92,.6)"
-    : "rgba(255,207,122,.75)";
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-  ctx.restore();
+  var bimg = IMG["b_" + b.type];
+  if (bimg) {
+    ctx.save();
+    if (heat > 0) {
+      ctx.shadowColor = "rgba(255,107,107,.85)";
+      ctx.shadowBlur = 16 * heat;
+    } else if (b.type === "fire") {
+      ctx.shadowColor = "rgba(255,157,92,.75)";   // 篝火常亮暖光
+      ctx.shadowBlur = 12;
+    } else if (b.type === "beacon") {
+      ctx.shadowColor = "rgba(160,200,255,.65)";  // 信标常亮冷光
+      ctx.shadowBlur = 10;
+    }
+    var bir = u * 1.5;
+    ctx.drawImage(bimg, p.x - bir / 2, p.y - bir * 0.62, bir, bir);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(p.x - w / 2, p.y - h / 2, w, h);
+    ctx.fillStyle = "rgba(255,207,122," + (0.10 + heat * 0.35) + ")";
+    ctx.fill();
+    ctx.strokeStyle = b.type === "fire" ? "rgba(255,157,92,.85)"
+      : b.type === "beacon" ? "rgba(160,200,255,.8)"
+      : b.type === "barrel" ? "rgba(255,157,92,.6)"
+      : "rgba(255,207,122,.75)";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
 
-  txt(def.ch, p.x, p.y + 1, Math.max(9, u * 0.42), "#ffe2b0", "center", "700");
+    txt(def.ch, p.x, p.y + 1, Math.max(9, u * 0.42), "#ffe2b0", "center", "700");
+  }
 
   // 血条
   if (b.hp < b.hpMax) {
@@ -1251,20 +1299,35 @@ function drawMob(m) {
   var u = laneUnit(m.v);
   var s = u * 0.46;
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y - s);
-  ctx.lineTo(p.x + s * 0.82, p.y + s * 0.7);
-  ctx.lineTo(p.x - s * 0.82, p.y + s * 0.7);
-  ctx.closePath();
-  ctx.fillStyle = m.flash > 0.3 ? "rgba(255,107,107,.55)" : "rgba(255,255,255,.06)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,107,107,.7)";
-  ctx.lineWidth = 1.1;
-  ctx.stroke();
-  ctx.restore();
+  var mimg = IMG[m.ch === "尸" ? "mob_zombie" : m.ch === "弓" ? "mob_archer" : "mob_shadow"];
+  if (mimg) {
+    ctx.save();
+    if (m.flash > 0.3) {
+      ctx.shadowColor = "rgba(255,107,107,.95)";
+      ctx.shadowBlur = 15 * m.flash;
+    } else if (m.ch === "影") {
+      ctx.shadowColor = "rgba(160,80,220,.5)";
+      ctx.shadowBlur = 9;
+    }
+    var mir = s * 2.6;
+    ctx.drawImage(mimg, p.x - mir / 2, p.y - mir * 0.62, mir, mir);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y - s);
+    ctx.lineTo(p.x + s * 0.82, p.y + s * 0.7);
+    ctx.lineTo(p.x - s * 0.82, p.y + s * 0.7);
+    ctx.closePath();
+    ctx.fillStyle = m.flash > 0.3 ? "rgba(255,107,107,.55)" : "rgba(255,255,255,.06)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,107,107,.7)";
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+    ctx.restore();
 
-  txt(m.ch, p.x, p.y + s * 0.18, Math.max(8, s * 0.95), "#ff9d9d", "center", "700");
+    txt(m.ch, p.x, p.y + s * 0.18, Math.max(8, s * 0.95), "#ff9d9d", "center", "700");
+  }
 
   if (m.hp < m.hpMax) {
     var bw = s * 1.8, by = p.y - s - 5;
@@ -1316,17 +1379,29 @@ function drawCar() {
   ctx.fill();
   ctx.restore();
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(p.x - w / 2, p.y - h / 2, w, h);
-  ctx.fillStyle = k > 0 ? "rgba(255,107,107,.22)" : "rgba(255,207,122,.14)";
-  ctx.fill();
-  ctx.strokeStyle = k > 0 ? "#ff8f8f" : "#ffcf7a";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.restore();
+  var cimg = IMG.car;
+  if (cimg) {
+    ctx.save();
+    if (k > 0) {
+      ctx.shadowColor = "rgba(255,107,107,.9)";
+      ctx.shadowBlur = 18 * k;
+    }
+    var cw = u * 1.42, chh = u * 1.42;
+    ctx.drawImage(cimg, p.x - cw / 2, p.y - chh * 0.62, cw, chh);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(p.x - w / 2, p.y - h / 2, w, h);
+    ctx.fillStyle = k > 0 ? "rgba(255,107,107,.22)" : "rgba(255,207,122,.14)";
+    ctx.fill();
+    ctx.strokeStyle = k > 0 ? "#ff8f8f" : "#ffcf7a";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
 
-  txt("车", p.x, p.y + 1, Math.max(10, u * 0.40), "#ffe9c4", "center", "700");
+    txt("车", p.x, p.y + 1, Math.max(10, u * 0.40), "#ffe9c4", "center", "700");
+  }
 }
 
 function drawArrows() {
@@ -1843,6 +1918,31 @@ var AVATAR = null;
   } catch (e) {}
 })();
 
+/* ---- 实体贴图：悬浮球 / 建筑 / 车 / 怪 / 料堆 ----
+   有图用图，缺图自动回退矢量（键盘可删 images/*.png 验证回退） */
+var IMG = {};
+var SPRITE_KEYS = ["orb_scatter", "orb_can", "orb_med", "orb_parts", "orb_hazard",
+  "b_fire", "b_tower", "b_wall", "b_barrel", "b_beacon",
+  "car", "mob_zombie", "mob_archer", "mob_shadow", "pile"];
+(function loadSprites() {
+  var map = null;
+  try {
+    if (typeof require === "function") map = require("./theme.js").sprites || null;
+  } catch (e) {}
+  var base = IS_WX ? "" : (typeof ASSET_BASE !== "undefined" ? ASSET_BASE : "");
+  for (var i = 0; i < SPRITE_KEYS.length; i++) {
+    (function (k) {
+      try {
+        var path = (map && map[k]) || ("images/" + k + ".png");
+        if (!IS_WX) path = base + path;
+        var img = IS_WX ? wx.createImage() : new Image();
+        img.onload = function () { IMG[k] = img; };
+        img.src = path;
+      } catch (e) {}
+    })(SPRITE_KEYS[i]);
+  }
+})();
+
 /* 圆形头像：有图用图，没图回退到矢量小鱼 */
 function drawAvatar(x, y, r) {
   ctx.save();
@@ -1970,6 +2070,7 @@ function drawCover() {
     { ch: "药", col: "#7fe0b0", x: 0.265, y: 0.585, r: 17 },
     { ch: "料", col: "#9fb0c8", x: 0.875, y: 0.715, r: 16 }
   ];
+  var orbImgMap = { "散": "orb_scatter", "罐": "orb_can", "药": "orb_med", "料": "orb_parts" };
   for (var oi = 0; oi < orbDefs.length; oi++) {
     var od = orbDefs[oi];
     var ox = W * od.x, oy = H * od.y;
@@ -1981,17 +2082,21 @@ function drawCover() {
     og.addColorStop(1, "rgba(255,190,120,0)");
     ctx.fillStyle = og;
     ctx.beginPath(); ctx.arc(ox, oyy, od.r * 2.4, 0, 6.2832); ctx.fill();
-    /* 球体 */
-    ctx.save();
-    ctx.beginPath(); ctx.arc(ox, oyy, od.r, 0, 6.2832);
-    ctx.fillStyle = "rgba(255,255,255,.06)";
-    ctx.fill();
-    ctx.setLineDash([4, 4]);
-    ctx.strokeStyle = od.col;
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
-    ctx.restore();
-    txt(od.ch, ox, oyy + 1, od.r * 1.05, od.col, "center", "700");
+    var cimg2 = IMG[orbImgMap[od.ch]];
+    if (cimg2) {
+      ctx.drawImage(cimg2, ox - od.r * 1.15, oyy - od.r * 1.15, od.r * 2.3, od.r * 2.3);
+    } else {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(ox, oyy, od.r, 0, 6.2832);
+      ctx.fillStyle = "rgba(255,255,255,.06)";
+      ctx.fill();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = od.col;
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.restore();
+      txt(od.ch, ox, oyy + 1, od.r * 1.05, od.col, "center", "700");
+    }
   }
   /* 一个红色闷囊（危险品） */
   var hz = { x: W * 0.86, y: H * 0.445, r: 13 };
@@ -2000,20 +2105,25 @@ function drawCover() {
   hzg.addColorStop(1, "rgba(255,107,107,0)");
   ctx.fillStyle = hzg;
   ctx.beginPath(); ctx.arc(hz.x, hz.y, hz.r * 2.6, 0, 6.2832); ctx.fill();
-  ctx.save();
-  ctx.beginPath();
-  for (var hi = 0; hi < 10; hi++) {
-    var ha = hi / 10 * 6.2832;
-    var hr = hi % 2 ? hz.r * 0.76 : hz.r * 1.0;
-    var hx = hz.x + Math.cos(ha) * hr, hy = hz.y + Math.sin(ha) * hr;
-    if (hi === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+  var hzc = IMG.orb_hazard;
+  if (hzc) {
+    ctx.drawImage(hzc, hz.x - hz.r * 1.15, hz.y - hz.r * 1.15, hz.r * 2.3, hz.r * 2.3);
+  } else {
+    ctx.save();
+    ctx.beginPath();
+    for (var hi = 0; hi < 10; hi++) {
+      var ha = hi / 10 * 6.2832;
+      var hr = hi % 2 ? hz.r * 0.76 : hz.r * 1.0;
+      var hx = hz.x + Math.cos(ha) * hr, hy = hz.y + Math.sin(ha) * hr;
+      if (hi === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = "rgba(255,107,107,.9)";
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.restore();
+    txt("囊", hz.x, hz.y + 1, 13, "#ff8f8f", "center", "700");
   }
-  ctx.closePath();
-  ctx.strokeStyle = "rgba(255,107,107,.9)";
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-  ctx.restore();
-  txt("囊", hz.x, hz.y + 1, 13, "#ff8f8f", "center", "700");
 
   /* ---- 远处暖光点（救援中心的灯，呼应主题） ---- */
   var glX = cx + roadTilt, glY = roadTop - 4;
@@ -2178,6 +2288,7 @@ GG.YY = {
   cont: continueGame,
   savedInfo: function () { var sv = loadSave(); return sv ? { day: sv.day, house: sv.totalHouse } : null; },
   showCover: function () { cover = true; S.paused = true; },
+  build: function (col, row, type) { S.buildType = type; tryBuild(col, row); },
   restart: restart,
   nextDay: nextDay,
   enterDusk: enterDusk,
