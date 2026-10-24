@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v2.0 深化</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--askbg);color:var(--ask);font-size:12.5px;font-weight:600;border:1px solid #cfe9ee}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .t-p2{background:var(--p2bg);color:var(--p2)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfdff}
+  .box h4{margin:0 0 6px;font-size:13.5px}
+  .box p{margin:4px 0;font-size:13px;color:var(--ink2)}
+  .box .src{font-size:11.5px;color:var(--ink3);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  .askbox{background:var(--askbg);border:1px solid #cfe9ee;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .askbox p{margin:5px 0;font-size:13.5px;color:#0d5f6b}
+  .warnbox{background:var(--warnbg);border:1px solid #f6d8c9;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .warnbox p{margin:5px 0;font-size:13.5px;color:#8a3309}
+  .okbox{background:var(--okbg);border:1px solid #cae8da;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .okbox p{margin:5px 0;font-size:13.5px;color:#1c6b48}
+  ol,ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .flow .step{flex:1;min-width:140px;border-radius:10px;padding:11px 13px;border:1px solid var(--line);background:#fcfdff}
+  .flow .step b{display:block;font-size:13px;margin-bottom:2px}
+  .flow .step span{font-size:12px;color:var(--ink3)}
+  .flow .arrow{color:#c3c9d8;font-weight:700}
+  .diag{display:grid;grid-template-columns:44px 1fr 92px;gap:10px;align-items:start;
+    padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .diag:last-child{border-bottom:none}
+  .diag .idx{color:var(--ink3);font-weight:700;font-variant-numeric:tabular-nums}
+  .diag .sev{text-align:right;font-size:12px;font-weight:700}
+  .sev-3{color:var(--p0)}
+  .sev-2{color:var(--p1)}
+  .sev-1{color:var(--ink3)}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;padding:4px 10px;border-radius:999px;
+    background:#f3f5fa;border:1px solid var(--line)}
+  .toc a:hover{background:#e9edf6}
+  .matrix td{text-align:center;font-size:12.5px;padding:7px 6px}
+  .matrix th{text-align:center;font-size:11.5px;padding:7px 6px}
+  .matrix td:first-child,.matrix th:first-child{text-align:left;white-space:nowrap}
+  .g{color:var(--ok);font-weight:700}
+  .y{color:var(--p1);font-weight:700}
+  .n{color:#b9bfcd}
+  .quote{border-left:3px solid var(--day);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Project 永夜微光 · 设计稿 v2.0</div>
+  <h1>从「能跑」到「好玩」：六个系统的加深方案</h1>
+  <p class="sub">基础框架已经成立——一天三段、5 车道斜投影、碰碰车搜刮、双胜利线都能跑通，78 项回归也过了。但现在这版的问题不是"缺内容"，而是<b>每一次决策都不痛</b>：只有 2 种建筑、3 张固定升级卡、夜晚没有任何情报、全程零音效、100 天的难度是一条直线。本文档基于 9 款同类产品的拆解，给出 6 个系统的加深方案、优先级与验收标准。<b>请先看第 00 节的一页结论，再决定要做哪一档。</b></p>
+  <div class="status">v2.0 方案讨论稿 · 未动代码 · 等确认</div>
+
+  <div class="toc">
+    <a href="#s00">00 一页结论</a>
+    <a href="#s01">01 现状诊断</a>
+    <a href="#s02">02 竞品调研</a>
+    <a href="#s03">03 设计原则</a>
+    <a href="#s04">04 六个系统</a>
+    <a href="#s05">05 优先级</a>
+    <a href="#s06">06 数值草案</a>
+    <a href="#s07">07 待你确认</a>
+  </div>
+</header>
+
+<!-- ========== 00 ========== -->
+<section id="s00">
+  <h2><span class="n">00</span>一页结论</h2>
+
+  <p class="lead">「简陋」不是一个笼统的感觉，它可以被拆成三个具体的病，而且每个病都有明确的对策产品。</p>
+
+  <table>
+    <tr><th style="width:110px">病症</th><th>你现在能感觉到的</th><th>根因</th><th>对标解法</th></tr>
+    <tr>
+      <td><b>决策不痛</b></td>
+      <td>"建篝火还是箭塔？"——没有真正的取舍，两种建筑各建一排就完事</td>
+      <td>建筑只有 2 种，且职能单一；升级卡固定 3 张按顺序点，<b>每局开局完全一样</b></td>
+      <td>Thronefall「单位即经济」+ 吸血鬼幸存者「乘法协同」</td>
+    </tr>
+    <tr>
+      <td><b>反馈贫弱</b></td>
+      <td>箭射出去怪就没了，没有任何"打中"的感觉；夜里很安静，像在看 PPT</td>
+      <td>零音效、无命中停顿、无震动、飘字只显示战利品</td>
+      <td>吸血鬼幸存者「爽感工程学」——反馈密度决定留存</td>
+    </tr>
+    <tr>
+      <td><b>节奏平铺</b></td>
+      <td>第 10 天和第 60 天做的是同一件事，只是怪血多了 3 倍</td>
+      <td>难度线性爬升，无波峰、无 Boss、无事件、无章节</td>
+      <td>PvZ「关卡节奏 + 情报预告」+ 血月式波峰</td>
+    </tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>核心判断：不要加新玩法，要加深已有玩法。</b></p>
+    <p>你已经有 4 个不错的机制骨架（三段循环 / 碰碰车搜刮 / 建筑路障 / 图纸三选一）。问题不在骨架，在于每个骨架上都只挂了一个选项。现在的优先级是把「每个格子的选择」变痛、把「每次命中」变响、把「每一天」变得不一样——而不是再加一个第二层玩法。</p>
+  </div>
+
+  <h3>三条路线，挑一条</h3>
+  <table>
+    <tr><th style="width:96px">路线</th><th>做什么</th><th>做完的样子</th><th class="num">改动量</th></tr>
+    <tr>
+      <td><span class="tag t-p0">A · 止血</span></td>
+      <td>只做 <b>表现层 + 情报 + 构筑</b>（S5 / S4 / S2）</td>
+      <td>同一个游戏，但手感像成品：有声音、有打击感、每晚知道要来什么、每局 build 不同。<b>内容量不变</b></td>
+      <td style="width:132px">+1800 行 · 重写 3 个模块</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p1">B · 推荐</span></td>
+      <td>A + <b>建筑体系 + 章节节奏</b>（S1 / S3）</td>
+      <td>内容量翻倍：5 种建筑 × 升级分支、5 章 × 5 个 Boss 夜 × 12 个随机事件。<b>这一档才叫"市面上能看的产品"</b></td>
+      <td style="width:132px">+3600 行 · 新增 3 个文件</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p2">C · 长线</span></td>
+      <td>B + <b>局外 meta</b>（S6）</td>
+      <td>有图鉴、有永久解锁、有难度阶梯、有排行榜。第 2 局和第 1 局不一样，能留住人</td>
+      <td style="width:132px">+1200 行 · 需接微信开放数据域</td>
+    </tr>
+  </table>
+
+  <div class="askbox">
+    <p><b>我的建议是 B。</b>理由：A 做完你会说"有进步但还是单薄"；C 里的局外 meta 在玩法本身不够厚的时候是空中楼阁——玩家第一局都没玩爽，不会为了图鉴回来。B 是"内容量 + 手感"同时到位的那个点。</p>
+    <p>而且 B 可以拆成 4 批交付，每批都能单独试玩验收，不必等全部做完才看到东西。</p>
+  </div>
+</section>
+
+<!-- ========== 01 ========== -->
+<section id="s01">
+  <h2><span class="n">01</span>现状诊断：把"简陋"量化</h2>
+
+  <p class="lead">先摆事实。以下数字全部从 <code>minigame/js/core.js</code>（1822 行）直接数出来，不是估计。</p>
+
+  <h3>内容量横向对照</h3>
+  <table>
+    <tr>
+      <th style="width:130px">维度</th>
+      <th class="num">永夜微光<br><span class="small">现在</span></th>
+      <th class="num">Thronefall</th>
+      <th class="num">植物大战僵尸</th>
+      <th class="num">Kingdom 2C</th>
+      <th>判定</th>
+    </tr>
+    <tr><td>防御建筑 / 兵种</td><td class="num">2</td><td class="num">10+ 建筑位<br>6 兵种</td><td class="num">48 植物</td><td class="num">5 类</td><td><span class="tag t-warn">严重不足</span></td></tr>
+    <tr><td>敌人类型</td><td class="num">8（4 种 AI）</td><td class="num">12+</td><td class="num">26</td><td class="num">6</td><td>中等偏下</td></tr>
+    <tr><td>Build 构筑</td><td class="num">3 张固定卡</td><td class="num">50+ 选 5</td><td class="num">选卡组</td><td class="num">无</td><td><span class="tag t-warn">最致命</span></td></tr>
+    <tr><td>局内随机性</td><td class="num">仅商店掉落</td><td class="num">perk+地形</td><td class="num">无</td><td class="num">低</td><td><span class="tag t-warn">弱</span></td></tr>
+    <tr><td>波次强度</td><td class="num">线性<br>1+0.06d</td><td class="num">每晚跃升</td><td class="num">战力上限<br>+ 自适应</td><td class="num">双线夹击</td><td><span class="tag t-warn">平铺</span></td></tr>
+    <tr><td>敌方情报</td><td class="num">无</td><td class="num">路线预告</td><td class="num">出场预告</td><td class="num">无（被诟病）</td><td><span class="tag t-warn">缺失</span></td></tr>
+    <tr><td>音效 / 音乐</td><td class="num">0</td><td class="num">全套</td><td class="num">全套</td><td class="num">全套</td><td><span class="tag t-warn">缺失</span></td></tr>
+    <tr><td>局外 meta</td><td class="num">无</td><td class="num">解锁树</td><td class="num">小游戏+无尽</td><td class="num">多岛屿</td><td><span class="tag t-warn">无</span></td></tr>
+    <tr><td>关卡 / 章节结构</td><td class="num">100 天直线</td><td class="num">10 张地图</td><td class="num">50 关 + 5 场景</td><td class="num">5 岛</td><td><span class="tag t-warn">无</span></td></tr>
+  </table>
+
+  <p class="small">说明：拿 2 人独立团队的作品（Thronefall）对比是公平的——它也不是大厂，靠的是"每个机制都榨到底"而不是堆量。</p>
+
+  <h3>七条具体病症</h3>
+
+  <div class="diag">
+    <div class="idx">01</div>
+    <div><b>升级卡是固定的，不是随机的。</b><code>makePickCards()</code> 里写死了 3 张卡：箭塔伤害 +20% / 车速 +1 / 车耐久 +20。每次拿图纸都是这三张，顺序也固定。<br><span class="small">后果：每一局的成长路径完全一致。玩家玩到第 3 局已经知道该点哪个，从此不再思考。这是"肉鸽"和"线性养成"的分水岭。</span></div>
+    <div class="sev sev-3">最严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">02</div>
+    <div><b>建筑只有 2 种，且是"补位"不是"配合"。</b>篝火管近身清怪，箭塔管远程点杀，各建一排就完事。玩家从来不需要在"这两个格子建什么"上纠结。<br><span class="small">Thronefall 的关键设计是"一个建筑同时是资产和负债"——农田既产金币又决定兵员上限，丢了它不只是少钱，是永久失去已投入的沉没成本。我们的篝火只产伤害，没有第二种身份。</span></div>
+    <div class="sev sev-3">最严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">03</div>
+    <div><b>夜晚完全无情报。</b>黄昏布防时，玩家不知道今晚来几只、什么种类、压哪条道。只能"五条路都铺满"，于是布防从"策略"退化成"例行公事"。<br><span class="small">PvZ 的做法是开局就告诉你这关有哪些僵尸、地形是什么，进程中间还会预告"一大波僵尸即将到来"。我们两个都没有。</span></div>
+    <div class="sev sev-3">最严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">04</div>
+    <div><b>零音效、零命中反馈。</b>箭矢击中怪物只有怪的血条在动。篝火烧怪每秒 18 伤害，但屏幕上没有任何节奏感。<br><span class="small">这是投入产出比最高的一项：12 个音效全部可以用 WebAudio 现场合成，<b>不需要任何素材文件</b>，也就不会撑爆 4M 主包限制。加完之后体感差异比加 3 种建筑还大。</span></div>
+    <div class="sev sev-3">最严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">05</div>
+    <div><b>难度是一条直线。</b><code>hpMul = (1 + (day-1)*0.06) * (1 + penalty)</code>，从第 1 天到第 100 天匀速上涨。第 20 天和第 21 天没有任何区别。<br><span class="small">缺的是"波峰"：血月夜、Boss 夜、章节切换。玩家需要一个"这个坎终于过了"的记忆点，否则 100 天就是 100 次重复。</span></div>
+    <div class="sev sev-2">严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">06</div>
+    <div><b>夜晚没有主动权。</b>玩家只能提前建塔，开打之后只能看着（除了修废墟）。没有任何"我现在能做点什么"的手段。<br><span class="small">Thronefall 让国王亲自下场是这一点的最优解——它把"上帝视角的被动防守"变成"自己也可能是变量"。我们不需要这么重，但至少要给一个主动技能位（比如车的喇叭 / 信号枪）。</span></div>
+    <div class="sev sev-2">严重</div>
+  </div>
+  <div class="diag">
+    <div class="idx">07</div>
+    <div><b>失败不可解释。</b>车被打爆时，玩家很难说出"我哪一步做错了"。因为没有情报（不知今晚阵容）、没有复盘（不知哪条道漏了）、也没有因果（不知是布防错了还是搜刮少了）。<br><span class="small">Kingdom 2C 被玩家最集中的批评就是这个：「缺乏解释、一场失误毁掉 20 小时」。我们要避免它已经踩过的坑。</span></div>
+    <div class="sev sev-2">严重</div>
+  </div>
+
+  <div class="warnbox">
+    <p><b>一个反直觉的观察：</b>平衡探针显示自动玩家死时手里还剩 <b>180+ 木头</b>。这说明经济是过剩的——玩家不是"钱不够"，是"钱买不到生存力"。因为能买的东西只有两种建筑，而已建满的格子不会因为你有钱就变强。<b>这恰恰是内容不足的直接证据，不是难度问题。</b></p>
+    <p>所以之前悬着的难度选项 (b)"调低怪血成长"其实治错了病。真正该做的是给木头更多出口（建筑升级分支、消耗品），让富余的资源变成生存力。</p>
+  </div>
+</section>
+
+<!-- ========== 02 ========== -->
+<section id="s02">
+  <h2><span class="n">02</span>竞品调研：九款产品，九条可迁移的经验</h2>
+
+  <p class="lead">调研范围限定在"能直接搬到我们这个框架里"的产品：昼夜塔防、公路生存、极简基地建设、肉鸽爽游、以及微信小游戏榜单上的实际赢家。每款只提炼<b>一条最能用的</b>，以及<b>一条明确不学的</b>。</p>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="box">
+      <h4>① Thronefall <span class="tag t-ok">最接近我们</span></h4>
+      <p><b>抄这条：</b>「单位即经济」——农田既产金币又决定兵员上限，同一个建筑承担两种职能。以及「只有活过夜晚的建筑才产生次日收入」，把防御和经济强行绑死。</p>
+      <p><b>不学：</b>固定建筑点位。它被自家玩家批评"限制创造性、多周目催生套路"，我们有 45 个自由格子，这是优势不该丢。</p>
+      <p class="src">2 人团队，Steam 97% 好评，15 分钟一局。它的深度全靠"每个决定都痛"，不靠内容量。</p>
+    </div>
+    <div class="box">
+      <h4>② 植物大战僵尸 <span class="tag t-ok">情报节奏教科书</span></h4>
+      <p><b>抄这条：</b>"波次战力上限 + 随机挑选种类"——先规定这一波的战力总量，再随机组合怪物。既保证难度可控，又保证每局不一样。还有"新僵尸预留 2~4 关让你消化"。</p>
+      <p><b>不学：</b>固定关卡制。我们是连续 100 天，节奏要更松。</p>
+      <p class="src">它的自适应难度也值得抄：玩家打得越快，下一波来得越早。</p>
+    </div>
+    <div class="box">
+      <h4>③ Kingdom Two Crowns</h4>
+      <p><b>抄这条：</b>「硬币即一切」——全部操作压到 3 个按钮，所有决策都是"这枚硬币投给谁"。极简操作 + 深决策，正好适合小游戏的拇指操作。</p>
+      <p><b>不学：</b>它被诟病最狠的两点：不给解释、视野受限且没有预警。我们绝对不能没有波次提示。</p>
+      <p class="src">"过度扩张会死"这个张力很好——我们的对应物是"搜太多球就没时间布防"。</p>
+    </div>
+    <div class="box">
+      <h4>④ 吸血鬼幸存者 <span class="tag t-ok">爽感公式</span></h4>
+      <p><b>抄这条：</b>五个要素——低门槛 / 高反馈 / 强成长 / 允许构筑失控 / 极高频率的正向奖励。以及核心曲线：<b>前期憋屈 10 分钟 → 中期关键组合成型 → 后期满屏清怪</b>。</p>
+      <p><b>不学：</b>它的"局外可重置养成"在玩法不够厚时是伪需求，放 P2。</p>
+      <p class="src">它最值钱的是"乘法协同"：不是 +10% 火伤，而是"攻击附流血 + 对流血必暴击"这种 A×B 的化学反应。</p>
+    </div>
+    <div class="box">
+      <h4>⑤ 向僵尸开炮 <span class="tag t-ok">微信小游戏标杆</span></h4>
+      <p><b>抄这条：</b>关卡页面直接标注怪物弱点与抗性，做<b>预期管理</b>——玩家进关之前就知道该带什么。以及每次升级"三选一 + 元素流派"。</p>
+      <p><b>不学：</b>它口碑崩的两个点：50 关后数值陡增、广告频次过高。我们要么不做广告，要么把广告放在"复活"这种玩家主动要的位置。</p>
+      <p class="src">长期霸榜微信畅销前三，证明"单指 + 三选一 + 元素流派"这套在小游戏生态里成立。</p>
+    </div>
+    <div class="box">
+      <h4>⑥ Organ Trail <span class="tag t-ok">公路生存原型</span></h4>
+      <p><b>抄这条：</b>「速度 / 口粮可调」——用"跑得快但坏车，跑得慢但费粮"做实时风险决策。以及"队友被咬：救 / 等 / 杀"这种道德抉择。</p>
+      <p><b>不学：</b>它最大的问题是"随机性过强，变成掷骰子"，后期重复感重。事件要写死后果，不能纯随机。</p>
+      <p class="src">它和我们是同一个题材母题：带着资源横穿废土。</p>
+    </div>
+    <div class="box">
+      <h4>⑦ 无限轮回 / 冲突小队</h4>
+      <p><b>抄这条：</b>两个具体做法：① 首关通关压缩到 1 分钟，快速给甜头；② 三选一算法用"1+2"——3 个选项里只含 2 个类别，避免玩家因为技能错配产生负反馈。</p>
+      <p><b>不学：</b>它们的重度 SLG / 抽卡外壳。我们不需要。</p>
+      <p class="src">《冲突小队》还有一条：「失败条件唯一恒定」——只有基地被攻破才算输，认知成本极低。</p>
+    </div>
+    <div class="box">
+      <h4>⑧ 明日之后</h4>
+      <p><b>抄这条：</b>三条生存指标（血 / 健康 / 饱腹）互相牵制，任一归零即死。我们目前只有"能量"一条，可以加"车况"做第二条。<b>但只抄思路不抄复杂度</b>。</p>
+      <p><b>不学：</b>它的死亡惩罚（丢全部背包 + 跑尸）是给重度玩家设计的，小游戏里用会直接劝退。</p>
+      <p class="src">它的教训：硬核惩罚 + 组队依赖 = 泛用户流失。</p>
+    </div>
+    <div class="box">
+      <h4>⑨ 微信小游戏技术约束</h4>
+      <p><b>抄这条：</b>主包 ≤ 4MB、主包 + 分包 ≤ 30MB。这直接决定了我们的加内容策略：<b>能用代码画的不要用图，能用 WebAudio 合成的不要放音频文件。</b></p>
+      <p><b>不学：</b>把音效做成 mp3 塞进包里——12 个音效轻松吃掉 1MB+，还不如合成。</p>
+      <p class="src">iOS 还需注意高性能模式下的内存上限，粒子特效要池化。</p>
+    </div>
+  </div>
+
+  <h3>跨产品共性：三条被反复验证的规律</h3>
+  <table>
+    <tr><th style="width:170px">规律</th><th>证据</th><th>对我们的含义</th></tr>
+    <tr>
+      <td><b>反馈密度 &gt; 内容数量</b></td>
+      <td>吸血鬼幸存者只有 1 张地图、几十种武器，却让人玩几百小时；很多 300 关的塔防没人记得住第三关</td>
+      <td>先做音效和打击感，再加建筑。<b>顺序反了就是白干</b></td>
+    </tr>
+    <tr>
+      <td><b>协同 &gt; 叠加</b></td>
+      <td>所有被讨论的 Build 都是"A+B 生出 C"，没有一个是因为"火伤 +10% × 10 层"被记住的</td>
+      <td>升级卡必须有"进化"这一层，否则 20 张数值卡等于 1 张</td>
+    </tr>
+    <tr>
+      <td><b>情报 &gt; 难度</b></td>
+      <td>PvZ 给预告所以难但公平；Kingdom 不给所以被骂"看不懂"</td>
+      <td>波次预告是必做项，不是加分项</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ========== 03 ========== -->
+<section id="s03">
+  <h2><span class="n">03</span>五条设计原则（本次改造的验收尺）</h2>
+
+  <p class="lead">后面每个系统都要能被这五条检验。任何一条过不了，就说明那个改动是"加内容"而不是"加深度"。</p>
+
+  <table>
+    <tr><th style="width:36px" class="num">#</th><th style="width:210px">原则</th><th>检验方式</th></tr>
+    <tr>
+      <td class="num">1</td>
+      <td><b>每个格子都要让玩家犹豫 2 秒</b></td>
+      <td>布防时如果玩家"看到空格就填"，说明建筑之间的取舍不成立。验收标准：5 种建筑两两之间都能说出"什么时候选它不选另一个"</td>
+    </tr>
+    <tr>
+      <td class="num">2</td>
+      <td><b>每张卡都要改变决策，不是改数字</b></td>
+      <td>数值卡不超过卡池的 40%。剩下 60% 必须是"改变行为"的卡（溅射、穿透、连锁、反伤、自动修理）</td>
+    </tr>
+    <tr>
+      <td class="num">3</td>
+      <td><b>破坏性信息必须提前给</b></td>
+      <td>任何会导致"这一晚必输"的信息（Boss 出现、某道怪特别多），必须能在黄昏阶段看到</td>
+    </tr>
+    <tr>
+      <td class="num">4</td>
+      <td><b>每次命中都要有声音</b></td>
+      <td>逐个事件过一遍：箭塔射击、箭矢命中、篝火烧、怪撕咬、建筑倒塌、车受击、拾取、升级——没有对应音效的就是漏项</td>
+    </tr>
+    <tr>
+      <td class="num">5</td>
+      <td><b>失败必须能复盘</b></td>
+      <td>结算页要能回答："死在哪条道、第几波、因为什么"</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ========== 04 ========== -->
+<section id="s04">
+  <h2><span class="n">04</span>六个系统的加深方案</h2>
+
+  <!-- S5 表现层 -->
+  <h3>S5 · 表现层：12 个音效 + 4 种打击反馈 <span class="tag t-p0">P0</span> <span class="tag t-ok">性价比最高</span></h3>
+
+  <p>先说这个的原因：它是唯一一项<b>不改玩法数值、却能立刻改变体感</b>的工作，而且全部可以用代码合成，零素材。</p>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">音效清单（全部 WebAudio 现场合成）</h4>
+  <table>
+    <tr><th style="width:120px">事件</th><th style="width:150px">音色设计</th><th>合成方式</th></tr>
+    <tr><td>箭塔射击</td><td>短促的"绷"</td><td>三角波 660→440Hz，衰减 80ms</td></tr>
+    <tr><td>箭矢命中</td><td>闷响</td><td>白噪声 + 低通 800Hz，60ms</td></tr>
+    <tr><td>篝火燃烧</td><td>持续低频噼啪</td><td>循环噪声 + 随机脉冲，音量随光照强度</td></tr>
+    <tr><td>怪物撕咬建筑</td><td>金属刮擦</td><td>噪声 + 高通 2kHz + 快速颤音</td></tr>
+    <tr><td>怪物死亡</td><td>下滑的"咽气"</td><td>锯齿波 220→80Hz，120ms</td></tr>
+    <tr><td>绿色怪落地爆炸</td><td>低沉轰</td><td>正弦 60Hz + 噪声爆，200ms</td></tr>
+    <tr><td>拾取战利品</td><td>上扬双音</td><td>两个正弦 880→1320Hz，间隔 60ms</td></tr>
+    <tr><td>建筑落成</td><td>沉重撞击 + 尘土</td><td>正弦 90Hz 主音 + 长噪声尾</td></tr>
+    <tr><td>建筑倒塌</td><td>碎裂</td><td>噪声 + 下行滤波扫频</td></tr>
+    <tr><td>车辆受击</td><td>金属撞击</td><td>方波 180Hz + 噪声，带 30ms 抖动</td></tr>
+    <tr><td>夜晚降临</td><td>下行长音（仪式感）</td><td>锯齿波 400→100Hz，1.2s</td></tr>
+    <tr><td>胜利 / 失败</td><td>三和弦</td><td>大调 / 小调三个正弦叠加</td></tr>
+  </table>
+  <p class="small">合计 12 个，代码约 260 行，体积 0 KB。音量统一走一个 master gain，设置里可关。</p>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">四种打击反馈</h4>
+  <table>
+    <tr><th style="width:130px">手段</th><th>做法</th><th>用在哪</th></tr>
+    <tr><td><b>命中停顿</b></td><td>命中瞬间全局 dt × 0.15，持续 40~60ms（不影响计时器）</td><td>箭塔击杀、油桶爆炸</td></tr>
+    <tr><td><b>屏幕震动</b></td><td>三级：轻（车受击 2px）/ 中（建筑倒塌 5px）/ 重（Boss 落地 9px + 0.3s）</td><td>分级触发，避免"什么都震"</td></tr>
+    <tr><td><b>飘字分级</b></td><td>小伤害灰色 10px、大伤害白色 14px、暴击/爆炸金色 18px 带缩放弹入</td><td>现在只有战利品飘字，伤害完全不显示</td></tr>
+    <tr><td><b>受击闪白</b></td><td>怪物受击 80ms 内绘制为纯白剪影</td><td>让"打中了"这件事不可否认</td></tr>
+  </table>
+
+  <div class="warnbox">
+    <p><b>注意：</b>飘字和粒子都会增加 draw call。按微信官方建议，飘字按目标合并（同一只怪 100ms 内的多次伤害合并成一个数字），粒子用对象池，同屏上限 60 个。低端机自动降级（关粒子、关震屏）。</p>
+  </div>
+
+  <!-- S4 情报 -->
+  <h3>S4 · 情报系统：让布防从"例行公事"变成"解题" <span class="tag t-p0">P0</span></h3>
+
+  <p>这是改动最小、体验提升最直接的一项。目前玩家布防时是盲的，只能五路铺满；有了预告，布防变成"读题 → 分配资源"。</p>
+
+  <div class="flow">
+    <div class="step day1"><b>黄昏开场 1s</b><span>顶栏滑入"今夜情报"卡片</span></div>
+    <div class="arrow">→</div>
+    <div class="step day1"><b>显示 3 项</b><span>波数 / 总只数 / 车道热力条</span></div>
+    <div class="arrow">→</div>
+    <div class="step day1"><b>特殊标记</b><span>Boss 图标 + 出现波次</span></div>
+    <div class="arrow">→</div>
+    <div class="step night"><b>夜间实时</b><span>波次进度条分 3 段</span></div>
+  </div>
+
+  <table>
+    <tr><th style="width:140px">元素</th><th>内容</th><th>设计要点</th></tr>
+    <tr>
+      <td>车道热力条</td>
+      <td>屏幕下方 5 条竖条，颜色深浅 = 该车道怪量占比，异常高的道闪红</td>
+      <td>这是核心。玩家看一眼就知道"这晚 3、4 道压力大，篝火往那放"</td>
+    </tr>
+    <tr>
+      <td>波次进度条</td>
+      <td>顶部分 3 段，当前段填充，每段起点显示该波只数</td>
+      <td>给"还要撑多久"的预期，比倒计时更有张力</td>
+    </tr>
+    <tr>
+      <td>威胁图标</td>
+      <td>本夜出现的特殊怪：瞬移 / 投掷 / 远程，各一个图标 + 数量</td>
+      <td>对应 PvZ 的"这关有哪些僵尸"</td>
+    </tr>
+    <tr>
+      <td>Boss 预警</td>
+      <td>Boss 夜提前一天在行进阶段就提示"明晚有大家伙"</td>
+      <td>给玩家一整天的准备时间，这是"计划感"的来源</td>
+    </tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>副作用（好的）：</b>有了情报，玩家会开始"针对性布防"，同一套资源在不同夜晚的最优解不一样。这等于<b>凭空把布防的策略深度翻了一倍，且不需要新增任何一种建筑</b>。</p>
+  </div>
+
+  <!-- S2 构筑 -->
+  <h3>S2 · 构筑系统：从 3 张固定卡到 20 张随机卡 + 4 条进化 <span class="tag t-p0">P0</span> <span class="tag t-ok">决定重玩价值</span></h3>
+
+  <p>这一项是"肉鸽"和"线性养成"的分界线。现在的固定 3 卡意味着：<b>每一局的成长路径完全一样</b>，玩三局就没新鲜感了。</p>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">卡池结构（20 张）</h4>
+  <table>
+    <tr><th style="width:96px">类别</th><th class="num" style="width:56px">数量</th><th>示例</th><th style="width:150px">作用</th></tr>
+    <tr>
+      <td><b>数值卡</b></td><td class="num">8</td>
+      <td>箭塔伤害 +20%、篝火伤害 +25%、建筑血量 +20%、木头产出 +15%、搜刮速度 +30%、车速 +1、车耐久 +20、初始能量 +20</td>
+      <td>保底，保证每次升级都有正反馈</td>
+    </tr>
+    <tr>
+      <td><b>机制卡</b></td><td class="num">8</td>
+      <td>箭矢溅射（命中溅射相邻格 50%）、穿透（可穿 2 只）、篝火范围 +1、路障反伤（被咬反弹 12）、油桶连锁（爆炸引爆相邻油桶）、寒霜光环（3 格内怪移速 -25%）、夜间自修（每 5s 修全场 3 血）、白昼多一球（每天 +1 个悬浮球）</td>
+      <td><b>改变行为</b>，这是 build 的乐趣来源</td>
+    </tr>
+    <tr>
+      <td><b>进化卡</b></td><td class="num">4</td>
+      <td>烽火台（篝火Lv3 + 箭塔Lv3）、铁丝网（路障 + 油桶）、瞭望塔（箭塔 + 信号塔）、熔炉（篝火 + 发电机）</td>
+      <td>A+B→C，制造"Aha 时刻"</td>
+    </tr>
+  </table>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">三选一算法（四条规则）</h4>
+  <ol>
+    <li><b>1+2 规则</b>：3 个选项最多含 2 个类别（参考《无限轮回》）。避免"三张全是数值卡"的平淡，也避免"三张完全不同系统"的困惑。</li>
+    <li><b>首刷保证</b>：每局第 1 次升级必给 1 张机制卡。让玩家在前 3 分钟内就感受到"这局和上局不一样"。</li>
+    <li><b>软锁</b>：某系卡已拿 2 张，该系权重 ×1.6；拿了火系则水系权重 ×0.5。让算法像"懂你的发牌员"。</li>
+    <li><b>死胡同检测</b>：连续 3 次没拿到输出类卡 → 强制刷 1 张。防止"一手好牌打不出来"。</li>
+  </ol>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">四条进化线</h4>
+  <table>
+    <tr><th style="width:120px">进化</th><th style="width:150px">前置</th><th>效果</th><th>为什么这样设计</th></tr>
+    <tr><td><b>烽火台</b></td><td>篝火 Lv3 + 箭塔 Lv3</td><td>光照范围内所有箭塔攻速 +40%，篝火伤害 +50%</td><td>把"近战清怪"和"远程点杀"变成乘法关系，而不是各管各的</td></tr>
+    <tr><td><b>铁丝网</b></td><td>路障 + 油桶</td><td>路障被摧毁时原地爆炸（80 伤害），形成连锁</td><td>让"炮灰"有第二次价值，鼓励前置布防</td></tr>
+    <tr><td><b>瞭望塔</b></td><td>箭塔 + 信号塔</td><td>射程 +2 格，且可攻击被信号塔标记的目标（+100% 伤害）</td><td>远程打击的"点名"玩法</td></tr>
+    <tr><td><b>熔炉</b></td><td>篝火 + 发电机</td><td>发电机不再有"被毁则全场减速"的惩罚，且篝火可为相邻建筑供能</td><td>把风险建筑变成安全建筑，给"全经济流"一条出路</td></tr>
+  </table>
+
+  <!-- S1 建筑 -->
+  <h3>S1 · 建筑体系：2 → 5 种，每种都有"第二职能" <span class="tag t-p1">P1</span></h3>
+
+  <p>核心设计来自 Thronefall 的「单位即经济」：<b>每个建筑都要有两种身份，一种显性（战斗），一种隐性（影响别的建筑或经济）</b>。这样"这一格建什么"才值得犹豫。</p>
+
+  <table>
+    <tr><th style="width:86px">建筑</th><th class="num" style="width:52px">木</th><th class="num" style="width:52px">血</th><th>显性职能</th><th>隐性职能（关键）</th></tr>
+    <tr>
+      <td><b>篝火</b><br><span class="small">已有</span></td><td class="num">10</td><td class="num">180</td>
+      <td>十字 5 格光照，18/s 灼烧 + 减速 45%</td>
+      <td>相邻箭塔射程 +0.8 格（火光引导瞄准）</td>
+    </tr>
+    <tr>
+      <td><b>箭塔</b><br><span class="small">已有</span></td><td class="num">25</td><td class="num">140</td>
+      <td>射程 4.2 格，14 伤害 / 1s</td>
+      <td>击杀 +1 木（自给自足，越打越富）</td>
+    </tr>
+    <tr>
+      <td><b>路障</b><br><span class="small">新增</span></td><td class="num">6</td><td class="num">240</td>
+      <td>纯阻挡，不造成伤害，但血厚</td>
+      <td>阻挡期间，身后一格内的建筑受到伤害 -30%</td>
+    </tr>
+    <tr>
+      <td><b>油桶</b><br><span class="small">新增</span></td><td class="num">12</td><td class="num">60</td>
+      <td>一次性：3 格内 120 伤害 + 点燃</td>
+      <td>会被自己人打爆（箭矢误伤也算），是双刃剑</td>
+    </tr>
+    <tr>
+      <td><b>信号塔</b><br><span class="small">新增</span></td><td class="num">35</td><td class="num">100</td>
+      <td>每 8s 使 3 格内 1 只怪转向相邻车道</td>
+      <td>被标记的目标受到箭塔伤害 +50%</td>
+    </tr>
+  </table>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">升级分支：Lv3 时二选一</h4>
+  <p>解决"升级只是数值 +20%"的平淡。Lv3 不是更强，是<b>变成另一个东西</b>：</p>
+  <table>
+    <tr><th style="width:110px">建筑</th><th>分支 A</th><th>分支 B</th></tr>
+    <tr><td>篝火 →</td><td><b>烽火</b>：范围 +1 格，伤害 18→26（更凶但更集中）</td><td><b>灯塔</b>：范围 +2 格，伤害归零（纯视野 + 减速，配合箭塔）</td></tr>
+    <tr><td>箭塔 →</td><td><b>连射塔</b>：冷却 1.0→0.45s，伤害 14→9（打密度）</td><td><b>狙击塔</b>：冷却 1.0→1.8s，伤害 14→48，穿透 2 只（打精英）</td></tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>为什么是 5 种而不是 12 种：</b>5 种建筑两两组合是 10 组，加上 2 条升级分支 × 3 种可升级建筑，实际决策空间是 30+ 种布局。而 12 种建筑会让 45 个格子的界面变成选择过载——PvZ 有 48 种植物，但它一关只让你带 6~8 种。我们的等价物是"每局可选建筑随机 3 种"，见下。</p>
+  </div>
+
+  <!-- S3 节奏 -->
+  <h3>S3 · 节奏系统：100 天直线 → 5 章 × 波峰 × 事件 <span class="tag t-p1">P1</span></h3>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">五章结构</h4>
+  <table>
+    <tr><th style="width:52px" class="num">章</th><th style="width:66px">天</th><th>新机制</th><th>新怪</th><th style="width:150px">Boss 夜</th></tr>
+    <tr><td class="num">1</td><td>1–20</td><td>基础（现状）</td><td>僵尸 / 骷髅弓手 / 史莱姆</td><td>第 10 夜：<b>巨尸</b>（高血，专撞建筑）</td></tr>
+    <tr><td class="num">2</td><td>21–40</td><td>夜晚 30→36s</td><td>黑影（瞬移越过建筑）</td><td>第 30 夜：<b>影主</b>（死亡分裂 2 只小影）</td></tr>
+    <tr><td class="num">3</td><td>41–60</td><td>酸雨：篝火伤害 -40%（迫使换打法）</td><td>酸液怪（远程喷吐，腐蚀建筑）</td><td>第 50 夜：<b>酸母</b>（远程压制）</td></tr>
+    <tr><td class="num">4</td><td>61–80</td><td>油耗翻倍：能量消耗 ×2（经济收紧）</td><td>飞行怪（无视路障，直扑后排）</td><td>第 70 夜：<b>翼王</b>（空袭）</td></tr>
+    <tr><td class="num">5</td><td>81–100</td><td>所有怪 +1 随机词条</td><td>混合编队（无单一解法）</td><td>第 100 夜：<b>救援中心守卫战</b>（终局）</td></tr>
+  </table>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">波峰：血月夜</h4>
+  <p>每 5 天一次（第 5/10/15…夜），三件事同时发生：怪量 ×1.5、木产出 ×2、屏幕色调偏红。目的很单纯：<b>制造记忆点</b>。玩家事后回忆一整局，记住的是"第 30 天那个血月我差点崩了"，而不是"我活了 67 天"。</p>
+
+  <h4 style="font-size:13.5px;margin:16px 0 6px">随机事件：每 3~5 天一次，黄昏时 3 选 1</h4>
+  <p>这是"公路感"的来源（Organ Trail 的核心乐趣）。事件不是纯随机，每个都有明确的取舍：</p>
+  <table>
+    <tr><th style="width:130px">事件</th><th>选项 A</th><th>选项 B</th><th>选项 C</th></tr>
+    <tr><td>废弃加油站</td><td>+30 木</td><td>+1 油桶（下夜免费建）</td><td>跳过，保留能量</td></tr>
+    <tr><td>幸存者求助</td><td>花 20 木 → 1 张升级卡</td><td>拒绝（无消耗）</td><td>—</td></tr>
+    <tr><td>暴雨</td><td>照常行进（视野 -30%，怪血 -30%）</td><td>停下扎营（跳过行进，直接布防）</td><td>—</td></tr>
+    <tr><td>车祸现场</td><td>立刻获得 2 个随机建筑</td><td>拆零件：车耐久 +40</td><td>—</td></tr>
+    <tr><td>废弃电台</td><td>听到救援中心位置：里程 +20</td><td>拆电池：能量 +30</td><td>—</td></tr>
+    <tr><td>可疑的商人</td><td>花 40 木抽 1 张随机进化卡</td><td>花 10 木买情报（下夜车道热力精确显示）</td><td>离开</td></tr>
+  </table>
+  <p class="small">合计 12 个事件（表中 6 个为示例）。每个事件的后果写死，不掷骰子——这是我们对 Organ Trail 教训的回应。</p>
+
+  <!-- S6 局外 -->
+  <h3>S6 · 局外系统：让第 2 局不一样 <span class="tag t-p2">P2</span></h3>
+
+  <p>放 P2 的理由：局外 meta 是<b>留住已经喜欢这个游戏的人</b>，不是<b>让人喜欢这个游戏</b>。在 S1~S5 没做完之前做这个，是给一个不好玩的游戏加成长线，没有意义。</p>
+
+  <table>
+    <tr><th style="width:130px">模块</th><th>内容</th><th>工作量</th></tr>
+    <tr><td>记忆碎片</td><td>每局按存活天数给碎片，解锁永久小加成（初始木 +10、车耐久 +10、每天多 1 木）。<b>可重置</b>，允许重新分配（学吸血鬼幸存者）</td><td>小</td></tr>
+    <tr><td>图鉴</td><td>怪物 / 建筑 / 事件的收集进度，未解锁显示剪影</td><td>中</td></tr>
+    <tr><td>难度阶梯</td><td>普通（现状）/ 噩梦（怪 +30%、木 -20%）/ 无尽（不设 100 天上限）</td><td>小</td></tr>
+    <tr><td>排行榜</td><td>微信开放数据域，好友间比存活天数</td><td>中，需真机调试</td></tr>
+  </table>
+</section>
+
+<!-- ========== 05 ========== -->
+<section id="s05">
+  <h2><span class="n">05</span>优先级与分批交付</h2>
+
+  <p class="lead">按"做完之后体感变化 ÷ 工作量"排序。每一批都能独立试玩、独立验收，不必等全部完成。</p>
+
+  <table>
+    <tr><th style="width:56px">批次</th><th style="width:200px">内容</th><th>为什么是这个顺序</th><th class="num" style="width:88px">新增代码</th><th style="width:120px">验收标准</th></tr>
+    <tr>
+      <td><span class="tag t-p0">第 1 批</span></td>
+      <td><b>S5 表现层</b><br>12 音效 + 4 种打击反馈</td>
+      <td>不改任何数值，纯加体感。做完立刻"像成品"</td>
+      <td class="num">+320 行<br>新文件 audio.js</td>
+      <td>关掉声音再打开，能明显感到差异</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p0">第 2 批</span></td>
+      <td><b>S4 情报</b><br>车道热力 / 波次条 / 威胁图标</td>
+      <td>不新增建筑，凭空让布防策略翻倍</td>
+      <td class="num">+420 行</td>
+      <td>布防时能指着屏幕说"这晚 3、4 道压力大"</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p0">第 3 批</span></td>
+      <td><b>S2 构筑</b><br>20 卡池 + 1+2 算法 + 4 进化</td>
+      <td>决定重玩价值。做完后每局开局都不同</td>
+      <td class="num">+700 行<br>新文件 cards.js</td>
+      <td>连续跑 5 局，5 次的卡组都不一样</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p1">第 4 批</span></td>
+      <td><b>S1 建筑</b><br>3 新建筑 + 2 条升级分支</td>
+      <td>配合已做完的情报，才有"针对性布防"的落点</td>
+      <td class="num">+900 行</td>
+      <td>5 种建筑两两都能说出取舍理由</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p1">第 5 批</span></td>
+      <td><b>S3 节奏</b><br>5 章 / 5 Boss / 血月 / 12 事件</td>
+      <td>内容骨架的最后一块，最耗工作量，放最后</td>
+      <td class="num">+1200 行<br>新文件 events.js</td>
+      <td>第 1 天和第 40 天玩起来不一样</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p2">第 6 批</span></td>
+      <td><b>S6 局外</b><br>碎片 / 图鉴 / 难度 / 排行</td>
+      <td>有留存价值，但依赖前面全部做完</td>
+      <td class="num">+900 行</td>
+      <td>关掉游戏再开，进度还在</td>
+    </tr>
+  </table>
+
+  <div class="askbox">
+    <p><b>关于分批：</b>第 1~3 批（P0）是"止血"，做完这三批你会得到一个手感完整、每晚有题可解、每局开局不同的游戏——<b>这是路线 A</b>。第 4~5 批补足内容量（路线 B）。第 6 批做长线（路线 C）。</p>
+    <p>每批做完我都会：跑回归测试 → 出场景截图 → 更新设计文档 → 给你可玩的预览页。你随时可以在任意一批之后喊停或改方向。</p>
+  </div>
+
+  <h3>回归测试要跟着扩</h3>
+  <p>现有 78 项断言里，"白天行进""15s 预算""图纸三选一"三组会受第 3 批影响需要重写。另外新增四组：</p>
+  <table>
+    <tr><th style="width:150px">新增测试组</th><th>断言点</th><th class="num">约</th></tr>
+    <tr><td>卡池随机性</td><td>1+2 规则成立、首刷必出机制卡、软锁权重生效、死胡同强制补救</td><td class="num">12 项</td></tr>
+    <tr><td>情报准确性</td><td>预告的车道分布与实际刷怪一致（误差 0）、Boss 夜标记正确</td><td class="num">8 项</td></tr>
+    <tr><td>建筑第二职能</td><td>篝火加持射程、路障减伤、信号塔标记增伤、油桶自伤</td><td class="num">10 项</td></tr>
+    <tr><td>节奏系统</td><td>血月倍率、章节切换、事件不重复、Boss 只出现一次</td><td class="num">10 项</td></tr>
+  </table>
+  <p class="small">预计 78 → 约 118 项。所有测试仍是纯 Node 无头跑，不依赖浏览器。</p>
+</section>
+
+<!-- ========== 06 ========== -->
+<section id="s06">
+  <h2><span class="n">06</span>数值草案</h2>
+
+  <p class="lead">以下为初版数值，实装后会用平衡探针跑 100 天验证并迭代。所有数字都写进 <code>core.js</code> 顶部常量表，改一个地方就生效。</p>
+
+  <h3>新增建筑</h3>
+  <table>
+    <tr><th style="width:86px">建筑</th><th class="num">木</th><th class="num">血</th><th class="num">修复</th><th>伤害 / 效果</th><th class="num">冷却</th></tr>
+    <tr><td>路障</td><td class="num">6</td><td class="num">240</td><td class="num">2</td><td>无伤害，阻挡 1 格</td><td class="num">—</td></tr>
+    <tr><td>油桶</td><td class="num">12</td><td class="num">60</td><td class="num">—</td><td>3 格内 120 伤害 + 3s 点燃</td><td class="num">一次性</td></tr>
+    <tr><td>信号塔</td><td class="num">35</td><td class="num">100</td><td class="num">6</td><td>1 只怪转向 + 被标记增伤 50%</td><td class="num">8.0s</td></tr>
+  </table>
+
+  <h3>升级分支数值</h3>
+  <table>
+    <tr><th style="width:120px">建筑 / 分支</th><th class="num">伤害</th><th class="num">冷却</th><th class="num">范围</th><th>备注</th></tr>
+    <tr><td>篝火 Lv1→Lv3</td><td class="num">18 → 22</td><td class="num">持续</td><td class="num">十字 5 格</td><td>现有</td></tr>
+    <tr><td>　烽火（分支A）</td><td class="num">26</td><td class="num">持续</td><td class="num">十字 + 4 角 = 9 格</td><td>更凶更集中</td></tr>
+    <tr><td>　灯塔（分支B）</td><td class="num">0</td><td class="num">持续</td><td class="num">5×5 = 25 格</td><td>纯视野 + 减速 45%</td></tr>
+    <tr><td>箭塔 Lv1→Lv3</td><td class="num">14 → 18</td><td class="num">1.0s</td><td class="num">4.2 格</td><td>现有</td></tr>
+    <tr><td>　连射塔（分支A）</td><td class="num">9</td><td class="num">0.45s</td><td class="num">4.2 格</td><td>DPS 14→20，打密度</td></tr>
+    <tr><td>　狙击塔（分支B）</td><td class="num">48</td><td class="num">1.8s</td><td class="num">6.0 格</td><td>穿透 2 只，打精英</td></tr>
+  </table>
+
+  <h3>章节难度曲线</h3>
+  <table>
+    <tr><th class="num" style="width:52px">章</th><th class="num">怪血倍率</th><th class="num">同屏上限</th><th class="num">刷怪间隔</th><th class="num">夜长</th><th class="num">能量/户</th></tr>
+    <tr><td class="num">1</td><td class="num">1.00 → 1.57</td><td class="num">4 → 15</td><td class="num">9.2 → 6.8s</td><td class="num">30s</td><td class="num">1</td></tr>
+    <tr><td class="num">2</td><td class="num">1.57 → 2.14</td><td class="num">15 → 18</td><td class="num">6.8 → 5.4s</td><td class="num">36s</td><td class="num">1</td></tr>
+    <tr><td class="num">3</td><td class="num">2.14 → 2.71</td><td class="num">18</td><td class="num">5.4 → 4.4s</td><td class="num">36s</td><td class="num">1</td></tr>
+    <tr><td class="num">4</td><td class="num">2.71 → 3.28</td><td class="num">18</td><td class="num">4.4 → 4.0s</td><td class="num">36s</td><td class="num">2</td></tr>
+    <tr><td class="num">5</td><td class="num">3.28 → 3.85</td><td class="num">18</td><td class="num">4.0s</td><td class="num">36s</td><td class="num">2</td></tr>
+  </table>
+  <p class="small">血月夜（第 5/10/15…）：怪量 ×1.5、木产出 ×2、色调偏红。<br>Boss 夜：1 只 Boss + 常规怪 70%。</p>
+
+  <h3>经济再平衡（重要的连带影响）</h3>
+  <div class="warnbox">
+    <p>加了 3 种建筑和升级分支之后，木头消耗会显著上升。<b>但同时箭塔"击杀 +1 木"、路障便宜、事件送资源</b>，整体产出也会上升。这一块必须靠平衡探针重新跑，不能拍脑袋。</p>
+    <p>预期调整方向：初始木 80 → 60（因为可选建筑变多，前期必须做选择）；箭塔击杀 +1 木，使"防线越强越富"，形成正循环。</p>
+  </div>
+</section>
+
+<!-- ========== 07 ========== -->
+<section id="s07">
+  <h2><span class="n">07</span>待你确认的事</h2>
+
+  <p class="lead">四个问题，回答完我就可以开工。</p>
+
+  <table>
+    <tr><th style="width:36px" class="num">#</th><th style="width:210px">问题</th><th>选项</th><th style="width:150px">我的建议</th></tr>
+    <tr>
+      <td class="num">1</td>
+      <td><b>做哪一档？</b></td>
+      <td>A 止血（S5+S4+S2，手感成型但内容量不变）／ <b>B 推荐</b>（+S1+S3，内容量翻倍）／ C 长线（+S6 局外 meta）</td>
+      <td>B。而且分 5 批交付，随时可停</td>
+    </tr>
+    <tr>
+      <td class="num">2</td>
+      <td><b>建筑每局随机 3 选吗？</b></td>
+      <td>① 全部 5 种随时可建（简单，但每局都一样）／ ② 每局随机解锁 3 种，靠掉落解锁更多（每局不同，但可能缺关键建筑）</td>
+      <td>①。5 种不算多，随机反而容易"这局没法防"</td>
+    </tr>
+    <tr>
+      <td class="num">3</td>
+      <td><b>Boss 夜失败了怎么办？</b></td>
+      <td>① 直接结束（硬核）／ ② 扣一半耐久但过关（宽容）／ ③ 车耐久归零则救援中心派人来救，损失一半木头继续（叙事合理）</td>
+      <td>③。既保留紧张感，又不让 60 天的进度一次归零</td>
+    </tr>
+    <tr>
+      <td class="num">4</td>
+      <td><b>要不要做音效开关？</b></td>
+      <td>① 做，并且默认开（小游戏环境用户可能在地铁上）／ ② 做，默认关</td>
+      <td>①，但第一次进入时弹一次"建议戴耳机"</td>
+    </tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>如果你说"按建议"，我就按 1=B / 2=① / 3=③ / 4=① 开工，从第 1 批（表现层）开始。</b></p>
+    <p>第 1 批做完我会给你一个带声音的预览页，你听一下再决定要不要继续——这是最快能判断"方向对不对"的方式。</p>
+  </div>
+
+  <h3>顺便回答之前悬着的两个问题</h3>
+  <table>
+    <tr><th style="width:190px">之前的悬案</th><th>本次结论</th></tr>
+    <tr>
+      <td>难度选 (a) 保持 / (b) 调低怪血 / (c) 加木头出口</td>
+      <td><b>选 (c)，而且已经合进方案了。</b>探针显示玩家死时余 180+ 木，说明不是怪太强，是钱没地方花。S1 的升级分支 + S3 的事件消耗，就是给木头开出口</td>
+    </tr>
+    <tr>
+      <td>微信开发者工具真机验收</td>
+      <td>仍需你在那边跑一次。重点看：拖拽是否带动页面滚动、触摸坐标是否偏移、开放数据域（如果做 S6 排行榜）是否正常</td>
+    </tr>
+  </table>
+
+  <h3>调研方法与边界</h3>
+  <p class="small">本次共做 12 次检索（10 次成功、2 次因搜索服务报错失败），覆盖产品 9 款：Thronefall、植物大战僵尸、Kingdom Two Crowns、吸血鬼幸存者、向僵尸开炮、Organ Trail、无限轮回、冲突小队、明日之后；另含微信小游戏官方技术文档（包体限制、分包、性能）与 3 篇游戏设计方法论（关卡节奏、肉鸽词条、HUD 信息层级）。<br><br>未覆盖：海外小游戏榜单（如 AppLovin / Voodoo 的休闲塔防）、国内 H5 页游的塔防品类、以及《明日方舟》这类二次元塔防的关卡设计细节。如果后续需要，可以针对"塔防关卡布局"和"微信小游戏商业化"再各做一轮专项调研。</p>
+</section>
+
+<div class="small" style="text-align:center;margin-top:26px">
+  永夜微光 · v2.0 深化方案讨论稿 · 本文档不含代码改动 · 等确认后开工
+</div>
+
+</div>
+</body>
+</html>
