@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v2.2 卡池可行性与 18 张卡</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--askbg);color:var(--ask);font-size:12.5px;font-weight:600;border:1px solid #cfe9ee}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .t-p2{background:var(--p2bg);color:var(--p2)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c9d0e0;color:var(--ink)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  .c-lv{color:var(--ink3);font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 卡池可行性复核 · v2.2</div>
+<h1>18 张卡：先算清地基，再谈构筑</h1>
+<p class="sub">你选了「全矢量 + 我先出 18 张卡参考」。我没有直接写卡表，而是先用现有引擎跑了三组实测——
+因为卡的效果必须挂在真实的战斗数值上，否则写出来的是一张漂亮但不生效的纸。结果有三个发现和我的原判断相反。</p>
+<div class="status">状态：待你确认 · 未动 core.js 一行</div>
+
+<div class="toc">
+  <a href="#s01">01 实测数据</a>
+  <a href="#s02">02 三个反直觉发现</a>
+  <a href="#s03">03 前置修正</a>
+  <a href="#s04">04 18 张卡</a>
+  <a href="#s05">05 抽卡预算</a>
+  <a href="#s06">06 工作量</a>
+  <a href="#s07">07 待你确认</a>
+</div>
+
+<!-- ========== 00 ========== -->
+<section id="s00">
+  <h2><span class="n">00</span>一页结论</h2>
+
+  <div class="kpi">
+    <div class="k"><b>30s</b><span>一晚实测时长，怪 8~10 只</span></div>
+    <div class="k"><b>27~41</b><span>一局实际能抽到的卡（不是 55）</span></div>
+    <div class="k"><b>62 层</b><span>18 张卡的总层数（够抽，不会拿满）</span></div>
+    <div class="k"><b>8 / 18</b><span>不改地基会失效或变弱的卡</span></div>
+  </div>
+
+  <p class="lead">三句话：</p>
+  <p><b>1. 卡池设计本身没问题。</b>18 张、62 层、抽 27~41 次，填充率 44%~66%——永远有取舍，又不会半吊子。这个配比是对的，可以直接用。</p>
+  <p><b>2. 但地基有三处漏。</b>篝火是负资产（摆了比不摆更亏）、木头长期溢出（攒到 400 上限）、塔的等级几乎不影响结果（Lv1 和 Lv5 实测一模一样）。这三处不改，18 张卡里有 8 张是装饰品。</p>
+  <p><b>3. 所以顺序要反过来。</b>先花半天修这三处数值（约 120 行），再上 18 张卡。否则你会得到"卡装了但感觉不到"的结果，而且很难定位是哪一层出的问题。</p>
+
+  <div class="ask">
+    <b>为什么值得先做这一步：</b>修完之后，你自己玩一局，会立刻感觉到"摆篝火不再是自杀"。这个感觉是判断卡有没有生效的前提——现在连基准都说不清，装了卡也不知道是卡的功劳还是数值的功劳。
+  </div>
+</section>
+
+<!-- ========== 01 ========== -->
+<section id="s01">
+  <h2><span class="n">01</span>实测数据：这一节是新东西</h2>
+
+  <p class="lead">我写了一个独立分析脚本 <code>tools/card_feasibility.js</code>，直接驱动现有的 <code>core.js</code>（一行没改），模拟真实玩家的白天搜刮 → 黄昏布防 → 夜晚防守。下面每个数字都是跑出来的，不是估的。</p>
+
+  <h3>1.1 一晚（30 秒）不同布局的结果</h3>
+  <table>
+    <tr><th>布局（day 60，木无限）</th><th class="num">建成</th><th class="num">夜里幸存</th><th class="num">击杀</th><th class="num">漏怪</th><th class="num">车损</th></tr>
+    <tr><td>基线：10 篝火（r2/r5）+ 5 箭塔（r7）</td><td class="num">15</td><td class="num" style="color:var(--p0)">0</td><td class="num">6</td><td class="num">5</td><td class="num">70</td></tr>
+    <tr><td>篝火铺满 r1~r6（30 座）</td><td class="num">30</td><td class="num" style="color:var(--p0)">0</td><td class="num">4</td><td class="num">2</td><td class="num">28</td></tr>
+    <tr><td>篝火 r1~r6 + 箭塔 r8（35 座）</td><td class="num">35</td><td class="num" style="color:var(--p0)">0</td><td class="num">6</td><td class="num">5</td><td class="num">105</td></tr>
+    <tr><td><b>纯箭塔 r3~r7（25 座）Lv1</b></td><td class="num">25</td><td class="num" style="color:var(--p0)">0</td><td class="num">7</td><td class="num" style="color:var(--ok)">1</td><td class="num" style="color:var(--ok)">14</td></tr>
+    <tr><td>纯箭塔 25 座 · <b>塔 Lv5</b></td><td class="num">25</td><td class="num" style="color:var(--p0)">0</td><td class="num">7</td><td class="num" style="color:var(--ok)">1</td><td class="num" style="color:var(--ok)">14</td></tr>
+  </table>
+  <p class="small">「夜里幸存」全是 0 不是 bug：建筑血 140~180，怪每秒打 34，30 秒内全被拆光是常态。真正影响结果的是「漏怪」和「车损」。</p>
+
+  <h3>1.2 同一份配置，day 30 / 60 / 90 三段</h3>
+  <table>
+    <tr><th>布局</th><th class="num">day 30 漏 / 车损</th><th class="num">day 60 漏 / 车损</th><th class="num">day 90 漏 / 车损</th></tr>
+    <tr><td>基线 15 座</td><td class="num">5 / 70</td><td class="num">5 / 70</td><td class="num" style="color:var(--p0)">6 / 120</td></tr>
+    <tr><td>纯塔 25 座</td><td class="num" style="color:var(--ok)">1 / 14</td><td class="num" style="color:var(--ok)">1 / 14</td><td class="num" style="color:var(--ok)">1 / 14</td></tr>
+  </table>
+  <p>纯塔在 day 90 依然是漏 1、车损 14。也就是说 <b>只要格子够、木头够，难度曲线到第 90 天都不会上升</b>——因为怪物血量没有随时间成长（<code>SPAWN_TABLE</code> 最后一档停在 day 17），涨的只有「打车伤害」<code>8 × (1+(day-1)×0.035)</code>。这个后面第 03 节会说。</p>
+
+  <h3>1.3 100 天全流程：抽卡与木头</h3>
+  <table>
+    <tr><th>玩法</th><th class="num">存活天数</th><th class="num">搜索次数</th><th class="num">抽卡</th><th class="num">木收入合计</th><th>死因</th></tr>
+    <tr><td>全追 8 球（极限操作）</td><td class="num">51</td><td class="num">408</td><td class="num">36</td><td class="num">11023</td><td>耐久归零</td></tr>
+    <tr><td>追 7 球（认真玩）</td><td class="num">42</td><td class="num">336</td><td class="num">44</td><td class="num">8616</td><td>耐久归零</td></tr>
+    <tr><td>追 5 球（普通玩家）</td><td class="num">51</td><td class="num">408</td><td class="num">36</td><td class="num">11122</td><td>耐久归零</td></tr>
+    <tr><td>纯塔 9 座/天（225 木）</td><td class="num" style="color:var(--p0)">28</td><td class="num">224</td><td class="num">19</td><td class="num">—</td><td>木头跟不上</td></tr>
+    <tr><td>混建 15 座/天（175 木）</td><td class="num">34</td><td class="num">272</td><td class="num">32</td><td class="num">—</td><td>防线被拆穿</td></tr>
+  </table>
+
+  <div class="note">
+    <b>两个数字要记住：</b>图纸掉率实测 <b>每 8~11 次搜索出 1 张</b>（8.8%~13.1%），一局 34~51 天 → <b>27~41 次抽卡</b>。<br>
+    这和 v2.1 里写的「全程约 55 次」差了一半。不是算错，是 v2.1 按「能活满 100 天」推的，而实际对局在第 34~51 天就结束了。
+  </div>
+</section>
+<!-- ========== 02 ========== -->
+<section id="s02">
+  <h2><span class="n">02</span>三个反直觉的发现</h2>
+
+  <h3>2.1 篝火是负资产——摆了比不摆更亏</h3>
+  <p>同样是花木，10 篝火 + 5 塔漏 5 只、车损 70；换成 25 座纯箭塔漏 1 只、车损 14。篝火不是「弱一点」，是<b>把防线拖垮了</b>。</p>
+  <p>原因在机制里：篝火是十字 5 格的近身范围，怪必须走进来才烧得到；而怪走进来之后第一件事就是咬它（<code>bdmg 34 × 0.9</code>，每秒约 31）。篝火 180 血，三只怪围上来不到 2 秒就被拆。拆完之后那一格的火光、减速、灼烧全部消失，怪长驱直入，篝火等于是给对面送了一个「拆掉你就破防」的支点。</p>
+  <p>箭塔反过来：射程 4.2 格，怪还在 4 格外就被点名，根本走不到塔面前。所以箭塔几乎不掉血，能一直输出。</p>
+
+  <div class="note">
+    <b>这解释了为什么你的游戏「越玩越崩」：</b>前期木头少，只能摆 10 木的篝火（便宜、看起来性价比高），实际是在给怪送支点。等到发现不对，已经三四天没攒下钱铺塔了。<br>
+    <b>这是设计陷阱，不是玩家菜。</b>
+  </div>
+
+  <h3>2.2 塔的等级几乎不影响结果——Lv1 到 Lv5 实测一字不差</h3>
+  <p>25 座塔，Lv1 和 Lv5（伤害 +80%）在 day 30 / 60 / 90 三段跑出来<b>漏怪都是 1、车损都是 14</b>。原因是饱和：塔的数量够多时，怪在射程边缘就被打完了，再高的伤害只是「更快打死同一批怪」，不改变「有没有怪能活着走到车」。</p>
+  <p>顺带把塔数也测了：3 座漏 1 车损 120、5 座漏 3 车损 42、7 座漏 3 车损 42、9 座漏 3 车损 42。同样是饱和曲线——<b>过了 5 座，再加塔的边际就趋近于零</b>，除非同时解决「哪条道空了」这个问题（这就是路障要干的事）。</p>
+
+  <div class="good">
+    <b>对卡池的直接含义：</b>「箭塔伤害 +15%/层 × 5 层」这种卡，在我原来的卡表里排第一，实测下来是最没用的一张。真正有用的是<b>覆盖类</b>效果——多重箭（一塔打多只）、穿透（一箭穿多只）、连弩（同样时间内更多次）——它们等价于「凭空多出几座塔」，绕开了格子限制。
+  </div>
+
+  <h3>2.3 木头长期溢出，攒到 400 上限</h3>
+  <p>实测 51 天搜刮收入 <b>11023 木</b>，平均每天 216 木，而 <code>S.wood</code> 上限是 400。一天的标准开支是 175 木（10 篝火 + 5 塔），净结余 +41/天，很快就贴顶。后面的收入全部浪费。</p>
+  <p>后果是：<b>任何「木头收益 +12%」的卡都是废卡</b>。v2.1 里有一张「精打细算」，必须砍掉。同理，「图纸掉率」也要小心——它是唯一能把多余木头转化成战力的桥梁，但它同时会加速抽卡（滚雪球）。</p>
+
+  <div class="hline"></div>
+
+  <h3>2.4 还有一个我没料到的问题：难度在第 17 天就停止成长了</h3>
+  <p><code>SPAWN_TABLE</code> 的最后一档是 <code>d: 17</code>，之后再没有新的怪种。也就是说<b>第 18 天和第 100 天的怪，血量和数量完全一样</b>，唯一的变化是打车伤害从 8 涨到 35.7。这直接导致：一旦你铺好 25 座塔，剩下的 80 多天是重复劳动。</p>
+  <p>这不是卡池能解决的，是章节化（Boss 夜、血月）要解决的问题。但它决定了<b>卡池该多深</b>：如果第 18 天之后没有新压力，第 40 层卡拿不拿其实感觉不到。所以层数不能太多——62 层是上限，再多就是自我安慰。</p>
+</section>
+
+<!-- ========== 03 ========== -->
+<section id="s03">
+  <h2><span class="n">03</span>前置修正：三处，约 120 行</h2>
+
+  <p class="lead">这四处不改，18 张卡里有 8 张会明显失效或变弱。改动很小（约 120 行），但必须先做、先验收。</p>
+
+  <h3>3.0 先说清楚是哪 8 张</h3>
+  <table>
+    <tr><th style="width:16%">受影响</th><th style="width:30%">卡</th><th>为什么</th></tr>
+    <tr>
+      <td><span class="tag t-warn">直接失效</span><br><span class="small">4 张</span></td>
+      <td>助燃 / 扩光 / 余烬<br>深搜</td>
+      <td>火线三张全都建立在「篝火值得摆」上，而实测篝火是负资产；深搜放大的是战利品，而木头已经溢出到 400 上限，多给的木装不进背包</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-ask">明显变弱</span><br><span class="small">4 张</span></td>
+      <td>增幅 / 广域<br>冲撞 / 图纸嗅觉</td>
+      <td>增幅和广域服务于信号塔，而信号塔的价值取决于塔是否饱和——塔已饱和时标记收益接近零；冲撞只在白天有用，但白天没有怪；图纸嗅觉放大的也是「已经过多的东西」</td>
+    </tr>
+  </table>
+  <p class="small">剩下的 10 张（加固、尖刺、铁壁、装药、连锁、连弩、多重箭、穿透、钢板、车灯）在现有数值下就能生效，因为它们的价值来自「绕开格子限制」和「延长存活」，不依赖上面这些前提。</p>
+
+  <table>
+    <tr><th style="width:6%">#</th><th style="width:20%">改什么</th><th style="width:26%">现在</th><th style="width:26%">改成</th><th>为什么</th></tr>
+    <tr>
+      <td><span class="tag t-p0">必改</span></td>
+      <td><b>篝火不再吸引火力</b></td>
+      <td>怪走到哪咬哪，篝火挡路就被优先拆</td>
+      <td>篝火<b>不进入仇恨列表</b>：怪只咬路障和车，篝火只在「无路可走」时才被咬</td>
+      <td>让篝火从「支点」变成「陷阱区」。这一条改完，火线 3 张卡立刻成立</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p0">必改</span></td>
+      <td><b>篝火强度上调</b></td>
+      <td>灼烧 18/s、血 180、减速 45%</td>
+      <td>灼烧 <b>26/s</b>、血 <b>260</b>、减速 <b>50%</b></td>
+      <td>在「不被咬」的前提下，26/s × 30s = 780 伤害，才配得上 10 木的便宜价</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p1">强烈建议</span></td>
+      <td><b>木头给出路</b></td>
+      <td>收入 216/天，上限 400，长期贴顶</td>
+      <td>卡的价格用木头（跳过换的木也在此回收）；建筑修理费随天数上涨</td>
+      <td>让「木头」重新成为决策，经济类卡才有存在意义</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-p1">强烈建议</span></td>
+      <td><b>怪随天数变强</b></td>
+      <td>SPAWN_TABLE 停在 day 17</td>
+      <td>血量 <code>×(1 + day×0.012)</code>，day 100 时约 2.2 倍</td>
+      <td>让第 40 天之后还有压力。不加这条，塔等级卡永远测不出效果</td>
+    </tr>
+  </table>
+
+  <h3>3.1 前三项改完，我预期会发生什么</h3>
+  <p>按现有公式推：篝火 26/s、十字 5 格、怪 60 血 → 一只怪穿过篝火区约 3 秒被杀，一秒半能杀一只。10 座篝火（分两排）能覆盖 10 行纵深里的 8 行，理论上能独立拦住大部分怪，箭塔变成「补漏」而不是「主力」。这时候「篝火流」和「箭塔流」才是真选择，而不是一个陷阱一个正解。</p>
+  <p>这些是推算，不是实测——因为要实测就必须改 <code>core.js</code>。所以第 4 批（地基修正）做完，我会<b>先用同一个脚本重跑一遍对照表</b>，把那时的真实数字贴给你，再决定卡的具体数值。这一步不能跳。</p>
+
+  <div class="ask">
+    <b>为什么「篝火不被咬」比「篝火加血」更好：</b>加血只是把 2 秒延长到 4 秒，怪还是能拆掉它，玩家还是亏。改成不被咬，篝火就变成「纯收益的地面」，玩家会主动想「怎么把怪引进来」——这才是策略。而「怎么引」正好可以由路障来回答，两个建筑自然咬合。
+  </div>
+</section>
+<!-- ========== 04 ========== -->
+<section id="s04">
+  <h2><span class="n">04</span>18 张卡：完整文案与数值</h2>
+
+  <p class="lead">下面这张表可以直接贴进 <code>cards.js</code>。七条线对应五个建筑 + 车 + 搜刮，每条线 2~3 张，<b>同一个建筑的两三张卡是互补的</b>（不是同一效果的叠加），这样拿到第二张时手感会变，而不是数字变大。</p>
+
+  <p class="small">「判定」一列是实测或推算的强度：<span class="tag t-ok">强</span> 能改变结果 · <span class="tag t-ask">中</span> 有感但非必需 · <span class="tag t-warn">弱</span> 只在特定构筑有用。</p>
+
+  <h3>4.1 火线 · 篝火（3 张，11 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>助燃</b></td><td class="num">5</td>
+      <td>篝火灼烧 +20%<br><span class="small mono">26 → 31.2 → 36.4 → 41.6 → 46.8 → 52</span></td>
+      <td><b>52 /s</b><br><span class="small">2.0 倍</span></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「火更旺。」篝火灼烧伤害 +20%</td>
+    </tr>
+    <tr>
+      <td><b>扩光</b></td><td class="num">3</td>
+      <td>十字臂 +1 格<br><span class="small mono">5 → 9 → 13 → 25 格</span></td>
+      <td><b>25 格</b><br><span class="small">5 倍面积</span></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「把火摊开。」篝火照亮范围扩大一圈</td>
+    </tr>
+    <tr>
+      <td><b>余烬</b></td><td class="num">3</td>
+      <td>篝火被摧毁后原地燃烧 2 秒，伤害为灼烧 60%<br><span class="small mono">2s → 4s → 6s</span></td>
+      <td><b>6 秒</b></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「烧塌了也是火。」篝火被摧毁后原地燃烧 2 秒</td>
+    </tr>
+  </table>
+  <p class="small">这三张是<b>互补</b>不是叠加：助燃给伤害、扩光给面积、余烬给容错。拿到「扩光」之后你会发现摆位从「堵在路中间」变成「铺满整片」，这是手感变化，不是数值变化。</p>
+
+  <h3>4.2 箭线 · 箭塔（3 张，9 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>连弩</b></td><td class="num">3</td>
+      <td>攻击冷却 −15%<br><span class="small mono">1.00 → 0.85 → 0.72 → 0.61s</span></td>
+      <td><b>0.61s</b><br><span class="small">DPS ×1.63</span></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「上弦更快。」箭塔攻速 +15%</td>
+    </tr>
+    <tr>
+      <td><b>多重箭</b></td><td class="num">3</td>
+      <td>每次射击额外命中 +1 个目标<br><span class="small mono">1 → 2 → 3 → 4 个</span></td>
+      <td><b>4 目标</b><br><span class="small">等效塔数 ×4</span></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「一支箭不够。」箭塔每次射击额外命中 1 个目标</td>
+    </tr>
+    <tr>
+      <td><b>穿透</b></td><td class="num">3</td>
+      <td>箭矢命中后继续飞行，可再命中 +1 个<br><span class="small mono">1 → 2 → 3 → 4 只</span></td>
+      <td><b>4 只</b></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「穿过去。」箭矢可穿透 1 个目标继续飞行</td>
+    </tr>
+  </table>
+  <div class="good">
+    这三张全部是「绕开格子限制」的效果。实测 25 座塔已经能漏 1，所以<b>再加塔数没有意义</b>——但「一座塔干四座塔的活」有意义，因为它省下了格子和 75 木。这是把「饱和」重新变成「不饱和」的唯一办法。
+  </div>
+
+  <h3>4.3 路障线（3 张，11 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>加固</b></td><td class="num">5</td>
+      <td>所有建筑血量上限 +20%<br><span class="small mono">篝火 260→520，路障 240→480</span></td>
+      <td><b>×2.0</b></td>
+      <td><span class="tag t-ok">最强</span></td>
+      <td>「多钉一层板。」所有建筑血量上限 +20%</td>
+    </tr>
+    <tr>
+      <td><b>尖刺</b></td><td class="num">3</td>
+      <td>路障被攻击时反弹 10 伤害<br><span class="small mono">10 → 20 → 30</span></td>
+      <td><b>30 / 次</b></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「咬它一口试试。」路障受到攻击时反弹 10 点伤害</td>
+    </tr>
+    <tr>
+      <td><b>铁壁</b></td><td class="num">3</td>
+      <td>路障血量 +60；飞行怪落地硬直 +1 秒<br><span class="small mono">240 → 300 → 360 → 420</span></td>
+      <td><b>420 血</b></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「路障不是纸糊的。」路障血量 +60，落地的飞行怪硬直更久</td>
+    </tr>
+  </table>
+  <p class="small">加固是实测最强的卡（建筑存活时间直接翻倍），也是全池唯一一张「所有建筑通用」的卡——它天然适合放在任何构筑里，所以设计成 5 层、且出现权重最高。</p>
+
+  <h3>4.4 油桶线（2 张，8 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>装药</b></td><td class="num">5</td>
+      <td>爆炸伤害 +25%<br><span class="small mono">120 → 150 → 180 → 210 → 240 → 270</span></td>
+      <td><b>270</b><br><span class="small">2.25 倍</span></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「多塞一包。」油桶爆炸伤害 +25%</td>
+    </tr>
+    <tr>
+      <td><b>连锁</b></td><td class="num">3</td>
+      <td>爆炸引爆 1 格内的其他油桶<br><span class="small mono">半径 1 → 2 → 3 格</span></td>
+      <td><b>3 格</b></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「一个不够响。」油桶爆炸会引爆相邻油桶</td>
+    </tr>
+  </table>
+
+  <h3>4.5 信号塔线（2 张，6 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>增幅</b></td><td class="num">3</td>
+      <td>被标记目标受到箭矢伤害 +15%<br><span class="small mono">+15% → +30% → +45%</span></td>
+      <td><b>+45%</b></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「打它标记的那个。」被标记目标受到的箭塔伤害 +15%</td>
+    </tr>
+    <tr>
+      <td><b>广域</b></td><td class="num">3</td>
+      <td>作用范围 +1 格，冷却 −1 秒<br><span class="small mono">3 格/8s → 6 格/5s</span></td>
+      <td><b>6 格 / 5s</b></td>
+      <td><span class="tag t-warn">弱</span></td>
+      <td>「信号更强。」信号塔作用范围 +1 格，冷却缩短</td>
+    </tr>
+  </table>
+
+  <h3>4.6 车线（3 张，11 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>钢板</b></td><td class="num">5</td>
+      <td>耐久上限 +20，并立即修复 20<br><span class="small mono">120 → 140 → 160 → 180 → 200 → 220</span></td>
+      <td><b>220</b></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「焊上钢板。」车耐久上限 +20，立即修复 20 点</td>
+    </tr>
+    <tr>
+      <td><b>车灯</b></td><td class="num">3</td>
+      <td>行进时照亮 1 条车道；被照到的怪受箭塔伤害 +15%<br><span class="small mono">1/2/3 条 · +15%/+30%/+45%</span></td>
+      <td><b>3 条 +45%</b></td>
+      <td><span class="tag t-ask">中</span></td>
+      <td>「把灯打开。」行进时照亮 1 条车道，被照到的怪受箭塔伤害 +15%</td>
+    </tr>
+    <tr>
+      <td><b>冲撞</b></td><td class="num">3</td>
+      <td>白天车碾过怪造成伤害<br><span class="small mono">25 → 45 → 70</span></td>
+      <td><b>70</b></td>
+      <td><span class="tag t-warn">弱</span></td>
+      <td>「撞过去。」白天车碾过怪物造成 25 点伤害</td>
+    </tr>
+  </table>
+  <p class="small">冲撞判定偏弱，因为白天路上本来就没有怪（怪只在夜里刷）。它的价值在于<b>配合车灯</b>形成「白天也能打」的小构筑，属于长线玩法，不追求强度。如果你觉得没必要，这张可以换成「备胎（爆一次免死）」。</p>
+
+  <h3>4.7 搜刮线（2 张，6 层）</h3>
+  <table>
+    <tr><th style="width:12%">卡名</th><th class="num" style="width:6%">层</th><th style="width:38%">每层效果</th><th style="width:14%">满层</th><th style="width:8%">判定</th><th>游戏内文案</th></tr>
+    <tr>
+      <td><b>深搜</b></td><td class="num">3</td>
+      <td>搜刮耗时 +50%，战利品 +50%<br><span class="small mono">×1.5 → ×1.9 → ×2.3</span></td>
+      <td><b>×2.3</b></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「多翻两下。」搜刮耗时 +50%，战利品 +50%</td>
+    </tr>
+    <tr>
+      <td><b>图纸嗅觉</b></td><td class="num">3</td>
+      <td>掉图纸概率 +4 个百分点<br><span class="small mono">11% → 15% → 19% → 23%</span></td>
+      <td><b>+12pp</b></td>
+      <td><span class="tag t-ok">强</span></td>
+      <td>「闻得到图纸。」掉落图纸的概率 +4%</td>
+    </tr>
+  </table>
+  <div class="note">
+    <b>「图纸嗅觉」是唯一一张会自我强化的卡</b>：拿到它 → 更多图纸 → 更多卡 → 更快拿到它。实测图纸率 11%，满层 23%，等于抽卡次数翻倍。这是滚雪球的源头，建议<b>限 3 层且出现权重最低</b>，或者改成「每 3 天保底 1 张图纸」这种确定性收益。我在表里按 +4pp 写的，但这一条的权重需要你在试玩后拍。
+  </div>
+
+  <h3>4.8 层数汇总</h3>
+  <table>
+    <tr><th>线</th><th>卡</th><th class="num">层数</th></tr>
+    <tr><td>火线（篝火）</td><td>助燃 / 扩光 / 余烬</td><td class="num">5+3+3 = <b>11</b></td></tr>
+    <tr><td>箭线（箭塔）</td><td>连弩 / 多重箭 / 穿透</td><td class="num">3+3+3 = <b>9</b></td></tr>
+    <tr><td>路障线</td><td>加固 / 尖刺 / 铁壁</td><td class="num">5+3+3 = <b>11</b></td></tr>
+    <tr><td>油桶线</td><td>装药 / 连锁</td><td class="num">5+3 = <b>8</b></td></tr>
+    <tr><td>信号塔线</td><td>增幅 / 广域</td><td class="num">3+3 = <b>6</b></td></tr>
+    <tr><td>车线</td><td>钢板 / 车灯 / 冲撞</td><td class="num">5+3+3 = <b>11</b></td></tr>
+    <tr><td>搜刮线</td><td>深搜 / 图纸嗅觉</td><td class="num">3+3 = <b>6</b></td></tr>
+    <tr style="background:#fafbfe"><td colspan="2"><b>合计 18 张</b></td><td class="num"><b>62 层</b></td></tr>
+  </table>
+</section>
+
+<!-- ========== 05 ========== -->
+<section id="s05">
+  <h2><span class="n">05</span>抽卡预算：62 层够不够</h2>
+
+  <h3>5.1 三种情况</h3>
+  <table>
+    <tr><th>情况</th><th class="num">抽卡次数</th><th class="num">62 层的填充率</th><th>体验</th></tr>
+    <tr><td>现在（不改地基，34~51 天）</td><td class="num">27~41</td><td class="num">44%~66%</td><td>能点满 2~3 条线，剩下靠运气。<b>这个配比是对的</b></td></tr>
+    <tr><td>修完地基（撑到 70~100 天）</td><td class="num">53~70</td><td class="num">85%~113%</td><td>会拿满。需要「跳过换木」兜底，否则第 60 次之后没得选</td></tr>
+    <tr><td>如果改成 90 层</td><td class="num">27~41</td><td class="num">30%~46%</td><td>每条线都半吊子，<b>构筑感消失</b>。不要这么做</td></tr>
+  </table>
+
+  <div class="good">
+    <b>结论：62 层就是对的数。</b>宁可让玩家「点满三条线」，也不要「每条线都差两层」。前者是构筑完成，后者是永远不爽。
+  </div>
+
+  <h3>5.2 二选一 + 跳过的实际效果</h3>
+  <p>你已确认「二选一 + 跳过换 12 木」。按 27~41 次抽取算：</p>
+  <table>
+    <tr><th></th><th class="num">三选一（原方案）</th><th class="num">二选一 + 跳过</th></tr>
+    <tr><td>每次能看到的卡</td><td class="num">3 张</td><td class="num">2 张</td></tr>
+    <tr><td>命中「想要的那张」概率</td><td class="num">33%</td><td class="num">50%</td></tr>
+    <tr><td>跳过收益</td><td class="num">无</td><td class="num">12 木（现约 5% 日收入）</td></tr>
+    <tr><td>总决策次数</td><td class="num">27~41</td><td class="num">27~41（不变）</td></tr>
+  </table>
+  <p>二选一是<b>提高命中率</b>，跳过是<b>保底选项</b>。两者合起来解决「抽到不想玩的线」这个问题——Slay the Spire 高水平玩家的跳过率是 40~60%，那不是在放弃决策，是在保住构筑的纯度。</p>
+
+  <h3>5.3 一个必须提前定的事：卡的价格</h3>
+  <p>如果卡是免费拿（现有 <code>applyPick</code> 就是这样，只扣图纸），那 12 木的跳过收益毫无意义。</p>
+  <p>我建议：<b>拿卡免费，跳过给 12 木</b>。这样跳过是「用一张卡换半天建筑费」，而不是「付费跳过」。理由：现在木头已经溢出，12 木不痛不痒；等第 03 节的「木头出路」做完，12 木就变成了真钱。这两个改动是配套的。</p>
+</section>
+
+<!-- ========== 06 ========== -->
+<section id="s06">
+  <h2><span class="n">06</span>工作量</h2>
+
+  <table>
+    <tr><th style="width:30%">模块</th><th class="num" style="width:10%">行数</th><th>内容</th></tr>
+    <tr><td><code>js/cards.js</code>（新建）</td><td class="num">~300</td><td>18 张卡定义、抽取算法（权重 + 已满层过滤）、卡面绘制、跳过按钮、卡层数记录</td></tr>
+    <tr><td><code>core.js</code> 挂载点</td><td class="num">~160</td><td>18 处效果应用（平均 9 行/张），集中在 <code>applyLoot</code> / <code>updateNight</code> / <code>updateBuildings</code> / <code>fireArrow</code></td></tr>
+    <tr><td>3 个新建筑</td><td class="num">~210</td><td>路障（阻挡 + 仇恨）、油桶（一次性 + 自爆）、信号塔（标记）</td></tr>
+    <tr><td>地基修正（第 03 节）</td><td class="num">~120</td><td>篝火仇恨、篝火数值、木头出路、怪随时间变强</td></tr>
+    <tr><td>测试</td><td class="num">~280</td><td>+30 条：每张卡至少 1 条「拿到后数值确实变了」的断言</td></tr>
+    <tr style="background:#fafbfe"><td><b>合计</b></td><td class="num"><b>~1070</b></td><td>回归测试 78 → <b>约 108 项</b></td></tr>
+  </table>
+
+  <p>这是 v2.1 里「第 3 批（卡池与建筑）」的实际体量，比原估的 800 行多 270 行，多出来的是 3 个新建筑和测试。</p>
+
+  <h4>建议的分批（每批可独立验收）</h4>
+  <table>
+    <tr><th style="width:8%">批</th><th style="width:22%">内容</th><th class="num" style="width:10%">行数</th><th>验收方式</th></tr>
+    <tr><td><b>0</b></td><td>地基修正（03 节四项）</td><td class="num">120</td><td>重跑本报告的 1.1 对照表，篝火流不再亏</td></tr>
+    <tr><td><b>1</b></td><td>存档 + 章节化</td><td class="num">900</td><td>关掉页面重开，进度还在</td></tr>
+    <tr><td><b>2</b></td><td>3 个新建筑（路障/油桶/信号塔）</td><td class="num">210</td><td>五种建筑都能摆、都有用</td></tr>
+    <tr><td><b>3</b></td><td><b>18 张卡 + 二选一 + 跳过</b></td><td class="num">460</td><td>抽 30 次，能点满 2 条线</td></tr>
+    <tr><td><b>4</b></td><td>表现层（音效 + 打击感 + 矢量质感）</td><td class="num">470</td><td>听得到、看得见、有停顿</td></tr>
+    <tr><td><b>5</b></td><td>Boss + 事件 + 血月</td><td class="num">700</td><td>每 20 天有一次记得住的夜</td></tr>
+  </table>
+</section>
+
+<!-- ========== 07 ========== -->
+<section id="s07">
+  <h2><span class="n">07</span>需要你拍四件事</h2>
+
+  <table>
+    <tr><th style="width:6%">#</th><th style="width:34%">问题</th><th style="width:26%">我的建议</th><th>不这么做的后果</th></tr>
+    <tr>
+      <td><b>1</b></td>
+      <td>03 节的四项地基修正，接受吗？<br><span class="small">尤其是「篝火不进入仇恨列表」这一条，是机制层面的改动</span></td>
+      <td><span class="tag t-ok">全接受</span></td>
+      <td>03 节列出的 8 张（火线 3 张 + 深搜 + 4 张弱化）失效，18 张实际只剩 10 张有手感</td>
+    </tr>
+    <tr>
+      <td><b>2</b></td>
+      <td>18 张卡照此表，还是调整？<br><span class="small">存疑的三张：冲撞（弱）、广域（弱）、图纸嗅觉（滚雪球）</span></td>
+      <td>照表，<br>三张都保留但降权重</td>
+      <td>如果砍掉，18 → 15 张，62 → 52 层，抽卡填充率会升到 78%，偏满</td>
+    </tr>
+    <tr>
+      <td><b>3</b></td>
+      <td>先做地基（第 0 批），还是直接上卡？</td>
+      <td><span class="tag t-ok">先地基</span><br>半天，120 行</td>
+      <td>直接上卡 → 分不清是卡生效还是数值生效，返工概率高</td>
+    </tr>
+    <tr>
+      <td><b>4</b></td>
+      <td>「图纸嗅觉」怎么处理？<br><span class="small">它是唯一会自我强化的卡</span></td>
+      <td>改成「每 3 天保底 1 张」<br><span class="small">确定性收益，不滚雪球</span></td>
+      <td>保留 +4pp/层 → 满层抽卡次数翻倍，一局可能拿到 70+ 张卡，池子被抽干</td>
+    </tr>
+  </table>
+
+  <div class="ask">
+    <b>回「按建议」</b> = 四项地基全接受 / 18 张照表 / 先做地基 / 图纸嗅觉改成保底机制。<br>
+    我就从第 0 批开工，做完把<b>新的对照表</b>贴给你——那时你会看到「篝火流终于不亏了」，再往下走 18 张卡。<br><br>
+    也可以只回你在意的那几条，其他的我按建议走。
+  </div>
+
+  <p class="small" style="margin-top:20px">本次分析脚本：<code>tools/card_feasibility.js</code>（新增，不改游戏代码）。所有数字来自 <code>core.js</code> 的真实逻辑，用的是同一套 mock canvas 与受控时钟，和 <code>tools/test_core.js</code>、<code>tools/balance_probe.js</code> 一致。</p>
+</section>
+
+</div>
+</body>
+</html>
