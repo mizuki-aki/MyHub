@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 玩法循环与平衡审计</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .t-p2{background:var(--p2bg);color:var(--p2)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 平衡审计</div>
+<h1>玩法、机制与平衡：循环能不能转起来</h1>
+<p class="sub">不改一行代码，只用 <code>tools/loop_audit.js</code> 驱动现有 <code>core.js</code> 跑实测。<br>结论先说：<b>资源循环是通的，防线循环和进度循环是断的</b>。断点不在数值微调，在一行代码。</p>
+<div class="status">只读审计 · core.js 仍 1822 行未动</div>
+
+<div class="toc">
+  <a href="#s01">01 循环审计</a>
+  <a href="#s02">02 五个溢出</a>
+  <a href="#s03">03 六个无效机制</a>
+  <a href="#s04">04 断裂的根因</a>
+  <a href="#s05">05 修法</a>
+  <a href="#s06">06 对 v2.3 的影响</a>
+</div>
+
+<section id="s00">
+  <h2><span class="n">00</span>三句话</h2>
+  <div class="kpi">
+    <div class="k"><b>1 行</b><span>导致游戏无法通关的代码</span></div>
+    <div class="k"><b>2.5 倍</b><span>防线缺口（需 500 木 / 有 200 木）</span></div>
+    <div class="k"><b>5 项</b><span>可以无限堆积的资源</span></div>
+    <div class="k"><b>6 个</b><span>拿不拿都一样的机制</span></div>
+  </div>
+  <p style="margin-top:16px"><b>一、资源循环是通的。</b>白天撞球产出木头，黄昏用木头建塔，夜晚检验防线，天亮重置。木头的收支（224 收 / 200 支）逐日结算，没有断口。</p>
+  <p><b>二、防线循环是断的。</b>撑住一夜所需的塔数随天数从 12 涨到 30，而每天的收入只够建 8 座。两条线在第 25~30 天交叉，之后每晚都是必死。实测对局在第 29~79 天结束，正好落在这个区间。</p>
+  <p><b>三、进度循环是断的。</b>里程每天硬封顶 8 户，800 户必须一天不漏走满 100 天。而玩家活不到那天。所以「800 户」和「100 天」这两个胜利条件，实际是同一个条件的两种写法。</p>
+  <div class="note"><b>最要紧的一条：<code>core.js:295</code> 每天清空所有建筑。</b>这条让 v2.3 定稿里的「整备期全拆返还」「硬顶（建筑血量 +20%）」「45 格预算」全部落空——建筑活不过一夜，任何跨天的积累都不存在。修这一行，游戏立刻从「必死」变成「可通关」；不修，后面 5200 行都在给一个走不到第 40 天的游戏做内容。</div>
+</section>
+
+<section id="s01">
+  <h2><span class="n">01</span>循环审计：四条链路逐段验</h2>
+  <p class="lead">一天 71 秒（行进 15 + 布防 15 + 夜袭 30 + 搜刮约 11）拆成四段，看每段的产出能不能喂饱下一段。</p>
+
+  <h3>1.1 白天：15 秒花在哪</h3>
+  <p>实测（<code>loop_audit.js clock</code>），Lv1 车速、每球搜刮 1.4 秒：</p>
+  <table>
+    <thead><tr><th>策略</th><th class="num">实撞</th><th class="num">里程</th><th class="num">搜刮耗时</th><th class="num">白天空闲</th></tr></thead>
+    <tbody>
+      <tr><td>只撞 4 球</td><td class="num">4</td><td class="num">8 户</td><td class="num">5.6 s</td><td class="num">5.0 s</td></tr>
+      <tr><td>撞 7 球</td><td class="num">7</td><td class="num">8 户</td><td class="num">9.8 s</td><td class="num">0.8 s</td></tr>
+      <tr><td>全追（8 球）</td><td class="num">8</td><td class="num">7 户</td><td class="num">11.2 s</td><td class="num">0.0 s</td></tr>
+    </tbody>
+  </table>
+  <p>这里有两个数字值得盯住：</p>
+  <p><b>① 撞 4 球就能走满 8 户。</b>里程完全不看玩家撞了几个球，只看有没有走完 —— 而走完 8 户只要 4.4 秒，撞 4 个球总共 10 秒，还剩 5 秒空着。<b>所以「撞球还是赶路」不是一个决策</b>：多撞 3 个球是白送的。</p>
+  <p><b>② 追满 8 球只掉 1 户里程。</b>从 7 球到 8 球，代价是里程从 8 掉到 7（-12.5%），收益是一份战利品。<b>这个取舍太软</b>，玩家永远追满。</p>
+
+  <h3>1.2 黄昏：木头收支</h3>
+  <table>
+    <thead><tr><th>项目</th><th class="num">数值</th><th>来源</th></tr></thead>
+    <tbody>
+      <tr><td>木头收入</td><td class="num">224 / 天</td><td>8 球期望：民房 1.0 + 超市 1.5 + 医院 1.5 + 工厂 3.5，工厂单个 24~38 且后期 ×1.4</td></tr>
+      <tr><td>木头支出</td><td class="num">200 / 天</td><td>每天重建 8 座箭塔（25 木）——<b>因为建筑每天清空</b></td></tr>
+      <tr><td>木头净余</td><td class="num">24 / 天</td><td>实测逐日结余 0~24，长期贴 400 上限</td></tr>
+    </tbody>
+  </table>
+  <div class="good">资源这一段是健康的：收入略大于支出，不会木荒，也不会瞬间爆仓。问题在于<b>支出被「每天清空」这个前提锁死了</b>——见 04 节。</div>
+
+  <h3>1.3 夜晚：防线规模与承伤</h3>
+  <p>单晚 30 秒，120 耐久，7 局取中位数（<code>loop_audit.js fort</code>）。表里是<b>车损</b>，120 就是车毁：</p>
+  <table>
+    <thead><tr><th>天</th><th class="num">5 塔</th><th class="num">8 塔</th><th class="num">12 塔</th><th class="num">16 塔</th><th class="num">20 塔</th><th class="num">25 塔</th><th class="num">30 塔</th></tr></thead>
+    <tbody>
+      <tr><td>day 20</td><td class="num">120</td><td class="num">54</td><td class="num">28</td><td class="num">14</td><td class="num">14</td><td class="num">14</td><td class="num">42</td></tr>
+      <tr><td>day 40</td><td class="num">120</td><td class="num">120</td><td class="num">66</td><td class="num">28</td><td class="num">14</td><td class="num">28</td><td class="num">28</td></tr>
+      <tr><td>day 60</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">42</td><td class="num">0</td><td class="num">14</td><td class="num">14</td></tr>
+      <tr><td>day 80</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">42</td><td class="num">42</td></tr>
+      <tr><td>day 100</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">120</td><td class="num">28</td></tr>
+    </tbody>
+  </table>
+  <p>临界塔数（再少就车毁）：<b>day 20 → 12 座，day 40 → 16 座，day 60 → 20 座，day 80 → 25 座，day 100 → 30 座</b>。</p>
+  <p>而每天的收入只够建 <b>8 座</b>。两条线在第 25 天前后交叉：</p>
+  <div class="note"><b>这是整份审计里最硬的一条。</b>day 40 需要 16 座（400 木），只建得起 8 座（200 木）——<b>缺口 2 倍</b>。所以任何玩家都会在第 25~35 天之间开始连续车毁，差别只是运气好坏拖到第 29 天还是第 79 天。这解释了为什么实测从未活过 100 天，也解释了为什么之前几次调数值都没有用。</div>
+
+  <h3>1.4 进度：里程与胜利条件</h3>
+  <p>实测日均里程 <b>7.90~7.96 户</b>，不管追 7 球还是追 5 球，都是这个数。</p>
+  <p>原因在 <code>updateTravel</code>：<code>S.carV</code> 硬封顶 <code>SHOP_PER_DAY = 8</code>，到 8 就 <code>finishTravel</code>。所以：</p>
+  <p style="text-align:center;font-size:15px;margin:14px 0"><b>里程 = 天数 × 8（最多）</b></p>
+  <p>100 天正好 800 户。而 <code>nextDay</code> 里的两个胜利判定是「里程 ≥ 800」和「天数 ≥ 100」，它们在<b>同一帧同时成立</b>。</p>
+  <div class="note"><b>「800 户」和「100 天」不是两个胜利条件，是一个。</b>而且玩家对里程没有任何影响力——它只是天数计数器乘 8。碰撞设计文档里「双胜利：抵达救援中心 或 撑满 100 天」的那份张力，在代码里不存在。</div>
+</section>
+<section id="s02">
+  <h2><span class="n">02</span>五个溢出：有资源，但没地方花</h2>
+  <p class="lead">溢出的定义是「供给长期大于需求，且没有出口」。五个里三个是硬溢出，两个是「现在刚好，修好必溢」。</p>
+
+  <h3>2.1 油（能量）：第 1 天就满了，从此没缺过</h3>
+  <table>
+    <thead><tr><th>项</th><th class="num">数值</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>消耗</td><td class="num">1 点 / 户</td><td>每天最多 8 户 = <b>8 点</b></td></tr>
+      <tr><td>收入 · 民房</td><td class="num">75~120</td><td><code>irnd(5,8) × BREAD(15)</code>，上限 100 截断</td></tr>
+      <tr><td>收入 · 超市 / 医院</td><td class="num">15</td><td>55%~60% 概率 +1 面</td></tr>
+      <tr><td>收入 · 工厂</td><td class="num">0</td><td>只给木头</td></tr>
+      <tr><td>实测最低油量</td><td class="num">80 / 100</td><td>62 天对局全程，<b>0 次断油</b></td></tr>
+    </tbody>
+  </table>
+  <p><b>撞到一个民房的油，够走 9~15 天。</b>油上限 100 点，等于 12 天的行进消耗；起始 80 点，等于 10 天。</p>
+  <div class="note"><b>结论：<code>starved</code>（断油停车）这个机制永远不会触发。</b>它是代码里写得很完整的一整套惩罚（停车 + 当晚怪刷新提速 20%），但玩家一辈子碰不到。文案里「抽油，够跑两天」「绕路，多烧两天油」的紧张感，在数值上不存在——油从来没少于 80。</div>
+
+  <h3>2.2 白天时间：撞 4 球就够，剩下 5 秒空着</h3>
+  <p>15 秒里，走满 8 户要 4.4 秒，撞 4 个球要 5.6 秒，<b>合计 10 秒，剩 5 秒无事可做</b>。</p>
+  <p>而这 5 秒没有第二个用途：里程封顶了、球撞完了、车灯是被动的（远光卡）、深搜（按住 2.8 秒）在 v2.3 里已经改成「深翻」卡。所以玩家在白天有三分之一的屏幕时间是纯等待。</p>
+
+  <h3>2.3 木头：现在靠「每天清空」花掉，修好就溢</h3>
+  <table>
+    <thead><tr><th>场景</th><th class="num">收入</th><th class="num">支出</th><th class="num">净余</th><th>后果</th></tr></thead>
+    <tbody>
+      <tr><td>现状（建筑每天清空）</td><td class="num">224</td><td class="num">200（8 座全新建）</td><td class="num">+24</td><td>贴 400 上限，但不算溢出</td></tr>
+      <tr><td>改成跨天保留</td><td class="num">224</td><td class="num">约 88（11 座修理）</td><td class="num">+136</td><td><b>5 天爆仓</b>，必须配套降收或加耗</td></tr>
+    </tbody>
+  </table>
+  <p>也就是说：木头现在「刚好够」，不是因为配平了，而是因为<b>每天必须从零重建 8 座</b>把收入吃掉了。这个「刚好」非常脆。</p>
+
+  <h3>2.4 卡池：按「活不到 100 天」配的容量</h3>
+  <table>
+    <thead><tr><th>对局长度</th><th class="num">抽卡次数</th><th class="num">62 层的填充率</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td>实测 29~79 天</td><td class="num">25~79</td><td class="num">40% ~ 127%</td><td>刚好</td></tr>
+      <tr><td>修好生存，活满 100 天</td><td class="num">约 100</td><td class="num">161%</td><td><b>溢出 38 层</b>，后 38 次抽卡无卡可发</td></tr>
+    </tbody>
+  </table>
+  <p>这是「用一个缺陷掩盖另一个缺陷」：卡池容量是按「玩家活不到 100 天」配的，所以一旦修好防线，卡池立刻不够。v2.3 里写「抽 33~51 次、填充 53%~82%」是按 34~51 天算的，那个前提本身就是断裂的产物。</p>
+
+  <h3>2.5 格子：45 格里最多用到 38</h3>
+  <table>
+    <thead><tr><th>布局</th><th class="num">占用</th><th class="num">余</th></tr></thead>
+    <tbody>
+      <tr><td>纯塔饱和（实测最优）</td><td class="num">25</td><td class="num">20</td></tr>
+      <tr><td>五种全上</td><td class="num">30</td><td class="num">15</td></tr>
+      <tr><td>第 5 章灯火：篝火铺满做诱饵</td><td class="num">38</td><td class="num">7</td></tr>
+    </tbody>
+  </table>
+  <p>现在永远用不满，因为第二天全没了。改成跨天保留后，<b>45 格在 5~6 天内铺满</b>（45 格约 750 木，日入 224），之后格子会变成真正的硬瓶颈——那时「借风」这类扩张范围的卡才开始值钱。</p>
+</section>
+
+<section id="s03">
+  <h2><span class="n">03</span>六个无效机制：拿不拿、升不升都一样</h2>
+  <p class="lead">判定标准：把这条机制从游戏里删掉，玩家的行为会不会变。不变就是无效。</p>
+
+  <table>
+    <thead><tr><th style="width:130px">机制</th><th style="width:150px">本该起什么作用</th><th>实测结果</th><th style="width:90px">判定</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>油 / 断油</b></td>
+        <td>白天的资源压力</td>
+        <td>62 天对局油最低 80/100，0 次断油。一个民房够走 9~15 天</td>
+        <td><span class="tag t-p0">无效</span></td>
+      </tr>
+      <tr>
+        <td><b>车速 Lv1~5</b></td>
+        <td>决定里程与撞球效率</td>
+        <td>15 秒本来就能走满 8 户（撞 4 球即可）。升到 Lv5 只买到「撞满 8 球不掉里程」= <b>+14% 战利品</b>。4 次抽卡换 14%，远不如投箭线</td>
+        <td><span class="tag t-p0">近乎无效</span></td>
+      </tr>
+      <tr>
+        <td><b>里程进度条</b></td>
+        <td>玩家推进的可见进度</td>
+        <td><code>carV</code> 硬封顶 8/天 → 里程 = 天数 × 8。玩家做什么都不影响它</td>
+        <td><span class="tag t-p0">无效</span></td>
+      </tr>
+      <tr>
+        <td><b>深翻</b><br><span class="small">搜刮 +50% 耗时 / +50% 战利品</span></td>
+        <td>用时间换材料</td>
+        <td>10.6 秒可搜刮预算：Lv1 → 5 球 ×1.5 = <b>7.5</b>（+7%）；Lv2 → 3 球 ×1.9 = <b>5.7</b>（−19%）；Lv3 → 3 球 ×2.3 = <b>6.9</b>（−1.4%）。基准 7 球</td>
+        <td><span class="tag t-p0">满层为负</span></td>
+      </tr>
+      <tr>
+        <td><b>快手 Lv2 / Lv3</b></td>
+        <td>省搜刮时间换里程</td>
+        <td>Lv1（1.12 秒/球）就已经撞满 8 球封顶。Lv2、Lv3 再快也没有第 9 个球</td>
+        <td><span class="tag t-p0">后两层空转</span></td>
+      </tr>
+      <tr>
+        <td><b>硬顶 / 棘刺 / 借风</b><br><span class="small">建筑血量、反弹、范围</span></td>
+        <td>构筑建筑流派</td>
+        <td>建筑每天清空 → 只值一夜，第二天归零。构筑感不存在</td>
+        <td><span class="tag t-p0">被 04 节连带废掉</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.1 深翻的问题不是数值小，是「取整悬崖」</h3>
+  <p>把「10.6 秒搜刮预算 ÷ 单球耗时，向下取整」画出来就明白了：</p>
+  <table>
+    <thead><tr><th>深翻层数</th><th class="num">单球耗时</th><th class="num">能撞球数</th><th class="num">战利品倍率</th><th class="num">等效份数</th><th class="num">对比基准 7</th></tr></thead>
+    <tbody>
+      <tr><td>无</td><td class="num">1.40 s</td><td class="num">7</td><td class="num">×1.0</td><td class="num">7.0</td><td class="num">—</td></tr>
+      <tr><td>Lv1</td><td class="num">2.10 s</td><td class="num">5</td><td class="num">×1.5</td><td class="num">7.5</td><td class="num">+7%</td></tr>
+      <tr><td>Lv2</td><td class="num">2.66 s</td><td class="num">3</td><td class="num">×1.9</td><td class="num">5.7</td><td class="num" style="color:var(--del)">−19%</td></tr>
+      <tr><td>Lv3</td><td class="num">3.22 s</td><td class="num">3</td><td class="num">×2.3</td><td class="num">6.9</td><td class="num" style="color:var(--del)">−1.4%</td></tr>
+    </tbody>
+  </table>
+  <p>曲线不是递增，是 7.5 → 5.7 → 6.9 的三段跳。玩家拿了第二层会发现「东西变少了」——这是最糟的一种体验：<b>升级让你变弱</b>。</p>
+  <div class="ask"><b>修法：</b>耗时 +50% / 战利品 +100%（Lv1 ×2.0 → 5 球 = 10 份，+43%），并把三层改成 +100% / +140% / +180%，让「每球更肥」始终压过「少撞几个」。</div>
+
+  <h3>3.2 快手的三层里只有第一层有内容</h3>
+  <p>球只有 8 个，撞完就没有了。快手的收益在「能不能在 15 秒内撞满 8 球且走满 8 户」这个门槛上：Lv1 的 1.12 秒/球刚好跨过（8×1.12 + 4.4 + 横移 1.5 ≈ 14.9 秒），Lv2、Lv3 完全多余。</p>
+  <div class="ask"><b>修法两条路：</b>① 把快手压成 2 层，第二层改成「搜刮时车不减速」（机制变化，不是数字）；② 把球从 8 个加到 12 个，让时间预算重新变成瓶颈——但那样「撞满」就不可达，要配合降搜刮时间。</div>
+
+  <h3>3.3 还有一个「不是无效，是根本不存在」</h3>
+  <p><b>塔等级（towerLv 1~5）。</b>v2.3 的 2.4 条已经识别了这个问题并给了修法（曲线递减 + 怪随天变强）。这次实测确认了它的必要性：day 60 时 20 塔和 30 塔的车损都是 14，说明伤害确实严重溢出。<b>但要注意</b>——2.4 的修法只调了曲线，<b>没有动「怪血量 ×(1+0.012×day)」这一条是否足够</b>。从本次 fort 表看，day 100 需要 30 座塔才不漏，说明真正在涨的是「刷怪速度 + 上限」，不是单只血量。</p>
+</section>
+<section id="s04">
+  <h2><span class="n">04</span>断裂的根因：一行代码</h2>
+  <p class="lead">前面所有溢出和无效机制，追到最后都指向同一处。不是数值，是一行赋值。</p>
+
+  <p style="background:#1f2430;color:#e8ecf5;border-radius:10px;padding:14px 18px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.9">
+    <span style="color:#7b8398">// core.js:295  ·  nextDay()</span><br>
+    <span style="color:#8fb8ff">S.buildings</span> = []; &nbsp;<span style="color:#7b8398">// 所有建筑每天清空</span>
+  </p>
+
+  <p><b>这一行让「防线」变成了「每晚重建一次的一次性工程」。</b>它引发的连锁反应是完整的：</p>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:240px">后果</th><th>数字</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>每天必须从零全额重建</td><td>支出锁死在 8 座 × 25 木 = <b>200 木/天</b>，木头永远花得光</td></tr>
+      <tr><td>2</td><td>防线规模被收入卡死</td><td>永远只有 8 座，而 day 40 需要 16 座、day 100 需要 30 座 → <b>第 25~35 天开始连败</b></td></tr>
+      <tr><td>3</td><td>建筑类卡只值一夜</td><td>硬顶、棘刺、借风第二天归零，构筑感不存在</td></tr>
+      <tr><td>4</td><td>整备期「全拆返还」无从谈起</td><td>本来就没了，返还什么？v2.3 的第 21/41/61/81 天设计是空的</td></tr>
+      <tr><td>5</td><td>45 格永远用不满</td><td>最多用到 25~30 格，格子从来不是瓶颈</td></tr>
+      <tr><td>6</td><td>木头「刚好够」是假象</td><td>不是配平了，是每天被强行清空开销</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>这是设计稿和代码的第一次正面冲突，而且 v2.1 / v2.2 / v2.3 三版都没发现。</b>三版文档都在用「建筑可以积累」这个前提推导——格子预算（45 格）、整备期（拆了返还）、硬顶（建筑存活时间翻倍）、纯塔流（25 座饱和）——而代码里建筑活不过一夜。之前所有「纯塔 25 座能漏 1 只」的测试，都是把建筑<b>凭空摆好、满血开场</b>测的，避开了「建不起」这个真实约束。</div>
+
+  <h3>4.1 只修这一行，会发生什么</h3>
+  <table>
+    <thead><tr><th>指标</th><th class="num">现在</th><th class="num">建筑保留后</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>第 6 天防线规模</td><td class="num">8 座</td><td class="num">约 45 格满</td><td>日入 224 木，5~6 天铺满</td></tr>
+      <tr><td>第 100 天能否撑住</td><td class="num" style="color:var(--del)">不能（车毁）</td><td class="num" style="color:var(--ins)">刚好（30 座 / 车损 28）</td><td>需求 30 座 = 铺满上限</td></tr>
+      <tr><td>木头日结余</td><td class="num">+24</td><td class="num" style="color:var(--del)">+136</td><td><b>转为溢出，需要配套再平衡</b></td></tr>
+      <tr><td>通关可能性</td><td class="num" style="color:var(--del)">0</td><td class="num" style="color:var(--ins)">可通关</td><td>这是从「玩不到」到「能玩」的分界</td></tr>
+    </tbody>
+  </table>
+  <p>所以 P0 不是「改一行」，是「改一行 + 重新配平木头」。这两件事必须一起做，否则从「必死」变成「必赢」。</p>
+</section>
+
+<section id="s05">
+  <h2><span class="n">05</span>修法：三级，共 9 条</h2>
+  <p class="lead">P0 不做则后面全部无效；P1 是数值，可以在任何一批里调；P2 是设计取舍，需要你拍。</p>
+
+  <h3><span class="tag t-p0">P0</span>不做就玩不到第 40 天 · 约 60 行</h3>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:200px">改什么</th><th>怎么改</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td><td><b>建筑跨天保留</b></td>
+        <td>删掉 <code>nextDay</code> 里的 <code>S.buildings = []</code>（第 295 行）。<b>不再每天重建，只补当晚被打坏的。</b></td>
+      </tr>
+      <tr>
+        <td>2</td><td><b>木头重新配平</b></td>
+        <td>收入端：去掉工厂的 <code>×(1+day×0.01)</code> 日增系数（现在后期 ×1.4），工厂 24~38 → 16~24。收入从 224 降到约 <b>150</b>。<br>支出端：塔修理费 8 → 12。饱和后每晚修 11 座 = 132 木。<br>结果：日结余约 +18，不再爆仓，也不再木荒。</td>
+      </tr>
+      <tr>
+        <td>3</td><td><b>卡池从 62 层扩到 85 层</b></td>
+        <td>活满 100 天会抽约 100 次。扩到 85 层后填充率 118%，仍会拿满——所以同时把「每 N 次搜索必出图纸」从 8~11 次拉到 11~14 次，抽卡降到约 75 次，填充 88%。</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="ask"><b>注意：</b>P0-1 会让存档的工作量变大——<b>必须存 45 格建筑的完整状态</b>（类型、位置、血量、是否损毁），而不是只存木头和天数。这反过来证明「第 1 批先做存档」是对的，但第 1 批的内容要从「四处地基 + 存档」改成「<b>建筑保留 + 存档 + 木头再平衡</b>」。</div>
+
+  <h3><span class="tag t-p1">P1</span>数值与内容 · 建议并进第 1、3 批</h3>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:180px">改什么</th><th>怎么改</th><th style="width:140px">修好了什么</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>4</td><td><b>油改成真消耗</b></td>
+        <td>每户 <b>2 点</b>（8 户 = 16/天）；民房 5~8 面 → <b>2 面</b>（30 点）；超市/医院 30% 概率 +1 面。这样每天油净变化在 −16 ~ +14 之间波动，<b>偶尔真的会断油</b>。</td>
+        <td>激活油压力、断油惩罚、抽油事件</td>
+      </tr>
+      <tr>
+        <td>5</td><td><b>球从 8 个加到 10 个</b></td>
+        <td>8 户内塞 10 个球（间距 0.8 户），容差 <code>HIT_AHEAD</code> 0.25 → 0.2、<code>HIT_BEHIND</code> 0.45 → 0.3 避免重叠。<br>时间预算 10.6 秒 ÷ 1.4 = <b>只够撞 7 个</b>——10 选 7，<b>撞哪三个放弃成了真决策</b>。</td>
+        <td>一次性激活车速、快手、深翻</td>
+      </tr>
+      <tr>
+        <td>6</td><td><b>深翻倍率上调</b></td>
+        <td>耗时 +50% 不变，战利品 +100% / +140% / +180%（现在是 +50%/+90%/+130%）。单球更肥，抵掉「少撞几个」。</td>
+        <td>修掉满层负收益</td>
+      </tr>
+      <tr>
+        <td>7</td><td><b>快手压成 2 层</b></td>
+        <td>Lv1 −20%，Lv2 −28% 且「搜刮时不计入白天倒计时」（机制变化）。<br>或者：保持 3 层，但把第 3 层换成「搜刮同时车继续缓行 0.4 户/秒」。</td>
+        <td>修掉后两层空转</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3><span class="tag t-p2">P2</span>设计取舍 · 需要你拍</h3>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:180px">问题</th><th>选项</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>8</td><td><b>两个胜利条件合并还是分开</b></td>
+        <td><b>A（省事）</b>：承认它们是同一个，删掉「800 户」，只留「撑满 100 天」，里程条改成纯展示。<br><b>B（推荐）</b>：让里程变成真变量——去掉 <code>carV</code> 的 8 户封顶，改成「撞球会停车，所以里程随撞球数减少」。那么「800 户」是<b>激进路线</b>（少撞球、早到），「100 天」是<b>稳健路线</b>（多撞球、晚到）。同一个局两个终点，玩家自己选。</td>
+      </tr>
+      <tr>
+        <td>9</td><td><b>整备期还做不做</b></td>
+        <td>建筑保留之后，「全拆返还」才有意义（拆了可以重新布置）。但也可以干脆不做整备期——建筑反正会保留，玩家每晚都可以拆改。<br><b>建议</b>：保留整备期，但把「全额返还」改成「<b>只返还 50%</b>」，否则它是免费重排，没有代价。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="good"><b>第 5 条是整份审计里性价比最高的一处。</b>把球从 8 个加到 10 个、不动任何数值，同时解决四件事：白天不再有 5 秒空转、撞球从「白送」变成「10 选 7」、快手有了真实收益（多撞 2 个）、深翻有了真实取舍（撞得少但每个更肥）、车速有了真实收益（更快 = 撞更多）。一行数组长度 + 两个容差常数。</div>
+</section>
+
+<section id="s06">
+  <h2><span class="n">06</span>对 v2.3 定稿的影响</h2>
+  <p class="lead">v2.3 的机制结构（五章、五 Boss、八怪、18 张卡）不受影响。受影响的是<b>七处基于错误前提的推导</b>。</p>
+
+  <table>
+    <thead><tr><th style="width:170px">v2.3 写的</th><th>实际情况</th><th style="width:190px">改成</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>整备期「全建筑无损拆除 + 全额返还」</td>
+        <td>建筑每天清空，没有可拆的东西</td>
+        <td>建筑保留后成立，但返还比例降到 <b>50%</b></td>
+      </tr>
+      <tr>
+        <td>硬顶「全池唯一通用卡，最强」</td>
+        <td>只值一夜</td>
+        <td>建筑保留后成立，判定「最强」可以保留</td>
+      </tr>
+      <tr>
+        <td>抽 33~51 次，62 层填充 53%~82%</td>
+        <td>那是 34~51 天（断裂状态）的数字</td>
+        <td>活满 100 天抽约 100 次 → 卡池扩到 <b>85 层</b>，出图率下调</td>
+      </tr>
+      <tr>
+        <td>快手「一局多走 240~360 户，全表最强」</td>
+        <td>里程封顶 8 户/天，多走不了</td>
+        <td>价值 = 「撞满球不掉里程」，约 <b>+14% 战利品</b>；加球到 10 个后升到 +29%</td>
+      </tr>
+      <tr>
+        <td>深翻「强」</td>
+        <td>满层净收益 −1.4%，Lv2 是 −19%</td>
+        <td>倍率上调到 +100/140/180%，或判为「中」</td>
+      </tr>
+      <tr>
+        <td>格子 45 格，「最多用到 38，够用」</td>
+        <td>现在永远用不满；保留后 6 天满格</td>
+        <td>45 格会变成真瓶颈，<b>「借风」从「中」升到「强」</b></td>
+      </tr>
+      <tr>
+        <td>怪随天变强（血量 ×1.012^day）</td>
+        <td>真正在涨的是<b>刷怪速度与上限</b>（cap 18、间隔 4 秒），单只血量不是瓶颈</td>
+        <td>血量系数保留，但要同时压 <b>cap 18 → 14</b>，否则 day 100 的 30 座塔需求降不下来</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>6.1 排期怎么变</h3>
+  <p>v2.3 的六批共 5200 行不变。第 1 批从「四处地基 + 存档 900 行」改为：</p>
+  <table>
+    <thead><tr><th>顺序</th><th style="width:190px">内容</th><th class="num" style="width:80px">行数</th></tr></thead>
+    <tbody>
+      <tr><td>①</td><td><b>建筑跨天保留 + 存档</b>（含 45 格建筑状态）</td><td class="num">520</td></tr>
+      <tr><td>②</td><td><b>木头再平衡</b>（收入下调、修理费上调）</td><td class="num">80</td></tr>
+      <tr><td>③</td><td>原有四处地基（篝火不引仇恨、换图纸、怪随天变强、塔等级曲线）</td><td class="num">300</td></tr>
+      <tr><td>④</td><td><b>球 8 → 10</b>（容差调整）</td><td class="num">30</td></tr>
+      <tr><td></td><td><b>合计</b></td><td class="num"><b>930</b></td></tr>
+    </tbody>
+  </table>
+  <p>验收标准也变了。原来是「篝火不再瞬间被拆」，现在加一条更硬的：</p>
+  <div class="ask"><b>验收：连跑 10 局全自动，每局必须能活过第 60 天；其中至少 3 局活过第 90 天。</b>达不到就说明木头还没配平，或者塔需求曲线还压不住。</div>
+</section>
+
+<section id="s07">
+  <h2><span class="n">07</span>等你拍板</h2>
+  <p>三件事，回「按建议」我就按下面的默认走：</p>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:200px">问题</th><th>建议</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td><td><b>P0 两条（建筑保留 + 木头再平衡）现在做吗</b></td>
+        <td><b>做</b>。这是从「玩不到」到「能玩」的唯一分界，而且只改约 600 行。不做的话，第 2~6 批的内容玩家看不到。</td>
+      </tr>
+      <tr>
+        <td>2</td><td><b>球加到 10 个</b></td>
+        <td><b>加</b>。一处分文不花的改动，同时激活车速、快手、深翻三张卡和「撞哪三个」的真决策。</td>
+      </tr>
+      <tr>
+        <td>3</td><td><b>胜利条件走 A 还是 B</b></td>
+        <td><b>B</b>：去掉 8 户封顶，让「早到」和「多捡」变成两条真路线。这一条会重写 <code>updateTravel</code> 的收尾逻辑，约 60 行，放在第 2 批做。</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:16px">审计脚本：<code>node tools/loop_audit.js clock | flow | fort | grid | pool | dead</code>　·　全部数字可复现，代码未改一行。<br>数据快照：seed 21，7 局中位数，单晚 30 秒，120 耐久。</p>
+</section>
+
+</div>
+</body>
+</html>
