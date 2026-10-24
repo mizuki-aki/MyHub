@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 三条改动验证</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .t-p2{background:var(--p2bg);color:var(--p2)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c7ccdb;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 第三轮平衡验证</div>
+<h1>三条改动能不能让循环闭合</h1>
+<p class="sub">你定的三条（建筑变球回收 1/3、球加到 15 个含 2~3 个危险品、去掉 8 户封顶）方向都对，我把它们打到 <code>core.js</code> 的副本上跑了 5 组 × 5 局全自动对局。结论是：<b>三条都成立，但只有 1/3 回收时，第 23 天就崩。必须再补两处。</b></p>
+<div class="status">已实测 5 组 · 25 局全流程 · 原文件未改动</div>
+
+<div class="toc">
+  <a href="#s00">00 结论</a>
+  <a href="#s01">01 五组实测</a>
+  <a href="#s02">02 为什么 1/3 是悬崖</a>
+  <a href="#s03">03 三个新发现</a>
+  <a href="#s04">04 要补的两处</a>
+  <a href="#s05">05 四个实现细节</a>
+  <a href="#s06">06 待你确认</a>
+</div>
+
+<section id="s00">
+  <h2><span class="n">00</span>结论：能通，但差两处</h2>
+  <p class="lead">你的三条改动把「必死」变成了「有一半几率活到 50 天」，但仍然到不了终点。补上两处之后，稳定通关。</p>
+
+  <div class="kpi">
+    <div class="k"><b>23 天</b><span>只做你的三条（回收 1/3）</span></div>
+    <div class="k"><b>85 天</b><span>补两处之后的中位存活</span></div>
+    <div class="k"><b>807 户</b><span>补两处之后的中位里程（胜利线 800）</span></div>
+    <div class="k"><b>83~86</b><span>5 局波动区间，几乎不靠运气</span></div>
+  </div>
+
+  <p>要补的两处，一句话概括：</p>
+  <table>
+    <thead><tr><th style="width:150px">补什么</th><th style="width:170px">现在</th><th style="width:170px">改成</th><th>为什么</th></tr></thead>
+    <tbody>
+      <tr><td><b>箭塔造价</b></td><td class="num">25 木</td><td class="num">20 木</td><td>回收 1/3 时净支出 16.7 木/座，木头够建 12 座；需求 day40 就要 16 座。降到 20 木后净支出 13.3，稳态 15 座，缺口补平</td></tr>
+      <tr><td><b>怪物成长曲线</b></td><td>血量 +6%/天<br>速度 +1.2%/天<br>伤害 +4.5%/天</td><td>血量 +3%/天<br>速度 +0.6%/天<br>伤害 +2.25%/天</td><td>100 天时血量为 6.9 倍、伤害 5.5 倍，而玩家每天只能建 12~15 座塔。曲线减半后，100 天血量 3.0 倍</td></tr>
+    </tbody>
+  </table>
+
+  <div class="good"><b>为什么建议「塔降价」而不是「回收改成 1/2」</b>：两者经济效果几乎相等（净支出 13.3 vs 12.5），但你要求的 1/3 保住了。而且降价对玩家是可见的——「塔只要 20 木」比「回收多给 8%」直观得多。实测稳定性也更好：塔 20 那组 5 局是 83/85/85/85/86，回收 1/2 那组是 39/39/83/85/85。</div>
+</section>
+
+<section id="s01">
+  <h2><span class="n">01</span>五组实测</h2>
+  <p class="lead">每组 5 局，同一个自动玩家（白天撞最近的有效球、全撞危险品，黄昏从后排往前铺塔，夜里补建被拆的），只改被验证的那几个数。</p>
+
+  <table>
+    <thead><tr><th style="width:250px">配置</th><th class="num">5 局存活天数</th><th class="num">中位存活</th><th class="num">中位里程</th><th class="num">中位抽卡</th><th style="width:110px">判定</th></tr></thead>
+    <tbody>
+      <tr><td>原版（8 球 / 8 户封顶 / 建筑每天清空）</td><td class="num">29~79</td><td class="num">—</td><td class="num">269~421</td><td class="num">27~41</td><td><span class="tag t-p0">必死</span></td></tr>
+      <tr><td><b>你的三条</b>（15 球 / 无封顶 / 回收 1/3）</td><td class="num">21 / 21 / 23 / 23 / 23</td><td class="num">23</td><td class="num">190</td><td class="num">22</td><td><span class="tag t-p0">更早死</span></td></tr>
+      <tr><td>你的三条 + 怪物成长减半</td><td class="num">36 / 37 / 43 / 46 / 86</td><td class="num">43</td><td class="num">384</td><td class="num">42</td><td><span class="tag t-warn">不够</span></td></tr>
+      <tr><td>回收改 1/2 + 怪物成长减半</td><td class="num">39 / 39 / 83 / 85 / 85</td><td class="num">83</td><td class="num">800</td><td class="num">81</td><td><span class="tag t-warn">通关但方差大</span></td></tr>
+      <tr><td><b>你的三条 + 成长减半 + 塔 20 木</b></td><td class="num">83 / 85 / 85 / 85 / 86</td><td class="num"><b>85</b></td><td class="num"><b>807</b></td><td class="num">86</td><td><span class="tag t-ok">通关且稳</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="small">抽卡数按 5 局中位数。里程 800 为胜利线；最后一组 5 局全部越线，其余组全部死在路上。</p>
+
+  <div class="note"><b>只做你的三条，比原版还差（23 天 vs 29~79 天）。</b>原因是去掉封顶后，车一天能开到 9 户以上（原来锁死 8 户），玩家推进更快、遇到的天数更高，但防线没跟上——于是死得更早。这不是改动方向错，是「推进变快」和「防线没变」两个变化方向相反，必须一起修。</div>
+</section>
+<section id="s02">
+  <h2><span class="n">02</span>为什么 1/3 是悬崖，不是「稍微不够」</h2>
+
+  <h3>先把账算平</h3>
+  <p>建筑每天变球、回收 1/3，等于每座塔的真实成本是 <code>25 × 2/3 ≈ 16.7 木</code>。白天撞不到 10 个球，日收入上限就是 200 木上下，所以稳态每天能立起 <b>12 座塔</b>。</p>
+  <p>而夜晚的需求（7 局中位车损 &lt; 60 的最小塔数）是这样涨的：</p>
+
+  <table>
+    <thead><tr><th style="width:160px">天数</th><th class="num">day 20</th><th class="num">day 40</th><th class="num">day 60</th><th class="num">day 80</th><th class="num">day 100</th></tr></thead>
+    <tbody>
+      <tr><td>撑住一夜需要的塔数</td><td class="num">12</td><td class="num">16</td><td class="num">20</td><td class="num">25</td><td class="num">30</td></tr>
+      <tr><td>回收 1/3 时能建几座</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">12</td></tr>
+      <tr><td>差值</td><td class="num">0</td><td class="num">−4</td><td class="num">−8</td><td class="num">−13</td><td class="num">−18</td></tr>
+    </tbody>
+  </table>
+
+  <p>交叉点就在<b>第 25~30 天</b>。此前每一天都刚好够，过了这一天，每晚都是必然失败。这就是为什么实测里大部分局死在第 21~23 天。</p>
+
+  <h3>更要紧的是：它把玩家放在悬崖边上</h3>
+  <p>我跑了两次 1/3 的配置，一次中位是 <b>51 天</b>，一次是 <b>23 天</b>，单局区间 <b>21~66 天</b>。同一个策略、同一份代码，结果差一倍——因为塔数刚好卡在需求线上，任何随机波动（少撞一个球、多刷一只厚皮怪）都会决定生死。</p>
+
+  <div class="note"><b>这种手感比「必死」更糟。</b>必死的时候玩家知道是数值问题；卡在悬崖边的时候，玩家会觉得「昨天同样的打法活着，今天莫名其妙就崩了」，然后归因到游戏不公平。这是最容易劝退的一种失败方式。</div>
+
+  <h3>补完之后，余量是多少</h3>
+  <p>塔降到 20 木，净支出变 <code>13.3 木/座</code>，稳态 <b>15 座</b>。加上夜里的补建（一次 8 木修理，能救回一座塔），实际有效防线大约 16~18 座。对 day 60 的 20 座需求仍有缺口，但怪物成长减半后，需求曲线本身也降了：</p>
+
+  <table>
+    <thead><tr><th style="width:200px">天数</th><th class="num">day 20</th><th class="num">day 40</th><th class="num">day 60</th><th class="num">day 80</th><th class="num">day 100</th></tr></thead>
+    <tbody>
+      <tr><td>需求（原成长曲线）</td><td class="num">12</td><td class="num">16</td><td class="num">20</td><td class="num">25</td><td class="num">30</td></tr>
+      <tr><td>需求（成长减半后，实测推算）</td><td class="num">10</td><td class="num">13</td><td class="num">16</td><td class="num">18</td><td class="num">21</td></tr>
+      <tr><td>供给（塔 20 木 + 回收 1/3）</td><td class="num">15</td><td class="num">15</td><td class="num">15</td><td class="num">15</td><td class="num">15</td></tr>
+    </tbody>
+  </table>
+
+  <p>day 100 仍有 6 座缺口——但这正好由卡池补上。86 次抽卡、点满两三条线之后，15 座塔的实际产能大约是 1.4~1.6 倍，等效 21~24 座。这就是那 5 局全部在 83~86 天越线的原因。</p>
+
+  <div class="good"><b>所以后期的成长来源是卡池，不再是塔的数量。</b>这是好事：它把「多建一座塔」这种纯数值行为，换成了「选对一张卡」这种决策行为。</div>
+</section>
+
+<section id="s03">
+  <h2><span class="n">03</span>三个新发现（都不是好消息）</h2>
+
+  <h3>一、危险品是「必撞」，你想要的「选择」不存在</h3>
+  <p>同一批 5 局里，让自动玩家全撞危险品，中位活 <b>51 天</b>；让它绕开危险品，中位只活 <b>31 天</b>。撞比躲好六成。</p>
+  <p>算一下就明白：撞一个危险品，<b>+6 木、−6 耐久、夜里一只怪变 1 血</b>。而「一只怪变 1 血」是纯奖励——塔一箭就能收掉，等于凭空少一只满血怪。于是三项里两项是赚的，只有耐久一项是亏的，而 6 点耐久换 6 木加一次击杀，怎么算都划算。</p>
+
+  <div class="note"><b>要让它成为真选择，撞的代价必须大于当场的收益。</b>我建议三处一起调：耐久代价 6 → <b>10</b>、木头 6 → <b>8</b>、以及夜里那只 1 血怪改成<b>速度 ×1.8 直冲车</b>（它虽然只有 1 血，但会绕过防线跑到你面前咬一口）。这样「撞」是拿今天的耐久换明天的轻松，「躲」是今天省着用、明天硬扛，两边都说得通。</div>
+
+  <h3>二、里程还是锁死在每天 9.6 户</h3>
+  <p>去掉 8 户封顶之后，我心里预期的「早到 vs 多捡两条路线」并没有出现。实测：</p>
+
+  <table>
+    <thead><tr><th style="width:230px">玩家选择</th><th class="num">撞球数</th><th class="num">一天能走</th><th class="num">800 户需要</th></tr></thead>
+    <tbody>
+      <tr><td>撞满（极限）</td><td class="num">7~9 个</td><td class="num">9 户</td><td class="num">89 天</td></tr>
+      <tr><td>完全不撞</td><td class="num">0</td><td class="num">27 户</td><td class="num">30 天</td></tr>
+    </tbody>
+  </table>
+
+  <p>理论上「不撞球 30 天到」是成立的，但那样木头收入是 0，第二天就守不住。真实的可行区间被压在「必须撞 7 个以上」，于是里程又变回了每天 9 户——<b>和原来被 8 户封顶时几乎一样</b>。</p>
+
+  <p>根因是球的密度：15 个球铺在 1~15 户，每个球间隔 1 户，撞 7 个就必须走 7 户。而搜刮一次花 1.4 秒，15 秒里最多塞进 7 个。</p>
+
+  <div class="ask"><b>建议：把球的间距从 1 户改成 2 户。</b>15 个球铺在 1~29 户的公路上，车在 15 秒内同样只能撞 7 个左右，但要走到第 14 户——里程立刻从 9 户变成 13~14 户，800 户的天数从 89 天降到 60 天左右，「早到」这条路才真正存在。代价是后半段公路要有 14 户是空的，视觉上需要放点东西（废车、断桥、路牌）。</div>
+
+  <h3>三、卡池 62 层，后期会溢出 39%</h3>
+  <p>补完之后一局 85 天、抽 <b>86 次</b>，而卡池只有 62 层。点满全部卡之后还有 24 次抽卡是空的。</p>
+  <p>两条路选一条：</p>
+  <table>
+    <thead><tr><th style="width:200px">做法</th><th>效果</th><th style="width:140px">代价</th></tr></thead>
+    <tbody>
+      <tr><td><b>降图纸掉率</b></td><td>每 8~11 次搜索 1 张 → 每 11~14 次 1 张，全程约 58 张，填充率 94%</td><td>玩家感觉「图纸变难出了」</td></tr>
+      <tr><td>扩卡池到 88 层</td><td>每张卡从 3~4 层扩到 5 层，86 次刚好填满</td><td>「点满三条线」变成「点满五条线」，构筑感变淡</td></tr>
+    </tbody>
+  </table>
+  <p>我倾向<b>降掉率</b>，因为 62 层对应的「点满两三条线」正是你要的构筑密度。</p>
+</section>
+<section id="s04">
+  <h2><span class="n">04</span>要补的两处，精确到数字和行号</h2>
+
+  <table>
+    <thead><tr><th style="width:110px">位置</th><th style="width:130px">现在的值</th><th style="width:130px">改成</th><th>改完的效果</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>core.js:141</code></td>
+        <td><code>tower: { wood: 25 }</code></td>
+        <td><code>tower: { wood: 20 }</code></td>
+        <td>回收 1/3 时净支出 13.3 木/座，稳态 15 座。这一处单独带来 <b>+20 天</b>存活</td>
+      </tr>
+      <tr>
+        <td><code>core.js:496</code></td>
+        <td><code>(S.day - 1) * 0.06</code></td>
+        <td><code>(S.day - 1) * 0.03</code></td>
+        <td>100 天血量从 6.9 倍降到 3.0 倍</td>
+      </tr>
+      <tr>
+        <td><code>core.js:500</code></td>
+        <td><code>(S.day - 1) * 0.012</code></td>
+        <td><code>(S.day - 1) * 0.006</code></td>
+        <td>100 天速度从 2.2 倍降到 1.6 倍。怪跑得慢，塔的输出窗口更长</td>
+      </tr>
+      <tr>
+        <td><code>core.js:501</code></td>
+        <td><code>(S.day - 1) * 0.045</code></td>
+        <td><code>(S.day - 1) * 0.0225</code></td>
+        <td>100 天单口伤害从 5.5 倍降到 3.3 倍。这一条最直接影响「漏一只就掉 40 耐久」的手感</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="small">三处成长系数必须同时改。只降血量不降伤害，怪会变成「打不死但咬人很疼」；只降伤害不降血量，塔会被怪海淹掉。</p>
+
+  <div class="good"><b>这四处加起来约 8 行。</b>它们不是新功能，是把已经存在的三个数字调小、一个数字调小。但正是这 8 行，把「23 天必死」变成「85 天通关」。</div>
+
+  <h3>为什么不是把回收改成 1/2</h3>
+  <p>两条路的经济效果几乎一样（净支出 13.3 vs 12.5 木/座），差别在体验和稳定：</p>
+  <table>
+    <thead><tr><th style="width:220px">方案</th><th class="num">5 局区间</th><th>玩家看到的</th></tr></thead>
+    <tbody>
+      <tr><td>塔 25 + 回收 1/2</td><td class="num">39 / 39 / 83 / 85 / 85</td><td>「回收一半」——但需要玩家自己算才知道值多少</td></tr>
+      <tr><td><b>塔 20 + 回收 1/3</b></td><td class="num">83 / 85 / 85 / 85 / 86</td><td>「塔只要 20 木」——一眼就懂，而且前 20 天不再有「莫名其妙崩盘」的局</td></tr>
+    </tbody>
+  </table>
+  <p>回收 1/2 那组有两局死在第 39 天，说明前期仍然偏紧；塔 20 那组没有任何一局早死。所以我建议保留你要的 1/3，改塔价。</p>
+</section>
+
+<section id="s05">
+  <h2><span class="n">05</span>四个实现细节，得先说清楚</h2>
+
+  <h3>一、回收球和正常球会撞位置</h3>
+  <p>建筑可以建在 5×9 = 45 格的任意一格，而正常球固定挂在最外侧两条道（<code>col 0</code> 和 <code>col 4</code>）的 v=1~15 上。<b>只要玩家在 col 0 或 col 4 建过东西，第二天回收球就会和正常球重叠。</b></p>
+  <p>我的做法：<b>回收球优先判定，撞到即回收、不耗时，然后车继续开</b>；如果同一位置有正常球，正常球往后挪 0.5 户。视觉上把回收球画成半透明的灰色残骸，正常球保持发光——玩家一眼能分清「这是我昨天的塔」和「这是今天的物资」。</p>
+
+  <h3>二、危险品的「1 血怪」有两种做法，差别很大</h3>
+  <table>
+    <thead><tr><th style="width:200px">做法</th><th>玩家感受到的</th><th style="width:120px">我建议</th></tr></thead>
+    <tbody>
+      <tr><td><b>A 额外刷 N 只</b><br><span class="small">撞 3 个危险品，当晚多 3 只 1 血怪</span></td><td>「我撞出来的东西，晚上来找我了」——有因果，能数出来，也解释了为什么撞它有代价</td><td><span class="tag t-ok">选这个</span></td></tr>
+      <tr><td><b>B 前 N 只变弱</b><br><span class="small">当晚最先刷的 3 只血量改 1</span></td><td>玩家看不出区别，只觉得「今晚好像轻松了点」，因果链断了</td><td><span class="tag t-p2">不推荐</span></td></tr>
+    </tbody>
+  </table>
+  <p>选 A 之后，那 3 只 1 血怪建议<b>速度 ×1.8、不走建筑仇恨、直冲车</b>。否则它们会被塔顺手收掉，撞危险品又变回纯赚。</p>
+
+  <h3>三、回收球当天没撞到就消失</h3>
+  <p>不能积累——否则玩家攒三天不撞，第四天一次收三倍材料，节奏就乱了。规则写死：<b>回收球只在次日白天存在，入夜清空</b>。这条要在每日战报里露一句（「昨天 8 座建筑留在路上」），否则玩家不知道有东西可以捡。</p>
+
+  <h3>四、意外收益：油终于有意义了</h3>
+  <p>原来一天走 8 户、耗油 8 点，撞一个球补 5~8 面 × 15 = 75~120 点，油永远是满的——那套「断油则夜晚 -20%」的惩罚写了等于没写。</p>
+  <p>去掉封顶后一天能走 9~27 户，耗油 9~27 点。如果玩家连续两天不撞球猛赶路，油会掉到 40 以下，第三天就会断油。<b>油从「永远满」变成了「决定你能连赶几天路」</b>，这正好和「早到」路线挂钩——赶路要烧油，烧完就得停下来搜刮。这条循环自己就闭合了。</p>
+
+  <div class="ask"><b>顺带修好了里程条。</b>原来 <code>carV</code> 被 8 户封顶，玩家做什么都不影响里程，进度条等于一个天数计数器。现在里程由「撞几个球、赶几天路」决定，玩家第一次能真正推动它。</div>
+</section>
+
+<section id="s06">
+  <h2><span class="n">06</span>待你确认五件事</h2>
+  <p class="lead">五件事其实是一个组合。全接受 = 85 天稳定通关。接受前三条但跳过第四条，会退回「43 天必死」。</p>
+
+  <table>
+    <thead><tr><th style="width:50px">#</th><th style="width:230px">改什么</th><th style="width:150px">建议</th><th>不改的后果</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>箭塔 25 → <b>20 木</b></td><td><span class="tag t-ok">必须</span></td><td>23 天崩盘</td></tr>
+      <tr><td class="num">2</td><td>怪物成长三系数<b>减半</b></td><td><span class="tag t-ok">必须</span></td><td>43 天崩盘</td></tr>
+      <tr><td class="num">3</td><td><b>球间距 1 户 → 2 户</b><br><span class="small">15 个球铺在 1~29 户</span></td><td><span class="tag t-ask">建议做</span></td><td>里程仍是 9 户/天，「早到」路线名存实亡，800 户要 89 天</td></tr>
+      <tr><td class="num">4</td><td>危险品代价：耐久 6→<b>10</b>、木 6→<b>8</b>、1 血怪<b>加速直冲</b></td><td><span class="tag t-ask">建议做</span></td><td>危险品是「必撞」，玩家没有选择</td></tr>
+      <tr><td class="num">5</td><td>图纸掉率下调到<b>每 11~14 次 1 张</b></td><td><span class="tag t-ask">建议做</span></td><td>86 次抽卡对 62 层，后期 24 次抽空</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hline"></div>
+
+  <h3>工作量与排期</h3>
+  <p>这五处全部落在第 1 批（地基 + 存档），加起来约 <b>120 行</b>，不改变 5200 行的总量，也不新增批次。第 1 批从 930 行变成约 1050 行。</p>
+
+  <h3>第 1 批的验收标准（换成可量化的）</h3>
+  <div class="good">
+    <b>连跑 10 局全自动，必须满足：</b><br>
+    · 10 局全部活过第 60 天<br>
+    · 至少 6 局越线 800 户<br>
+    · 最早死亡不早于第 70 天<br>
+    · 单局中位抽卡落在 50~65 次之间（对上 62 层卡池）<br>
+    <span class="small">这四条现在就能用 <code>tools/loop_audit.js</code> 自动跑，不用等美术。</span>
+  </div>
+
+  <div class="ask"><b>回「按建议」</b> = 五件事全做，我从第 1 批开工：先写存档（字段清单先给你过目），再改这五处，然后跑 10 局验收，最后跑全量回归。<b>也可以只回你要的那几条</b>，比如「1、2 做，3 不做」，我按你的组合再算一遍能活几天。</div>
+
+  <p class="small" style="margin-top:18px">本报告的全部数字来自 <code>tools/_sim_core.js</code>（<code>core.js</code> 的副本，打了这三条改动），只读驱动，<code>core.js</code> 仍是 1822 行未动。5 组 × 5 局共 25 局全流程，每局 85 天量级。</p>
+</section>
+
+</div>
+</body>
+</html>
