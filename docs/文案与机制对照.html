@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 文案 × 机制对照</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--askbg);color:var(--ask);font-size:12.5px;font-weight:600;border:1px solid #cfe9ee}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c9d0e0;color:var(--ink)}
+  .quote{background:#fafbfe;border:1px solid var(--line);border-radius:8px;padding:8px 12px;
+    font-size:13px;color:var(--ink2);margin:8px 0}
+  .quote b{color:var(--ink);font-weight:600}
+  .vote{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+  .vote .v{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fafbfe}
+  .vote .v b{display:block;font-size:13.5px;margin-bottom:2px}
+  .vote .v span{font-size:12.5px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 文案对照 · 2026-10-24</div>
+<h1>文案已经贴着机制写了，但有 9 处接不住</h1>
+<p class="sub">我把《文案全稿》的每一条对着 <code>core.js</code> 读了一遍。先说结论：这份文案不是凭空写的，它主动往机制上靠（悬浮球的昼夜、影的瞬移、篝火五格光照，都对得上）。但有 9 处是<b>文案已经承诺、代码里没有</b>，另有 4 处建议改字更省事。</p>
+<div class="status">状态：等你拍 4 件事 · 代码未动</div>
+
+<div class="toc">
+  <a href="#s01">01 三处必改</a>
+  <a href="#s02">02 六处补机制</a>
+  <a href="#s03">03 四处建议改字</a>
+  <a href="#s04">04 层数核对</a>
+  <a href="#s05">05 工作量重估</a>
+  <a href="#s06">06 回你三问</a>
+  <a href="#s07">07 待你定</a>
+</div>
+
+<section id="s01">
+<h2><span class="n">01</span>三处必改：不改，文案就是假的</h2>
+
+<h3>1 · 「瞄准」这张卡没有落点（最严重）</h3>
+<p>代码里箭塔选目标的逻辑是 <code>dist = dv2 + |col-b.col| * 0.8</code> 取最小（<code>core.js:735-741</code>）——它打的是<b>离自己最近</b>的那只，也就是推进最深、最贴近车的那只。这跟 A2 写的「只打最前」其实是一回事，所以箭塔的默认行为已经是「救火」。</p>
+<p>那么「瞄准 / 先打最前面」就和默认行为重合，<b>拿了等于没拿</b>。但这里有个真真空：</p>
+<div class="note"><b>远程怪现在没人管。</b>骨弓和走弓停在目标上方 1.5 格（<code>stopV = tg.row + 0.5 + 1.5</code>），v 值一直很大，而箭塔永远优先打近的那只。结果是弓手站在射程内、安全输出整晚，塔一眼都不看它。</div>
+<p>三个改法，选一个：</p>
+<div class="vote">
+  <div class="v"><b>A 优先打远程</b><span>被瞄准的塔改为优先攻击 archer 类。风味句改「先打放箭的。」</span></div>
+  <div class="v"><b>B 优先打厚皮</b><span>改为优先攻击血量最高目标，专治重尸/肉山/Boss。风味句改「打那个厚的。」</span></div>
+  <div class="v"><b>C 锁定增伤</b><span>连续攻击同一目标，每箭 +12%，换目标清零。风味句保留原句。</span></div>
+</div>
+<p class="small">我倾向 A：它补的是真空，不是加数值；而且「瞄准」这个词天然指向「挑一个值得打的」。</p>
+
+<h3>2 · 「齐射」和信标的机制对不上</h3>
+<p>A2 把信标定成「标出一路，箭塔先打」——这是<b>优先级</b>。但 v2.2 里信标的基础功能是「标记目标受到箭塔伤害 +15%」，这是<b>伤害</b>。两句话不是一件事。</p>
+<p>建议按文案走，把信标改成优先级：被标记的那条车道，所有怪成为箭塔的首选目标。那么「齐射」就有了落点：</p>
+<div class="quote"><b>齐射</b>　被标记的目标，全图箭塔同时开火一轮（无视射程与冷却），每 8 秒一次。</div>
+<p>这个效果比「伤害 +15%」有画面得多，而且和「一起放箭」四个字严丝合缝。代价是实现上要加一个「齐射事件」，约 60 行。</p>
+
+<h3>3 · 「撞击」在白天没有对象</h3>
+<p>v2.2 把冲撞写成「白天车碾过怪造成伤害」——<b>但白天根本没有怪</b>。这是我自己方案里的漏洞，文案把它照抄下来了。</p>
+<p>改成夜里的效果更合理，也更贴「直接撞过去」：</p>
+<div class="quote"><b>撞击</b>　夜里怪贴到车前时，车自动把它顶开（击退 2 格 + 25 伤害），每 3 秒一次。</div>
+<p>这给了「被围住」一个反制手段。现在被围住只能等死，这是玩家挫败感的主要来源之一。</p>
+</section>
+
+<section id="s02">
+<h2><span class="n">02</span>六处补机制：文案写对了，代码里没有</h2>
+
+<h3>4 · 八个名字，三种行为</h3>
+<p>这是整份文案里最值得投钱的一处。文案给了八个有辨识度的名字，但代码里只有三条 AI 分支：<code>archer</code>、<code>shadow</code>、以及<b>其余全是近战平推</b>。也就是说游尸、爬尸、重尸、肉蛭、肉山这五个，行为<b>一模一样</b>，只有血量和体型不同。</p>
+<table>
+  <thead><tr><th style="width:110px">文案承诺</th><th style="width:120px">现在的实际</th><th>要加什么</th><th style="width:80px">行数</th></tr></thead>
+  <tbody>
+    <tr><td>爬尸「趴着过来，比站着快」</td><td>速度 0.62 vs 0.58，肉眼分不出</td><td>受击后短暂加速（被打反而更快）</td><td class="num">40</td></tr>
+    <tr><td>肉蛭「贴上来就不松口」</td><td>和游尸一样，咬一口退一下</td><td>吸附：贴住后不再有攻击间隔，持续掉耐久</td><td class="num">50</td></tr>
+    <tr><td>肉山「箭扎进去没反应」</td><td>只是 88 血</td><td>护甲：远程伤害减免 40%，逼玩家用火/油桶</td><td class="num">30</td></tr>
+    <tr><td>走弓「射完就挪」</td><td>站桩，和骨弓完全一样</td><td>射击后横移一格，换车道继续</td><td class="num">70</td></tr>
+  </tbody>
+</table>
+<div class="good"><b>这 190 行是整份文案里性价比最高的一段。</b>因为它把「八种怪」从数值表变成了八个能认出来的东西，而玩家对你的「简陋」的第一反应，往往就是「敌人长得都一样、打得都一样」。</div>
+
+<h3>5 · 「油」这个东西不存在</h3>
+<p>事件里出现了两次油：「抽油，够跑两天」「多烧两天油」。但游戏里只有<b>能量</b>（80 起，满 100 时每秒回 0.5 耐久），没有油表。玩家读到这句会去找油量表。</p>
+<p>两条路，选一条：</p>
+<table>
+  <thead><tr><th style="width:120px">做法</th><th>代价</th></tr></thead>
+  <tbody>
+    <tr><td><b>改字</b>：事件里的「油」改成「电」或「补给」</td><td>零成本。但末日公路片里没油味儿，可惜</td></tr>
+    <tr><td><b>改机制</b>：把「能量」正式命名为油表</td><td>约 40 行（改名 + UI）。但「满油回耐久」这个逻辑要重新解释成「油足时能烧暖气/给车身加热」，说得通但绕</td></tr>
+  </tbody>
+</table>
+<p class="small">我倾向改字。「能量」在机制上是体力（吃罐头回、满了回血），硬叫油会让后续所有文案都别扭。</p>
+
+<h3>6 · 长明 vs 原来的余烬</h3>
+<p>你把它从「余烬」改成「长明」，风味句「守到天亮」。但 v2.2 给这张卡的效果是「篝火被摧毁后原地燃烧 2 秒」——<b>2 秒和「守到天亮」差了三个数量级</b>，玩家拿到会觉得被骗。</p>
+<p>两个修法：</p>
+<div class="quote"><b>改效果</b>　长明 = 篝火血量归零后，转化为一团不灭的火，永久保留 30% 灼烧，直到天亮。<br><b>改字</b>　保留原效果，风味句改成「烧塌了也是火。」</div>
+<p>我倾向改效果：它让「篝火被拆」这件事不再等于「防线崩了」，而这正是现在夜里最挫败的一刻。</p>
+
+<h3>7 · 五章五套机制，不是五句话</h3>
+<p>B1 这五句是整份文案里最漂亮的，但它们每一句背后都是一套新规则。这是工作量的大头，必须提前说清。</p>
+<table>
+  <thead><tr><th style="width:96px">章</th><th style="width:190px">文案写的现象</th><th>需要的机制</th><th class="num" style="width:70px">行数</th></tr></thead>
+  <tbody>
+    <tr><td>1 荒路</td><td>它们还不会追车</td><td>后期怪会主动换车道朝车靠（现在怪出生车道随机、永不换道）</td><td class="num">90</td></tr>
+    <tr><td>2 霉雨</td><td>雨是酸的，铁烂得快，火不烂</td><td>每夜建筑持续掉血，篝火免疫</td><td class="num">60</td></tr>
+    <tr><td>3 涉水</td><td>水底下的东西不追光</td><td>一类怪无视光照（不进光圈、不吃灼烧、不减速）</td><td class="num">50</td></tr>
+    <tr><td>4 锈带</td><td>火着得快，灭得也快</td><td>篝火灼烧 ×1.5，血量 ×0.6</td><td class="num">30</td></tr>
+    <tr><td>5 灯火</td><td>灯底下站着东西</td><td>Boss 常驻 + 全场常亮，篝火失去意义</td><td class="num">110</td></tr>
+  </tbody>
+</table>
+
+<h3>8 · Boss 的五个行为，不是五个换皮</h3>
+<table>
+  <thead><tr><th style="width:100px">Boss</th><th style="width:200px">文案写的行为</th><th>问题</th></tr></thead>
+  <tbody>
+    <tr><td>守路的</td><td>站在路中间不动，等车自己开过来</td><td><span class="tag t-warn">时间冲突</span>这是<b>白天</b>的行为，但 Boss 是夜里出现的</td></tr>
+    <tr><td>撑伞的</td><td>雨里唯一高出别人一头</td><td>体型 + 范围雨幕，最省事的一个</td></tr>
+    <tr><td>抬轿的</td><td>从水里顶起一整块桥板</td><td>要改地形，或者退化成「挡住一条道」</td></tr>
+    <tr><td>大个儿</td><td>宽到占两条道</td><td>需要双车道碰撞盒，箭塔的「±1 道」判定要跟着改</td></tr>
+    <tr><td>门前的</td><td>光找不到它的脸</td><td>免疫篝火，和第三章「不追光」是同一套代码，可复用</td></tr>
+  </tbody>
+</table>
+<div class="note"><b>「守路的」需要一个决定</b>：要么它是<b>白天 Boss</b>（车必须绕开它，撞上就掉耐久），那就多了一套白天玩法；要么改成夜里挡在路中间。前者更有意思，后者更省事。这一条你定。</div>
+
+<h3>9 · 战报里两个「户」不是一回事</h3>
+<div class="quote">第 12 天 · 搜了 <b>7 户</b> · 折了 3 座 · 还差 <b>793 户</b></div>
+<p>前一个「户」是搜了几个球（一天 8 个），后一个是还剩多少路（800 的总里程）。同一个字两个意思，玩家会算「7 + 793 差 800，那我一天只走了 7 户？」，然后发现对不上——因为里程是白天开出来的，跟搜刮数无关。</p>
+<p>建议把前一个改成 <b>「翻」</b>：<code>第 12 天 · 翻了 7 处 · 折了 3 座 · 还差 793 户</code>。一个动词带过，不占「户」的定义。</p>
+</section>
+<section id="s03">
+<h2><span class="n">03</span>四处改字就行，不用动代码</h2>
+<p class="lead">这些不是文案的错，是文案和代码的措辞没对齐。改字比改代码便宜得多。</p>
+<table>
+  <thead><tr><th style="width:150px">位置</th><th style="width:230px">现在</th><th>问题与建议</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>A2 箭塔</td>
+      <td>四格点杀，只打最前</td>
+      <td>代码打的是<b>离自己最近</b>的那只（推进最深、最贴车），不是 v 最大的那只。建议改成<b>「四格点杀，先打最近的」</b>——其实更贴「救火」的直觉，也顺带解释为什么远程怪总被忽略。</td>
+    </tr>
+    <tr>
+      <td>B3 战报</td>
+      <td>搜了 7 <b>户</b> · 还差 793 <b>户</b></td>
+      <td>同一个「户」两个意思（搜了几个球 / 还剩多少路），玩家会算不平。改成<b>翻了 7 <b>处</b></b>，一个动词带过。</td>
+    </tr>
+    <tr>
+      <td>C 级 骨弓图鉴</td>
+      <td>它知道你在哪，你不知道它在哪</td>
+      <td>这是俯视视角，其实都看得见。改成<b>「它在暗处，你在明处」</b>，保留不对称感但不说谎。</td>
+    </tr>
+    <tr>
+      <td>A1-5 信标</td>
+      <td>原「信号塔」改「信标」</td>
+      <td>这个名字更好（2 字、呼应光），但<b>改名会牵连四处</b>：<code>BUILD</code> 的 key、卡表的「信线」、v2.2 文档、以及所有提到「信号塔」的地方。我实现时会统一，你不用管。</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<section id="s04">
+<h2><span class="n">04</span>层数核对：62 层，正好</h2>
+<p>你把障线从 3 张压到 2 张、搜刮线从 2 张扩到 3 张，总数我算了一遍——<b>刚好还是 62 层</b>，不用调。</p>
+
+<table>
+  <thead><tr><th style="width:76px">线</th><th style="width:250px">卡（层数）</th><th class="num" style="width:70px">合计</th><th>机制落点</th></tr></thead>
+  <tbody>
+    <tr><td>火</td><td>助燃 5 / 长明 3 / 借风 3</td><td class="num">11</td><td>灼烧+20% · <span class="tag t-warn">待改</span> · 十字臂+1</td></tr>
+    <tr><td>箭</td><td>连珠 3 / 瞄准 3 / 穿甲 3</td><td class="num">9</td><td>攻速-15% · <span class="tag t-warn">待改</span> · 穿透</td></tr>
+    <tr><td>障</td><td>棘刺 3 / 硬顶 5</td><td class="num">8</td><td><span class="tag t-warn">待改</span> · 血量+20%</td></tr>
+    <tr><td>油</td><td>重药 5 / 引线 3</td><td class="num">8</td><td>爆炸+25% · 连锁引爆</td></tr>
+    <tr><td>信</td><td>高照 3 / 齐射 3</td><td class="num">6</td><td>范围+1/冷却-1 · <span class="tag t-warn">待改</span></td></tr>
+    <tr><td>车</td><td>护板 5 / 撞击 3 / 远光 3</td><td class="num">11</td><td>耐久上限 · <span class="tag t-warn">待改</span> · 车灯</td></tr>
+    <tr><td>搜刮</td><td>深翻 3 / 嗅图 3 / 快手 3</td><td class="num">9</td><td>战利品×2 · 保底图纸 · 搜刮-20%</td></tr>
+    <tr><td colspan="2"><b>合计</b></td><td class="num"><b>18 张 / 62 层</b></td><td>抽 27~41 次，填充率 44%~66%</td></tr>
+  </tbody>
+</table>
+
+<h3>「快手」是全表最被低估的一张卡</h3>
+<p>我上一轮把搜刮线判成「两张废卡」，这次重新算了一遍，<b>快手不但不废，可能是最强的卡之一</b>：</p>
+<table>
+  <thead><tr><th style="width:200px">项目</th><th class="num">数值</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>一天搜 8 个球</td><td class="num">8 × 1.4s = 11.2s</td><td>占白天 15 秒的 <b>75%</b></td></tr>
+    <tr><td>快手省下的时间</td><td class="num">2.24s</td><td>搜刮 1.4 → 1.12 秒</td></tr>
+    <tr><td>Lv1 车速换算</td><td class="num">+4 户/天</td><td>0.55 秒/户</td></tr>
+    <tr><td>满 100 天累计</td><td class="num">+400 户</td><td>正好是 800 户目标的一半</td></tr>
+  </tbody>
+</table>
+<div class="good"><b>这意味着搜刮线有了一个真取舍</b>：深翻换材料（翻倍战利品，代价是该道夜怪 +30%），快手换里程（直接推进胜利条件）。两条路都通，玩家得选。这比原来「两张都是废卡」好太多。</div>
+<p class="small">而深翻能成立，前提是「木头给出路」那条地基修正落地——否则木头溢出到 400，多翻出来的东西装不进背包。</p>
+</section>
+
+<section id="s05">
+<h2><span class="n">05</span>工作量重估：3760 → 约 5200 行</h2>
+<p class="lead">v2.1 那版估 3760 行时，是按「Boss 换皮、8 种怪 3 套行为、章节机制只是加减数值」估的。文案落地之后，这几个假设都要改。</p>
+
+<table>
+  <thead><tr><th style="width:230px">多出来的东西</th><th class="num" style="width:80px">行数</th><th>为什么之前没估到</th></tr></thead>
+  <tbody>
+    <tr><td>8 种怪的行为分化</td><td class="num">+190</td><td>原以为换名字就行，但文案给每个怪都写了行为</td></tr>
+    <tr><td>五章机制各一套</td><td class="num">+340</td><td>原以为只是「酸雨扣血」一条，实际是五条不同的规则</td></tr>
+    <tr><td>Boss 独立行为</td><td class="num">+300</td><td>原估 700 含换皮，实际五个都要独立写</td></tr>
+    <tr><td>小鱼旁白系统</td><td class="num">+150</td><td>A6 那 10 条提示语需要有地方显示，现在代码里没有 toast</td></tr>
+    <tr><td>每日战报</td><td class="num">+60</td><td>新增</td></tr>
+    <tr><td>四张卡重做</td><td class="num">+60</td><td>瞄准/齐射/撞击/长明</td></tr>
+    <tr><td colspan="1"><b>合计</b></td><td class="num"><b>+1100</b></td><td>3760 → <b>约 4860 ~ 5200</b></td></tr>
+  </tbody>
+</table>
+
+<div class="note"><b>旁白系统有一个隐藏成本。</b>文案写「前七条小鱼用平语气念，后三条用短句砸出来」——「念」意味着有声音层。如果不做语音，只做文字 toast，那这句设定就落不了地。做语音的话，10 条 × 7 种情绪的录音，或者 TTS，是另一笔账。建议先做文字 + 不同的出现动效（平语气淡入、砸的抖动），语音留到后面。</div>
+</section>
+
+<section id="s06">
+<h2><span class="n">06</span>回你提的三个问题</h2>
+
+<h3>一、篝火亏本——<b>不用改文案</b></h3>
+<p>你在确认点一里问「要不要把 B1 第二章改成对策而不是现象」。答案是<b>不用，而且千万别改</b>。</p>
+<p>篝火现在亏，不是设计如此，是仇恨机制漏了一条（怪走到哪咬哪，篝火挡路就被拆）。v2.2 的第 1 条地基修正就是补这一条：<b>篝火不进仇恨列表</b>，怪只咬路障和车。配套把灼烧 18→26、血 180→260、减速 45%→50%。</p>
+<div class="good"><b>改完之后，火线三张卡（助燃/长明/借风）才成立</b>，而你那句「火是拿来给自己看的，不是拿来打赢的」在故事里依然完全成立——机制上它不再亏，不等于叙事上它必须亏。这两件事可以同时为真：它对玩家是件好用的工具，对沈迟是个心理支撑。</div>
+
+<h3>二、「户」要不要加教学——<b>要，但别解释</b></h3>
+<p>你的判断对：玩家第一次看到「137 户」会不懂。但加一条「户是门牌数」的教学，是把设定当说明书念，很硬。</p>
+<p>更好的做法是让它和「灯」一起立住，加在第 1 天白天，小鱼说：</p>
+<div class="quote">「表上走一户，我们就离灯近一点。」</div>
+<p>一句话立住两个词（户、灯），还给第 5 章「灯火」埋了线。这样 B6 从 3 条变 4 条，超了清单一条，我认——这条值得超。</p>
+
+<h3>三、B5 开局三选——<b>建议砍</b></h3>
+<p>十五条你写得很认真，但我觉得这个设计本身该砍，理由三条：</p>
+<table>
+  <thead><tr><th style="width:180px">理由</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>读的量太大</td><td>五章 × 三选 = 玩家要读 45 个选项，而每次只用到 3 个</td></tr>
+    <tr><td>和整备期功能重叠</td><td>整备期已经给了「拆了重摆」的重来机会，再来一次三选一是二次确认</td></tr>
+    <tr><td>它换不到对应的收益</td><td>「先跑远一点 / 慢慢翻 / 先点火」这类选择，玩家第一遍玩根本判断不了哪个好，等于随机</td></tr>
+  </tbody>
+</table>
+<p class="small">如果非要保留，只保留第 1 章那一次（当作教学式的「你看，这个游戏是有选择的」），后面四章不再弹。这样成本从 15 条降到 3 条，代码从 200 行降到 40 行。</p>
+</section>
+
+<section id="s07">
+<h2><span class="n">07</span>待你定五件事</h2>
+<table>
+  <thead><tr><th style="width:44px">#</th><th style="width:190px">问题</th><th>选项</th><th style="width:110px">我的建议</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>「瞄准」换成什么</td><td>A 优先打远程　B 优先打厚皮　C 锁定增伤</td><td><b>A</b>（补真空）</td></tr>
+    <tr><td>2</td><td>「守路的」什么时候出现</td><td>白天 Boss（车要绕）／夜里挡路</td><td><b>白天</b>，但只出现在第 1 章，当教学</td></tr>
+    <tr><td>3</td><td>「油」怎么办</td><td>事件改字（电/补给）／能量改名叫油</td><td><b>改字</b></td></tr>
+    <tr><td>4</td><td>「长明」怎么办</td><td>改效果（不灭的火）／改风味句（「烧塌了也是火」）</td><td><b>改效果</b></td></tr>
+    <tr><td>5</td><td>B5 开局三选</td><td>全砍／只留第 1 章／全保留</td><td><b>只留第 1 章</b></td></tr>
+  </tbody>
+</table>
+<p class="small">另有 3 处只需改字、不用动代码（箭塔说明 / 战报两个「户」/ 骨弓图鉴），见第 03 节。</p>
+
+<div class="ask"><b>如果你回「按建议」</b>，就是：瞄准=A / 守路的=白天且只第 1 章 / 油改字 / 长明改效果 / B5 只留第 1 章，另加第 03 节那三处改字。收到后我先把这五处的机制定稿补进 v2.3，再按第 0 批（地基 + 存档）开工。</div>
+</section>
+
+</div>
+</body>
+</html>
