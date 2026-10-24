@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 路面纵深修复（v2.9）</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:880px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:20px;line-height:1.3;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  del{background:var(--delbg);color:var(--del);text-decoration:line-through;padding:0 3px;border-radius:3px}
+  ins{background:var(--insbg);color:var(--ins);text-decoration:none;padding:0 3px;border-radius:3px;font-weight:600}
+  .cause{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 4px}
+  .cause .c{background:#fafbfe;border:1px solid var(--line);border-radius:11px;padding:14px 15px}
+  .cause .c b{display:block;font-size:13.5px;color:var(--del);margin-bottom:6px;line-height:1.5}
+  .cause .c span{font-size:12.5px;color:var(--ink2);line-height:1.7}
+  .cause .c em{font-style:normal;color:var(--ink3);font-size:11.5px;display:block;margin-top:8px}
+  .fig{margin:14px 0 4px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#0a0c11}
+  .fig img{display:block;width:100%}
+  .fig .cap{background:#fafbfe;border-top:1px solid var(--line);padding:9px 14px;font-size:12.5px;color:var(--ink3)}
+  .link{display:inline-block;margin-top:10px;padding:10px 18px;border-radius:999px;
+    background:var(--daybg);color:var(--day);font-size:13.5px;font-weight:600;text-decoration:none;
+    border:1px solid #f6dcc0}
+  @media(max-width:760px){ .kpi{grid-template-columns:repeat(2,1fr)} .cause{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 渲染修复 / v2.9</div>
+<h1>路面为什么像浮在背景上，以及怎么修</h1>
+<p class="sub">
+  「道路不像是往远处延伸，像是悬浮在背景上」——这句话指的不是美观问题，是一组具体的几何错误叠在一起。
+  修法不在加特效，而在先把路画对。本文档记录两轮：v2.8 把"板子"变成"有透视的路"，
+  v2.9 再把"收得不够、断口露馅、车灯是平的"这三处补掉。
+</p>
+<div class="status">已落地 · 玩法零影响（3 局 88~89 天 / 802~805 户全胜） · core.js 仍一行未改</div>
+
+<section>
+  <h2><span class="n">1</span>第一轮（v2.8）：三个根本原因</h2>
+  <p class="lead">
+    我先按"加光影、加雾"的思路改了两轮，效果有限。后来把画面拆成几何来看，才发现是三个硬错误。
+  </p>
+  <div class="cause">
+    <div class="c">
+      <b>① 路的两条边是直线</b>
+      <span>
+        路面用 4 个点画梯形，所以边是直的。但球的位置是按 <code>wAt(v)</code> 的透视曲线算的。
+        两者形状对不上，路就成了"一块斜放的板"。
+      </span>
+      <em>改：沿纵深采样 31 个点画曲线轮廓</em>
+    </div>
+    <div class="c">
+      <b>② 路顶插进了天空</b>
+      <span>
+        路的顶端画在 <code>fieldTop</code>，而地平线在 <code>fieldTop + 40</code>。
+        也就是说，路比地平线还高 40px —— 它真的是悬在天上的。
+      </span>
+      <em>改：引入 <code>horizonY</code>，路终止于地平线</em>
+    </div>
+    <div class="c">
+      <b>③ 宽度在收，行距是等距的</b>
+      <span>
+        <code>wAt</code> 让路面近宽远窄，但 <code>rowY</code> 是线性的，每户的行高完全一样。
+        宽度收缩 + 纵向等距，这两个信号互相矛盾，眼睛判定为"斜放的板子"而不是"延伸的路"。
+      </span>
+      <em>改：<code>rowY</code> 换成透视曲线 <code>(1+K)t/(1+Kt)</code></em>
+    </div>
+  </div>
+  <div class="note">
+    第 ③ 条是最关键的。在此之前我一直在加雾、加渐变、加落影 —— 那些都是"让板子看起来不那么像板子"，
+    而第 ③ 条是"让它不再是板子"。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">2</span>改前 / 改后（第一轮 → 第二轮）</h2>
+  <div class="fig">
+    <img src="../screenshots/q_compare.png" alt="v2.8 与 v2.9 对比">
+    <div class="cap">左 v2.8：第一轮之后 —— 有了曲线和地平线，但远端还留 40% 画宽，路的顶端仍是一条"板子的上底边"。右 v2.9：远端只留 30%，顶端溶进雾里，车灯改成沿路铺开的透视光锥。</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">3</span>第一轮一共动了九处</h2>
+  <table>
+    <tr><th style="width:26%">改动</th><th>做法</th></tr>
+    <tr><td><b>透视映射</b></td><td><code>rowY</code> / <code>vOfY</code> 换成 <code>d = (1+K)t/(1+Kt)</code> 及其反函数，纵向不再是等距</td></tr>
+    <tr><td><b>曲线轮廓</b></td><td>路面沿 v 每 0.5 户采样一次，31 个点连成闭合路径，边线自带收缩曲率</td></tr>
+    <tr><td><b>地平线对齐</b></td><td>新增 <code>horizonY = fieldTop + 40</code>，路的终点、地面起点、雾的起点统一到这一个值</td></tr>
+    <tr><td><b>路面渐变</b></td><td>近端 <code>#282e3c</code> → 远端 <code>#171c25</code>（v2.9：远端与地面同色，否则路在远处成为"暗楔子"）</td></tr>
+    <tr><td><b>路肩</b></td><td>路面两侧各扩 6px（v2.9 收窄，原 11px 在近端成了黑沟），颜色比地面暗一档 —— 让路"陷"进地里，而不是压在上面</td></tr>
+    <tr><td><b>车道线与边线</b></td><td>逐户分段画，线宽和亮度都随纵深衰减。原来固定 <code>setLineDash([5,7])</code>，远处和近处一样密，把透视打死了</td></tr>
+    <tr><td><b>路面颗粒</b></td><td>110 个固定种子的点，近大远小。一帧不动，不会抖</td></tr>
+    <tr><td><b>护栏</b></td><td>两侧每户一根柱子 + 一条横梁，柱距随透视压缩 —— 现实公路照片里最会"报距离"的东西</td></tr>
+    <tr><td><b>落影</b></td><td>球、闷囊、料堆、车都有地面投影；球本身抬离地面 0.4 个半径</td></tr>
+    <tr><td><b>远端雾 + 远景</b></td><td>地平线处一层薄雾（v2.9 收薄到 0.055 画面高，全宽厚雾会把地面的纵深线索一起糊掉）；两侧加了淡的楼/塔/树剪影，给"远处"一个实体参照</td></tr>
+    <tr><td><b>地面</b></td><td>渐变起点与天空同色 <code>#151922</code>（亮带会夹着路，帮"悬浮"的忙），撒 54 个碎石点，残骸改成跟着路走的世界坐标</td></tr>
+    <tr><td><b>车灯光锥</b></td><td>沿路铺开的透视梯形（v2.9 重做：原来是屏幕空间的椭圆斑，不服从透视，等于往路上糊了一块平光），<code>lighter</code> 叠加</td></tr>
+    <tr><td><b>路顶端溶解</b></td><td>v2.9 新增：裁在路面内的渐变把顶端 40px 抹成地面色，路的断口不存在了，而不是"被一条短边代替"</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">4</span>几何参数（v2.9 现值）</h2>
+  <table>
+    <tr><th style="width:22%">参数</th><th class="num" style="width:14%">值</th><th>作用</th></tr>
+    <tr><td><code>PRS_K</code></td><td class="num">0.55</td><td>纵向压缩。0 = 等距（旧版），越大远端越挤。0.55 时近端每户 47px、远端 20px</td></tr>
+    <tr><td><code>PRS_KW</code></td><td class="num">2.35</td><td>横向收缩。v2.8 用 1.50，远端仍留 0.40 画宽 —— 收不够，路的顶端就是"板子上底边"。v2.9 收到 0.30</td></tr>
+    <tr><td><code>MELT</code></td><td class="num">0.085</td><td>路顶端溶进雾里的高度（占画面纵深的比例）。新增于 v2.9，专治"路的断口"</td></tr>
+    <tr><td><code>horizonY</code></td><td class="num">fieldTop+40</td><td>地平线。路的终点、地面起点、雾的起点</td></tr>
+    <tr><td><code>nearW</code></td><td class="num">W×1.02</td><td>近端路宽，略超画布。原来 0.76，两侧留出两条窄黑边，反而更像贴纸</td></tr>
+  </table>
+  <div class="ask">
+    <b>为什么 <code>PRS_KW</code> 比 <code>PRS_K</code> 大？</b>
+    严格自洽的透视里，宽度收缩比应该等于 <code>1/(1+PRS_K)</code>，也就是远端路宽约 0.65 倍。
+    但 15 户铺在真实透视里会被压得非常狠（近 5 米 vs 远 50 米，宽度差 10 倍），照物理做球会挤成一片。
+    所以横向多收一点（负责"远"），纵向少压一点（负责"不挤"）。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">5</span>验证</h2>
+  <table>
+    <tr><th style="width:44%">检查项</th><th>结果</th></tr>
+    <tr><td>玩法是否受影响</td><td>否。3 局贪心：88~89 天 / 802~805 户 / 全胜，与 v2.7、v2.8 基线一致</td></tr>
+    <tr><td>布防点击反算（<code>cellAt</code>）</td><td>中路 col2 三排命中 v=2.5/5.5/8；左右 col0/col4 命中 —— 几何改了但反算仍对齐</td></tr>
+    <tr><td>78 项回归</td><td>全通过（<code>core.js</code> 一行未改）</td></tr>
+    <tr><td>球是否跑出路面</td><td>否。路面宽度与球的横向定位同源于 <code>wAt</code></td></tr>
+    <tr><td>远端球是否重叠</td><td>球径改为 <code>min(行高×0.44, 车道宽×0.38)</code>、下限 8px，远端收缩加剧后仍能看清占位字</td></tr>
+    <tr><td>路顶端像素采样</td><td>路中线与两侧地面只差 2 个色阶 —— 断口已被溶解，放大检查无"上底边"</td></tr>
+    <tr><td>黄昏 / 夜晚</td><td>布防网格、作用范围椭圆、夜色遮罩均正常；夜间路肩黑沟消失后画面更干净</td></tr>
+  </table>
+  <a class="link" href="../demo/v25_text.html">打开 Demo 看一眼前实际画面</a>
+</section>
+
+<section>
+  <h2><span class="n">6</span>第二轮（v2.9）：光对不齐，路还是浮的</h2>
+  <p class="lead">
+    第一轮截全景图复查时发现：几何对了，但画面里仍有一股"贴纸感"。逐项排查出四个残留问题，
+    这四个全是"光与形状不服从同一个透视"的错。
+  </p>
+  <div class="cause">
+    <div class="c">
+      <b>① 远端收得不够</b>
+      <span>
+        <code>PRS_KW=1.50</code> 时远端路宽还有 0.40 画宽。一条 400 米外的路在手机屏上应该只剩十几像素，
+        40% 意味着路的尽头仍是"一条宽边"。
+      </span>
+      <em>改：<code>PRS_KW</code> 提到 2.35，远端只留 0.30</em>
+    </div>
+    <div class="c">
+      <b>② 顶端有断口</b>
+      <span>
+        路画到 <code>v=15</code> 就停，顶端必然是一条横边。m=15 的里程刻度还正好压在这条边上，把它描亮。
+      </span>
+      <em>改：新增 <code>MELT</code>——裁在路面内的溶解渐变，把顶端 40px 抹成地面色；里程刻度只画到 12</em>
+    </div>
+    <div class="c">
+      <b>③ 车灯是一个正圆斑</b>
+      <span>
+        旧光锥是屏幕空间的椭圆——正圆不服从透视，等于往透视路面上糊了一块平光，纵深立刻塌掉。
+      </span>
+      <em>改：光锥改为沿路铺开的梯形，四角由 <code>laneCX/laneUnit</code> 算出，跟路面同一个透视</em>
+    </div>
+    <div class="c">
+      <b>④ 路肩是两条黑沟</b>
+      <span>
+        接地阴影 19px + blur24 在近端太重，路两侧出现两条粗黑带，反而把路"描"成了一块板。
+        地平线处地面又比路面亮，路在远端成了一个暗楔子。
+      </span>
+      <em>改：阴影收窄到 9px/blur13；路面渐变远端改到与地面同色 <code>#171c25</code>；地面渐变起点改到与天空同色 <code>#151922</code></em>
+    </div>
+  </div>
+  <div class="note">
+    试过并放弃：路两侧加灯杆（每 3 户一根、高度随纵深衰减）和地面田埂线。
+    道理上它们是最强的纵深线索，但这套斜投影的近端路宽超出画布，灯杆被挤到画面边缘，
+    画面反而变乱 —— 截图对比后整体撤掉，田埂只留 4 条极淡的。正式美术阶段再按场景重新设计。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">7</span>没做的</h2>
+  <table>
+    <tr><th style="width:30%">项目</th><th>原因</th></tr>
+    <tr><td>斜投影 9° 的剪切</td><td>这是原设计（<code>core.js</code> 是 15°），左高右低是刻意的。只是现在有了曲线边，剪切看起来不那么"板"了</td></tr>
+    <tr><td>天空 / 太阳</td><td>只把位置对齐到新的地平线，颜色和尘幕横纹没动</td></tr>
+    <tr><td>路延伸到玩区之外</td><td>正确做法是路画到 30~40 户再消失，但那会把 15 个球压到画面上部。等球数与纵深重排时一起做</td></tr>
+    <tr><td>正式美术</td><td>这一版仍然全部是文字占位。所有新增元素（护栏、碎石、剪影、田埂）都是几何线条和字，没有一张图</td></tr>
+    <tr><td>回填 <code>core.js</code></td><td>等这一版观感确认。回填时这套透视要一并搬过去，因为 <code>core.js</code> 现在还是四点梯形 + 线性行距</td></tr>
+  </table>
+</section>
+
+<p class="small" style="margin-top:26px">
+  永夜微光 · v2.9 路面纵深修复 · 边要曲、路要落地平线、行距要跟透视、光要服从同一个消失点
+</p>
+
+</div>
+</body>
+</html>

@@ -13,7 +13,7 @@
 ## 快速试玩
 
 - **在线玩（推荐手机竖屏打开）**：<https://mizuki-aki.github.io/MyHub/>
-- **v2.7 文字占位 Demo**：打开 [`demo/v25_text.html`](demo/v25_text.html)（单文件，零图片零依赖，所有素材是带字的虚框；用来验证新机制手感，不是正式版）。说明见 [`docs/文字占位Demo_v2.6.html`](docs/文字占位Demo_v2.6.html)，文案口径见 [`docs/文案口径_v2.7.html`](docs/文案口径_v2.7.html)
+- **v2.9 文字占位 Demo**：打开 [`demo/v25_text.html`](demo/v25_text.html)（单文件，零图片零依赖，所有素材是带字的虚框；用来验证新机制手感，不是正式版）。说明见 [`docs/文字占位Demo_v2.6.html`](docs/文字占位Demo_v2.6.html)，文案口径见 [`docs/文案口径_v2.7.html`](docs/文案口径_v2.7.html)，路面纵深修复见 [`docs/路面纵深_v2.9.html`](docs/路面纵深_v2.9.html)
 - **本地直接玩**：打开 [`demo/preview.html`](demo/preview.html)（2.3MB 单文件，图片已内联，双击即跑，无需服务器）
 - **微信开发者工具**：导入 `minigame/` 目录，`compileType: game`，AppID 可用测试号
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>永夜微光 · v2.7 文字占位 Demo</title>
+<title>永夜微光 · v2.9 文字占位 Demo</title>
 <style>
   :root{ --sab: env(safe-area-inset-bottom, 0px); }
   html,body{margin:0;height:100%;background:#07090d;overflow:hidden;
@@ -48,7 +48,7 @@
 <div id="rotate">请竖屏游玩</div>
 <div id="intro">
   <div class="card">
-    <div class="kicker">NIGHTFALL GLOW · v2.7 文字占位 Demo</div>
+    <div class="kicker">NIGHTFALL GLOW · v2.9 文字占位 Demo</div>
     <h1>永夜微光</h1>
     <p class="sub">所有美术资源都是文字占位符。这一版只验证玩法与节奏。</p>
     <div class="rules">
@@ -61,13 +61,13 @@
     <button id="startBtn">开 始</button>
   </div>
 </div>
-<div id="badge">v2.7 · 全文字占位 · 无一张图片</div>
+<div id="badge">v2.9 · 全文字占位 · 无一张图片</div>
 <script>
 (function () {
 "use strict";
 
 /* ==================================================================
-   永夜微光 · v2.7 文字占位 Demo
+   永夜微光 · v2.9 文字占位 Demo
    --------------------------------------------------------------
    本文件的目的：用最低成本验证「改完之后的游戏长什么样、什么手感」。
    所有美术资源一律用带字的虚框/圆/三角代替，正式版全部替换为矢量绘制。
@@ -139,10 +139,16 @@ var TILT = Math.tan(9 * Math.PI / 180);   // 实际视觉斜度约 9°，比 15�
 
 var BOT_H    = Math.round(H * 0.19);
 var baseY    = H - BOT_H;                 // 车所在底边
-var fieldTop = Math.round(H * 0.200);     // 地平线
-var rowH     = (baseY - fieldTop) / ROWS;
-var nearW    = W * 0.76;                  // 近端路宽
-var farW     = nearW * 0.46;              // 远端路宽
+var fieldTop = Math.round(H * 0.200);     // 天空底边
+/* 地平线：地面从这里开始，也是路的消失端。
+   旧版把路的顶端画在 fieldTop（比地平线还高 40px），
+   等于路插进天空里 40px —— 这是"悬浮"最直接的原因 */
+var horizonY = fieldTop + 40;
+var rowH     = (baseY - horizonY) / ROWS;
+var PRS_K    = 0.55;                      // 纵向透视压缩：0 = 等距（旧版，像斜放的板子），越大远端越挤
+var PRS_KW   = 2.35;                      // 横向收缩：远端只留 0.30 画宽。收不够，路的顶端就是"板子上底边"
+var MELT     = 0.085;                     // 路顶端溶进雾里的高度（占 view 纵深的比例）
+var nearW    = W * 1.02;                  // 近端路宽：略超画布，人像站在路上而不是俯看一块板
 var CX       = W * 0.5;
 
 function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
@@ -150,9 +156,22 @@ function rnd(a, b) { return a + Math.random() * (b - a); }
 function irnd(a, b) { return Math.floor(a + Math.random() * (b - a + 1)); }
 function pick(a) { return a[(Math.random() * a.length) | 0]; }
 
-function wAt(v) { var t = clamp(v / ROWS, 0, 1); return nearW - (nearW - farW) * Math.pow(t, 0.85); }
-function rowY(v) { return baseY - v * rowH; }
-function vOfY(y) { return (baseY - y) / rowH; }
+/* 单点透视：深度 t∈[0,1] 映射到屏幕纵向比例 d，d = (1+K)t / (1+Kt)
+   —— 近处每户占的像素多，远处挤在一起，这才是"往远处延伸"的关键 */
+function depthOf(t) { return (1 + PRS_K) * t / (1 + PRS_K * t); }
+function wAt(v) { return nearW / (1 + PRS_KW * clamp(v / ROWS, 0, 1)); }
+function rowY(v) { return baseY - depthOf(clamp(v / ROWS, 0, 1)) * (baseY - horizonY); }
+/* 某处的"一排行高"，用来给竖向尺寸（作用范围等）定标 */
+function rowHPx(v) {
+  var a = rowY(clamp(v - 0.5, 0, ROWS)), b = rowY(clamp(v + 0.5, 0, ROWS));
+  if (b >= a) return 2;
+  return Math.max(2, a - b);
+}
+/* d 的反函数：t = d / (1+K-Kd) */
+function vOfY(y) {
+  var d = clamp((baseY - y) / (baseY - horizonY), 0, 1);
+  return d / (1 + PRS_K - d * PRS_K) * ROWS;
+}
 function laneUnit(v) { return wAt(v) / LANES; }
 function leftX(v) { return CX - wAt(v) / 2; }
 function laneCX(col, v) { return leftX(v) + (col + 0.5) * laneUnit(v); }
@@ -726,35 +745,40 @@ function box(x, y, w, h, stroke, fill, r) {
 
 /* 尘幕：天上压着一层灰，太阳只透得下黄光 */
 function drawSky() {
-  var g = ctx.createLinearGradient(0, 0, 0, fieldTop + 40);
+  var g = ctx.createLinearGradient(0, 0, 0, horizonY);
   g.addColorStop(0, "#2b2417");
   g.addColorStop(0.45, "#1d1f24");
   g.addColorStop(1, "#151922");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, fieldTop + 40);
+  ctx.fillRect(0, 0, W, horizonY);
 
   // 尘幕横纹
   for (var i = 0; i < 15; i++) {
-    var y = 6 + i * ((fieldTop + 30) / 15);
+    var y = 6 + i * ((horizonY - 12) / 15);
     ctx.fillStyle = "rgba(190,166,110," + (0.11 - i * 0.0055) + ")";
     ctx.fillRect(0, y, W, 1);
   }
 
-  // 地面底色（路之外的两侧）
-  var gg = ctx.createLinearGradient(0, fieldTop, 0, H);
-  gg.addColorStop(0, "#15181f");
-  gg.addColorStop(0.55, "#0e1118");
-  gg.addColorStop(1, "#0a0c11");
+  /* 地面底色（路之外的两侧）：
+     起点必须和天空底同色（#151922），否则地平线上会出现一条亮带 ——
+     那条亮带正好把路夹在中间，是"路浮在背景上"的帮凶。
+     往下才慢慢压暗，近处最暗，让被车灯照亮的路面从地面里"立"起来 */
+  var gg = ctx.createLinearGradient(0, horizonY, 0, H);
+  gg.addColorStop(0, "#151922");
+  gg.addColorStop(0.16, "#171c25");
+  gg.addColorStop(0.45, "#141820");
+  gg.addColorStop(0.74, "#111419");
+  gg.addColorStop(1, "#0f1116");
   ctx.fillStyle = gg;
-  ctx.fillRect(0, fieldTop + 40, W, H - fieldTop - 40);
+  ctx.fillRect(0, horizonY, W, H - horizonY);
 
   // 地平线
-  line(0, fieldTop + 40, W, fieldTop + 40, "rgba(255,207,122,.13)", 1);
+  line(0, horizonY, W, horizonY, "rgba(255,207,122,.15)", 1);
 
   // 被尘幕糊住的日：只在地平线上露出半轮
-  var sx = W * 0.84, sy = fieldTop + 16, sr = 30;
+  var sx = W * 0.84, sy = horizonY - 26, sr = 30;
   ctx.save();
-  ctx.beginPath(); ctx.rect(0, fieldTop + 40, W, 110); ctx.clip();
+  ctx.beginPath(); ctx.rect(0, horizonY, W, 110); ctx.clip();
   var rg = ctx.createRadialGradient(sx, sy, 4, sx, sy, sr * 3.4);
   rg.addColorStop(0, "rgba(255,207,122,.40)");
   rg.addColorStop(0.42, "rgba(255,207,122,.11)");
@@ -765,55 +789,265 @@ function drawSky() {
   ctx.beginPath(); ctx.arc(sx, sy, sr, 0, 6.2832); ctx.fill();
   ctx.restore();
 
-  // 路边残骸：文字占位
-  var junk = [["屋", 0.10, 0.34], ["杆", 0.92, 0.50], ["墙", 0.07, 0.66], ["牌", 0.93, 0.24]];
-  for (var j = 0; j < junk.length; j++) {
-    var jx = W * junk[j][1], jy = fieldTop + (baseY - fieldTop) * junk[j][2];
+  /* 地平线上的远景剪影：给"远处"一个实体参照。
+     没有它，路的尽头就是一片虚空 —— 这也是"悬浮"的一部分 */
+  var FAR = [[0.04, 16, 22, "楼"], [0.11, 26, 16, "塔"], [0.19, 11, 26, "树"],
+             [0.28, 19, 18, "楼"], [0.70, 13, 24, "树"], [0.79, 24, 17, "楼"],
+             [0.88, 12, 21, "塔"], [0.96, 18, 23, "树"]];
+  for (var f = 0; f < FAR.length; f++) {
+    var fx = W * FAR[f][0], fh = FAR[f][1], fw = FAR[f][2];
     ctx.save();
-    ctx.globalAlpha = 0.07;
-    txt(junk[j][0], jx, jy, 10, "#cfd8e6", "center", "400");
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = "rgba(17,21,28,1)";
+    ctx.fillRect(fx - fw / 2, horizonY - fh, fw, fh);
+    ctx.globalAlpha = 0.22;
+    txt(FAR[f][3], fx, horizonY - fh * 0.42, 7.5, "#8b9ab2", "center", "400");
+    ctx.restore();
+  }
+
+  /* 地面碎石：稀疏的暗点，近大远小。让两侧不再是纯色，路才有"地"可落 */
+  for (var gs = 0; gs < GROUND_SPECKS.length; gs++) {
+    var gd0 = GROUND_SPECKS[gs];
+    var gsv = gd0.v;
+    var gsx = gd0.side < 0
+      ? leftX(gsv) - gd0.off
+      : leftX(gsv) + wAt(gsv) + gd0.off;
+    var gsp2 = w2s(gsx, rowY(gsv));
+    var gk2 = 1 - gsv / ROWS;
+    ctx.save();
+    ctx.globalAlpha = 0.09 + 0.16 * gk2 * gk2;
+    txt(gd0.ch, gsp2.x, gsp2.y, Math.max(4, 3 + 6 * gk2), "#93a3bb", "center", "400");
+    ctx.restore();
+  }
+
+  /* 路边残骸：文字占位，但跟着路走（世界坐标 + 透视缩放），
+     这样地面也有纵深，不再是一层贴在镜头上的字 */
+  var junk = [[-1, 3.0, "屋"], [1, 4.2, "杆"], [-1, 7.5, "墙"], [1, 9.0, "牌"],
+              [-1, 11.5, "杆"], [1, 13.2, "屋"]];
+  for (var j = 0; j < junk.length; j++) {
+    var side = junk[j][0], jv = junk[j][1];
+    var off = (26 + 22 * scaleAt(jv)) * side;
+    var jxw = side < 0 ? leftX(jv) - off : leftX(jv) + wAt(jv) + off;
+    var jp = w2s(jxw, rowY(jv));
+    var fade = clamp(1 - jv / ROWS * 0.55, 0.25, 1);
+    ctx.save();
+    ctx.globalAlpha = 0.075 * fade;
+    txt(junk[j][2], jp.x, jp.y, 8 + 4 * scaleAt(jv), "#cfd8e6", "center", "400");
     ctx.restore();
   }
 }
 
-/* 公路：梯形 + 车道虚线，全部跟着 15° 转 */
+/* 路面颗粒：固定种子的伪随机，一帧不动，避免每帧抖动。
+   u = 车道横向比例 0~1，v = 深度，w = 颗粒基准大小，a = 明暗权重 */
+var ROAD_SPECKS = (function () {
+  var arr = [], seed = 20261024;
+  function nr() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  for (var i = 0; i < 110; i++) {
+    arr.push({ u: nr(), v: nr() * ROWS, w: 0.45 + nr() * 1.5, a: 0.3 + nr() * 0.7 });
+  }
+  return arr;
+})();
+
+/* 地面碎石：文字占位（用极淡的「·」「′」「‵」），按世界坐标撒在路两侧 */
+var GROUND_SPECKS = (function () {
+  var arr = [], seed = 77213;
+  function nr() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  var marks = ["·", "·", "·", "′", "‵", "′"];
+  for (var i = 0; i < 54; i++) {
+    arr.push({
+      side: nr() < 0.5 ? -1 : 1,
+      v: nr() * ROWS,
+      off: 18 + nr() * 130,
+      ch: marks[(nr() * marks.length) | 0]
+    });
+  }
+  return arr;
+})();
+
+/* 地面田埂：横向等距线，从路沿向外铺到画面边。
+   没有它，路两侧就是一片纯色 —— 路没有"地"可踩，眼睛就读成浮着的一块板。
+   只画到 v=12：更远的横线经过 9° 剪切会越过地平线插进天空里。 */
+function drawRidges() {
+  for (var v = 1.5; v <= 12; v += 3) {
+    var y = rowY(v), k = 1 - v / ROWS;
+    var a = (0.008 + 0.042 * k * k).toFixed(3);
+    var wd = 0.35 + 1.1 * k;
+    var l1 = w2s(leftX(v) - 7, y), l2 = w2s(-14, y);
+    var r1 = w2s(leftX(v) + wAt(v) + 7, y), r2 = w2s(W + 14, y);
+    line(l1.x, l1.y, l2.x, l2.y, "rgba(158,178,206," + a + ")", wd);
+    line(r1.x, r1.y, r2.x, r2.y, "rgba(158,178,206," + a + ")", wd);
+  }
+}
+
+
+/* 公路。
+   关键：路面两侧必须是**曲线**（沿 wAt/rowY 采样），不能是四点直线梯形。
+   旧版用 4 个点画边，边线是直的，而物件按透视曲线排 —— 两者对不上，
+   整块路就变成"一块斜放的亮板子"。改成按户采样之后，边缘自带收缩曲率，
+   再加上接地阴影 / 路肩 / 颗粒 / 边线衰减 / 远端雾，纵深才立得住。 */
 function drawRoad() {
-  var p0 = w2s(CX - nearW / 2, baseY);
-  var p1 = w2s(CX + nearW / 2, baseY);
-  var p2 = w2s(CX + farW / 2, fieldTop);
-  var p3 = w2s(CX - farW / 2, fieldTop);
+  var STEP = 0.5;                                  // 沿纵深采样步长（户）
+  function west(v) { return leftX(v) - 0; }
+  function east(v) { return leftX(v) + wAt(v); }
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
-  ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y);
-  ctx.closePath();
-  ctx.fillStyle = "#12161f";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,.13)";
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-  ctx.restore();
-
-  // 车道分隔虚线
-  for (var c = 1; c < LANES; c++) {
-    ctx.save();
+  /* 沿纵深画闭合路形；out = 向外扩出的像素（路肩用） */
+  function roadPath(outNear, outFar) {
+    outNear = outNear || 0;
+    outFar = (outFar === undefined) ? outNear : outFar;
+    var v, p, first = true;
     ctx.beginPath();
-    for (var step = 0; step <= 12; step++) {
-      var v = step / 12 * ROWS;
-      var x = leftX(v) + c * laneUnit(v);
-      var p = w2s(x, rowY(v));
-      if (step === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    for (v = 0; v <= ROWS + 1e-6; v += STEP) {
+      p = w2s(west(v) - (outNear + (outFar - outNear) * (v / ROWS)), rowY(v));
+      if (first) { ctx.moveTo(p.x, p.y); first = false; } else ctx.lineTo(p.x, p.y);
     }
-    ctx.strokeStyle = "rgba(255,255,255,.055)";
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 7]);
-    ctx.stroke();
-    ctx.restore();
+    for (v = ROWS; v >= -1e-6; v -= STEP) {
+      p = w2s(east(v) + (outNear + (outFar - outNear) * (v / ROWS)), rowY(v));
+      ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath();
+  }
+  function span(v0, x0, v1, x1) {
+    var a = w2s(x0, rowY(v0)), b = w2s(x1, rowY(v1));
+    return [a.x, a.y, b.x, b.y];
   }
 
-  // 里程刻度：每 5 户一个小横杠。只在白天显示，夜里是干扰
-  for (var m = 5; m <= ROWS && S.stage === "travel"; m += 5) {
+  /* ① 接地阴影：向外扩散的软黑，路才压在地面上。
+     不能太宽 —— 19px + blur24 在近端会变成两条黑沟，反而把路描成一块板 */
+  ctx.save();
+  roadPath(9, 2.4);
+  ctx.shadowColor = "rgba(0,0,0,.88)";
+  ctx.shadowBlur = 13;
+  ctx.fillStyle = "#0c0f14";
+  ctx.fill();
+  ctx.restore();
+
+  /* ② 路肩：两侧土带，比路面暗、比地面亮，让路"嵌"进去 */
+  ctx.save();
+  roadPath(6, 1.8);
+  var shg = ctx.createLinearGradient(0, baseY, 0, horizonY);
+  shg.addColorStop(0, "#13161d");
+  shg.addColorStop(0.55, "#111419");
+  shg.addColorStop(1, "#0f1217");
+  ctx.fillStyle = shg;
+  ctx.fill();
+  ctx.restore();
+
+  /* ③ 路面。远端终点必须≈地平线处的地面色（#171c25）：
+     旧版终点 #12151b 比地面还暗，路的顶端成了一个"暗楔子"——
+     亮楔子读作亮板，暗楔子读作暗板，一样是板。 */
+  ctx.save();
+  roadPath(0);
+  var pg = ctx.createLinearGradient(0, baseY, 0, horizonY);
+  pg.addColorStop(0,    "#282e3c");
+  pg.addColorStop(0.18, "#232935");
+  pg.addColorStop(0.45, "#1d222c");
+  pg.addColorStop(0.74, "#191d26");
+  pg.addColorStop(1,    "#171c25");
+  ctx.fillStyle = pg;
+  ctx.fill();
+  ctx.restore();
+
+  /* 以下纹理裁在路面内 */
+  ctx.save();
+  roadPath(0); ctx.clip();
+
+  /* ④ 路面颗粒：近大远小 */
+  for (var q = 0; q < ROAD_SPECKS.length; q++) {
+    var sp = ROAD_SPECKS[q], qv = sp.v;
+    var qp = w2s(leftX(qv) + sp.u * wAt(qv), rowY(qv));
+    var kq = 1 - qv / ROWS;
+    ctx.beginPath();
+    ctx.arc(qp.x, qp.y, Math.max(0.35, sp.w * (0.4 + 2.0 * kq)), 0, 6.2832);
+    ctx.fillStyle = "rgba(196,210,234," + (0.020 + 0.055 * kq * kq * sp.a).toFixed(3) + ")";
+    ctx.fill();
+  }
+
+  /* ⑤ 车道虚线：逐户分段，线宽与亮度随纵深衰减（固定虚线会把透视打死） */
+  for (var c = 1; c < LANES; c++) {
+    for (var i = 0; i < ROWS; i++) {
+      var v0 = i + 0.06, v1 = i + 0.58;
+      var kk = 1 - i / ROWS;
+      var sg = span(v0, leftX(v0) + c * laneUnit(v0), v1, leftX(v1) + c * laneUnit(v1));
+      line(sg[0], sg[1], sg[2], sg[3],
+        "rgba(214,226,244," + (0.05 + 0.16 * kk).toFixed(3) + ")",
+        0.4 + 1.5 * kk);
+    }
+  }
+
+  /* ⑥ 左右边线：暖白路沿，被车灯扫到。同样近粗远细 */
+  for (var side = 0; side < 2; side++) {
+    for (var j = 0; j < ROWS; j++) {
+      var k3 = 1 - j / ROWS;
+      var x0 = side ? east(j) : west(j);
+      var x1 = side ? east(j + 1) : west(j + 1);
+      var s3 = span(j, x0, j + 1, x1);
+      line(s3[0], s3[1], s3[2], s3[3],
+        "rgba(255,228,186," + (0.06 + 0.26 * k3 * k3).toFixed(3) + ")",
+        0.4 + 1.7 * k3 * k3);
+    }
+  }
+
+  ctx.restore();
+
+  /* ⑥.5 护栏：每户一根柱子 + 一条横梁。柱距随透视压缩，
+     是仅次于边线的纵深线索 —— 现实公路照片里最会"报距离"的就是它 */
+  for (var gd = 0; gd < 2; gd++) {
+    var gpts = [];
+    for (var gv = 0; gv <= ROWS; gv += 1) {
+      var gk = 1 - gv / ROWS;
+      var sw = 11 + (3 - 11) * (gv / ROWS);        // 该处的路肩宽度
+      var gx = gd ? east(gv) + sw + 4 : west(gv) - sw - 4;
+      var gpp = w2s(gx, rowY(gv));
+      gpts.push({ x: gpp.x, y: gpp.y, h: 3 + 14 * gk, k: gk });
+    }
+    for (var gi = 0; gi < gpts.length - 1; gi++) {
+      var ga = gpts[gi], gb = gpts[gi + 1];
+      line(ga.x, ga.y - ga.h, gb.x, gb.y - gb.h,
+        "rgba(198,212,234," + (0.05 + 0.15 * ga.k * ga.k).toFixed(3) + ")",
+        0.4 + 1.1 * ga.k);
+    }
+    for (var gj = 0; gj < gpts.length; gj++) {
+      var gq = gpts[gj];
+      line(gq.x, gq.y, gq.x, gq.y - gq.h,
+        "rgba(214,226,244," + (0.07 + 0.26 * gq.k * gq.k).toFixed(3) + ")",
+        0.5 + 1.3 * gq.k);
+    }
+  }
+
+  /* ⑦ 远端雾：只留薄薄一层软化地平线。旧版厚 0.19 且全宽，
+     把地平线附近的地面一起糊平了 —— 田埂和灯杆刚画就被吃掉，
+     地面的纵深线索全没了，路只好重新浮起来 */
+  var fogH = (baseY - horizonY) * 0.055;
+  var fg = ctx.createLinearGradient(0, horizonY - 4, 0, horizonY + fogH);
+  fg.addColorStop(0,    "rgba(21,25,34,.88)");
+  fg.addColorStop(0.35, "rgba(21,25,33,.40)");
+  fg.addColorStop(0.72, "rgba(21,25,32,.12)");
+  fg.addColorStop(1,    "rgba(20,24,31,0)");
+  ctx.save();
+  ctx.fillStyle = fg;
+  ctx.fillRect(0, horizonY - 4, W, fogH + 4);
+  ctx.restore();
+
+  /* ⑦.5 路顶端溶进地里：只裁在路面内，把路的上沿抹成地面色。
+     收窄只能让"上底边"变短，抹掉才能让它不存在 —— 这一步做完，
+     路的远端是真的"没有边"了，而不是"有一条很短的边"。
+     裁在路内 + 画在球之前，所以不会吃掉最远排的悬空球 */
+  var meltH = (baseY - horizonY) * MELT;
+  ctx.save();
+  roadPath(0); ctx.clip();
+  var mg = ctx.createLinearGradient(0, horizonY - 1, 0, horizonY + meltH);
+  mg.addColorStop(0,    "rgba(21,25,34,1)");     // 与地平线处地面同色 #151922
+  mg.addColorStop(0.28, "rgba(22,26,35,.80)");
+  mg.addColorStop(0.60, "rgba(22,26,35,.38)");
+  mg.addColorStop(1,    "rgba(22,26,35,0)");
+  ctx.fillStyle = mg;
+  ctx.fillRect(0, horizonY - 1, W, meltH + 1);
+  ctx.restore();
+
+  /* ⑧ 里程刻度：每 5 户一个小横杠，只在白天显示。
+     最远那条（m=15）正好落在路顶端，会把路的收口描成一条亮横边 ——
+     那就是"板子上底边"，所以只画到 12 */
+  for (var m = 5; m <= 12 && S.stage === "travel"; m += 5) {
     var lx = w2s(leftX(m) - 6, rowY(m));
     var rx = w2s(leftX(m) + wAt(m) + 6, rowY(m));
     line(lx.x, lx.y, rx.x, rx.y, "rgba(255,255,255,.10)", 1, [3, 5]);
@@ -821,14 +1055,56 @@ function drawRoad() {
   }
 }
 
+/* 车头灯打在路面上的光锥。用 lighter 叠加，只加亮不遮挡后面的东西。
+   关键：必须是**沿路铺开的梯形**，四角由 laneCX/laneUnit 算出。
+   旧版是一个屏幕空间的椭圆斑 —— 正圆的斑不服从透视，等于在透视路面上
+   糊了一块平光，纵深立刻塌掉。 */
+function drawCarLight() {
+  if (S.stage === "night") return;
+  var FAR = 7;                                        // 灯照到第 7 户
+  var y0 = rowY(0), y1 = rowY(FAR);
+  var c0 = laneCX(S.carCol, 0), c1 = laneCX(S.carCol, FAR);
+  var h0 = laneUnit(0) * 0.46, h1 = laneUnit(FAR) * 0.66;
+  var a = w2s(c0 - h0, y0), b = w2s(c0 + h0, y0);
+  var c = w2s(c1 + h1, y1), d = w2s(c1 - h1, y1);
+  var g = ctx.createLinearGradient(0, y0, 0, y1);
+  g.addColorStop(0,    "rgba(255,200,126,.15)");
+  g.addColorStop(0.30, "rgba(255,192,118,.082)");
+  g.addColorStop(0.62, "rgba(255,186,110,.030)");
+  g.addColorStop(1,    "rgba(255,182,104,0)");
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+  ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y);
+  ctx.closePath();
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+}
+
 /* ============================ 14. 渲染 · 物件 ============================ */
 function drawOrb(o) {
   if (o.searched || o.skipped) return;
-  var p = orbScreen(o);
+  var gp = orbScreen(o);                 // 地面点
   var def = ORB_K[o.kind];
-  var r = 0.31 * laneUnit(Math.min(o.v, 8));
+  /* 球径受两个约束：横向不超车道，纵向不超本排行高的一半 —— 否则远端会叠成一坨 */
+  var r = Math.min(rowHPx(o.v) * 0.44, laneUnit(o.v) * 0.38);
+  r = Math.max(r, 8);
   var pulse = 1 + Math.sin(performance.now() / 420 + o.v) * 0.045;
   r *= pulse;
+
+  /* 球浮在地面上方一个半径的四成处，影子留在路上。
+     这一步是"路变成地"的关键：有落影，人才会相信那是地面 */
+  var lift = r * 0.40;
+  var p = { x: gp.x, y: gp.y - lift, s: gp.s };
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(gp.x, gp.y + r * 0.10, r * 0.80, r * 0.30, 0, 0, 6.2832);
+  ctx.fillStyle = "rgba(3,5,9,.55)";
+  ctx.fill();
+  ctx.restore();
 
   if (o.kind === "hazard") {
     // 闷囊：胀着的黑囊，带刺边
@@ -893,8 +1169,15 @@ function drawOrb(o) {
 
 function drawPile(p) {
   if (p.taken) return;
-  var sp = orbScreen(p);
-  var r = 0.32 * laneUnit(Math.min(p.v, 8));
+  var gsp = orbScreen(p);
+  var r = Math.max(7, Math.min(rowHPx(p.v) * 0.42, laneUnit(p.v) * 0.32));
+  var sp = { x: gsp.x, y: gsp.y - r * 0.18, s: gsp.s };
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(gsp.x, gsp.y + r * 0.10, r * 0.92, r * 0.30, 0, 0, 6.2832);
+  ctx.fillStyle = "rgba(3,5,9,.50)";
+  ctx.fill();
+  ctx.restore();
   ctx.save();
   ctx.beginPath();
   ctx.rect(sp.x - r * 0.9, sp.y - r * 0.7, r * 1.8, r * 1.4);
@@ -925,7 +1208,7 @@ function drawBuild(b) {
   if (def.r > 0 && (S.stage === "night" || S.stage === "dusk")) {
     var pc = w2s(laneCX(b.col, b.v), rowY(b.v));
     var rx = def.r * laneUnit(b.v) * 0.58;   // 横向收窄，纯示意，别横跨整屏
-    var ry = def.r * rowH * 0.92;
+    var ry = def.r * rowHPx(b.v) * 0.92;
     ctx.save();
     ctx.beginPath();
     ctx.ellipse(pc.x, pc.y, rx, ry, 0, 0, 6.2832);
@@ -1028,6 +1311,14 @@ function drawCar() {
     ctx.stroke();
     ctx.restore();
   }
+
+  // 车底阴影：车压在路面上
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(p.x, p.y + h * 0.52, w * 0.62, h * 0.30, 0, 0, 6.2832);
+  ctx.fillStyle = "rgba(3,4,8,.55)";
+  ctx.fill();
+  ctx.restore();
 
   ctx.save();
   ctx.beginPath();
@@ -1309,14 +1600,16 @@ function drawOverlay() {
 function render() {
   ctx.clearRect(0, 0, W, H);
   drawSky();
+  drawRidges();          // 地面田埂：先画，会被路的接地阴影压住外沿
   drawRoad();
+  drawCarLight();
 
   // 黄昏显示可建造格子
   if (S.stage === "dusk") drawGrid();
 
   // 夜色
   if (S.stage === "night") {
-    var ng = ctx.createLinearGradient(0, fieldTop, 0, H);
+    var ng = ctx.createLinearGradient(0, horizonY, 0, H);
     ng.addColorStop(0, "rgba(30,12,22,.30)");
     ng.addColorStop(1, "rgba(20,6,14,.20)");
     ctx.fillStyle = ng;
@@ -1368,7 +1661,7 @@ function drawGrid() {
       ctx.restore();
     }
   }
-  txt("布防区 · 前 8 排", W / 2, fieldTop + 26, 9, "rgba(159,176,200,.32)", "center", "500");
+  txt("布防区 · 前 8 排", W / 2, horizonY + 24, 9, "rgba(159,176,200,.32)", "center", "500");
 }
 
 /* ============================ 19. 输入 ============================ */
