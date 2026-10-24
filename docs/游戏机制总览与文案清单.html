@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 机制总览与文案清单</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--askbg);color:var(--ask);font-size:12.5px;font-weight:600;border:1px solid #cfe9ee}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c9d0e0;color:var(--ink)}
+  .quote{background:#fafbfe;border:1px solid var(--line);border-radius:8px;padding:6px 12px;
+    font-size:13px;color:var(--ink2);margin:6px 0}
+  .quote b{color:var(--ink);font-weight:600}
+  .fill{display:inline-block;min-width:56px;padding:0 6px;border-bottom:1px dashed #b9c0d0;color:#c4cad8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 机制总览 + 文案需求</div>
+<h1>这游戏到底怎么玩，以及你该写哪些字</h1>
+<p class="sub">下面所有数字都是从 <code>core.js</code> 里逐条读出来的，不是记忆里的旧值。已确认但还没实现的改造单独标出，两者不混。</p>
+<div class="status">状态：等你写文案 · 代码未动</div>
+
+<div class="toc">
+  <a href="#s01">01 一句话</a>
+  <a href="#s02">02 一局怎么走</a>
+  <a href="#s03">03 资源与战斗</a>
+  <a href="#s04">04 输赢在哪</a>
+  <a href="#s05">05 已确认未实现</a>
+  <a href="#s06">06 文案清单</a>
+  <a href="#s07">07 字数账</a>
+  <a href="#s08">08 名词表</a>
+</div>
+
+<section id="s01">
+<h2><span class="n">01</span>一句话</h2>
+<p class="lead">你开一辆越野车，在末世公路上往救援中心逃。白天撞开路边的悬浮球搜刮物资，黄昏用木头把车道布成防线，夜里顶住从路那头压下来的东西。走够 800 户，或者撑满 100 天，算你活下来。</p>
+
+<div class="kpi">
+  <div class="k"><b>5</b><span>车道 · 9 格纵深</span></div>
+  <div class="k"><b>15/15/30</b><span>秒 · 白天/黄昏/夜晚</span></div>
+  <div class="k"><b>8</b><span>个悬浮球 · 每天</span></div>
+  <div class="k"><b>800</b><span>户 · 到救援中心的距离</span></div>
+</div>
+</section>
+
+<section id="s02">
+<h2><span class="n">02</span>一局怎么走</h2>
+<p>一天就是一次完整循环，三个时段各管一件事，互不重叠。</p>
+
+<table>
+  <thead><tr><th style="width:96px">时段</th><th class="num" style="width:56px">时长</th><th>玩家在做什么</th><th style="width:150px">出错会怎样</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="tag t-day">白天</span></td>
+      <td class="num">15 秒</td>
+      <td>路自动往前推，手指左右拖车，车宽等于一条车道。8 个悬浮球只挂最外侧两条道，按「左左右右」成对排。撞到球就<strong>停车搜刮 1.4 秒</strong>，搜完继续开。横向吸附容差约 1.16 条车道，蹭到就算。</td>
+      <td>没撞上的球会标成漏掉，那户的物资就没了</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-night" style="background:#fff4e6;color:#a16207">黄昏</span></td>
+      <td class="num">15 秒</td>
+      <td>5×9 网格亮起，花木头建东西；图纸到账就在这里开卡。这是全局唯一能「改变局面」的时段。</td>
+      <td>时间到自动入夜，没建完的部位空着过夜</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-night">夜晚</span></td>
+      <td class="num">30 秒</td>
+      <td>怪从上方沿 5 条道往下推。走到车面前就咬车，一口 8 点耐久。篝火负责在近身范围烧和减速，箭塔负责在 4.2 格外点杀。</td>
+      <td><strong>耐久归零 = 这局结束</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="ask"><b>一句话记住节奏</b>：白天是操作（手），黄昏是决策（脑），夜里是验收（心）。三段各占 15/15/30 秒，夜晚最长，因为它承担全部紧张感。</div>
+</section>
+
+<section id="s03">
+<h2><span class="n">03</span>资源与战斗</h2>
+
+<h3>四种资源</h3>
+<table>
+  <thead><tr><th style="width:88px">资源</th><th style="width:130px">初始 / 上限</th><th>从哪来、花到哪去</th></tr></thead>
+  <tbody>
+    <tr><td><b>木头</b></td><td>80 / 400</td><td>搜刮一户 12~19（工厂 24~38，且每过一天收入 +1%，最多 +40%）。花在建篝火（10）和箭塔（25），以及修它们。实测后期每天进 216 木，长期压在 400 上限。</td></tr>
+    <tr><td><b>能量</b></td><td>80 / 100</td><td>搜刮民房和医院回能量。能量满 100 时，每秒自动回 0.5 点耐久——所以「吃满」是一种续航策略，不只是血条。</td></tr>
+    <tr><td><b>耐久</b></td><td>120 / 200</td><td>怪咬一口扣 8。车升级可到 200，钢板卡再加 20。归零即输。</td></tr>
+    <tr><td><b>图纸</b></td><td>0 / —</td><td>每 8~11 次搜索出 1 张，医院和工厂概率更高。黄昏时开三选一升级。</td></tr>
+  </tbody>
+</table>
+
+<h3>现在只有两种建筑</h3>
+<table>
+  <thead><tr><th style="width:80px">建筑</th><th class="num" style="width:60px">造价</th><th>作用</th><th style="width:120px">实测表现</th></tr></thead>
+  <tbody>
+    <tr><td><b>篝火</b></td><td class="num">10 木</td><td>血 180，照亮十字 5 格。范围内怪每秒受 18 伤害，移速降到 55%。</td><td><span class="tag t-warn">亏本</span>怪一进门先咬它，两秒拆完</td></tr>
+    <tr><td><b>箭塔</b></td><td class="num">25 木</td><td>血 140，射程 4.2 格，每 1 秒打 14 伤害，自动选最靠前的怪。</td><td><span class="tag t-ok">唯一解</span>25 座纯塔漏 1 只、车损 14</td></tr>
+  </tbody>
+</table>
+<p class="small">这不是「篝火设计得不好」，是仇恨机制漏了一条：怪走到哪咬哪，篝火挡路就被优先拆。v2.2 的第 1 条地基修正就是改这个。</p>
+
+<h3>八种怪，四个行为原型</h3>
+<table>
+  <thead><tr><th style="width:190px">出现的天数</th><th>是谁</th><th style="width:150px">它们怎么打你</th></tr></thead>
+  <tbody>
+    <tr><td>第 1 天</td><td>僵尸 ×2 变体</td><td>走到跟前咬，55 / 50 血</td></tr>
+    <tr><td>第 3 天</td><td>+ 骷髅弓手</td><td>停在 1.5 格外放冷箭</td></tr>
+    <tr><td>第 6 天</td><td>+ 壮僵尸</td><td>更慢更厚，68 血</td></tr>
+    <tr><td>第 9 天</td><td>+ 小史莱姆</td><td>贴上来持续啃</td></tr>
+    <tr><td>第 13 天</td><td>+ 弓手变体、黑影</td><td>黑影最快（0.66）、伤害最高（36）</td></tr>
+    <tr><td>第 17 天</td><td>+ 大史莱姆</td><td>88 血、体型最大</td></tr>
+  </tbody>
+</table>
+<div class="note"><b>这张表停在 17 天，是个真问题。</b>第 18 天之后不再出新怪，只靠「数量感」维持难度——所以你玩到中后期会觉得「没什么变化」。v2.2 的第 4 条地基修正就是给怪加随天数增长的血量。</div>
+</section>
+
+<section id="s04">
+<h2><span class="n">04</span>输赢在哪</h2>
+<table>
+  <thead><tr><th style="width:110px">结果</th><th>条件</th><th style="width:230px">现在的实际情况</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag t-ok">赢</span>抵达</td><td>里程累计 800 户</td><td rowspan="2">实测 34~51 天就会输，两个胜利条件都摸不到。这是 v2.1 加「章节化」的直接原因——把 100 天切成 5 段，每段 20 天能走到。</td></tr>
+    <tr><td><span class="tag t-ok">赢</span>支撑</td><td>撑满第 100 天</td></tr>
+    <tr><td><span class="tag t-warn">输</span></td><td>车耐久归零</td><td>死因 100% 是夜里被咬穿，不是没木头</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section id="s05">
+<h2><span class="n">05</span>你已经确认、但代码里还没有的改造</h2>
+<p class="lead">这部分是 v2.2 定下的方向，一行都还没写。它决定了你文案的「容器」——比如有 5 个章节名要写，是因为章节化已经拍板了。</p>
+
+<table>
+  <thead><tr><th style="width:130px">改造</th><th>内容</th><th style="width:90px">影响文案</th></tr></thead>
+  <tbody>
+    <tr><td><b>章节化</b></td><td>100 天切成 5 章 × 20 天。章末有结算页和整备期（时间暂停、可全额拆除重摆）。</td><td><span class="tag t-warn">要 5 个章节名</span></td></tr>
+    <tr><td><b>建筑 2 → 5</b></td><td>增加路障（6 木，挡住但不还手）、油桶（12 木，炸一片）、信号塔（35 木，标记目标）。</td><td><span class="tag t-warn">要 3 条新说明</span></td></tr>
+    <tr><td><b>卡池 18 张</b></td><td>七条线（火 / 箭 / 障 / 油 / 信 / 车 / 搜刮），共 62 层。每张卡有名字和一句描述。</td><td><span class="tag t-warn">要 18 组</span></td></tr>
+    <tr><td><b>二选一 + 跳过</b></td><td>不再三选一。放弃抽卡可以换 12 木。</td><td>要一个「跳过」按钮的字</td></tr>
+    <tr><td><b>车灯 / 深搜</b></td><td>车灯：行进时照亮某条车道，被照到的怪受箭塔伤害更高。深搜：按住 2.8 秒拿双倍战利品，代价是该道下夜怪 +30%。</td><td>要两条提示语</td></tr>
+    <tr><td><b>5 个 Boss + 血月</b></td><td>每章最后一个夜是 Boss 夜，第 50 天前后有一次「血月」全局事件。</td><td><span class="tag t-warn">要 5 个 Boss 名</span></td></tr>
+    <tr><td><b>10 个事件</b></td><td>每章固定 2 个节点（第 3 / 17 天），给三个选项，后果写死。</td><td><span class="tag t-warn">最花时间</span></td></tr>
+    <tr><td><b>四项地基</b></td><td>篝火不引仇恨 / 篝火加强 / 木头给出路 / 怪随天变强。约 120 行。</td><td>不改文案</td></tr>
+  </tbody>
+</table>
+</section>
+<section id="s06">
+<h2><span class="n">06</span>你的文案清单</h2>
+<p class="lead">分三级。<b>A 级是硬需求</b>——不写，界面上就是空白或代码里的临时名；<b>B 级决定这游戏有没有味道</b>；<b>C 级是长线</b>，可以先欠着。</p>
+
+<h3>A 级 · 必须有（合计 343 字）</h3>
+<table>
+  <thead><tr><th style="width:44px">#</th><th style="width:110px">写什么</th><th class="num" style="width:52px">数量</th><th class="num" style="width:60px">字数/条</th><th>要求</th><th style="width:170px">示例</th></tr></thead>
+  <tbody>
+    <tr><td>A1</td><td>建筑名</td><td class="num">5</td><td class="num">2 字</td><td>动词感或实物感，不要「一级塔」这种</td><td>篝火 / 箭塔 / 路障 / 油桶 / 信号塔</td></tr>
+    <tr><td>A2</td><td>建筑说明</td><td class="num">5</td><td class="num">≤10 字</td><td>说清「它干什么」，不要形容词</td><td>十字灼烧，经过的变慢</td></tr>
+    <tr><td>A3</td><td>怪物名</td><td class="num">8</td><td class="num">≤3 字</td><td>看名字能猜到行为</td><td>游尸 / 弓手 / 影</td></tr>
+    <tr><td>A4</td><td>卡名</td><td class="num">18</td><td class="num">2~4 字</td><td>全部用名词或动词短语，不要「强化·壹」</td><td>助燃 / 多重箭 / 铁壁</td></tr>
+    <tr><td>A5</td><td>卡的风味句</td><td class="num">18</td><td class="num">4~6 字</td><td>一句人话，带点语气。机制文字我来配，你不用管数值</td><td>「火更旺。」「穿过去。」</td></tr>
+    <tr><td>A6</td><td>界面提示语</td><td class="num">10</td><td class="num">≤6 字</td><td>短促，像仪表盘报警</td><td>木头不够 / 天黑了 / 图纸 +1</td></tr>
+    <tr><td>A7</td><td>章节名</td><td class="num">5</td><td class="num">2~3 字</td><td>地名或状态，不要「第一章」这种编号</td><td>荒路 / 长夜 / 断桥 / 铁原 / 灯火</td></tr>
+    <tr><td>A8</td><td>结算字段名</td><td class="num">5</td><td class="num">2 字</td><td>两个字的账本用语</td><td>里程 / 击杀 / 折损 / 图纸 / 结转</td></tr>
+    <tr><td>A9</td><td>结局标题</td><td class="num">2</td><td class="num">≤6 字</td><td>一个赢一个输，都要有余味</td><td>抵达救援中心 / 车辆报废</td></tr>
+  </tbody>
+</table>
+<div class="good"><b>A5 是这条清单里最容易写歪、也最值钱的一项。</b>它不承担任何信息，只承担语气。你可以把它当成「这个人一边逃命一边自言自语」。写不出就留空，我会用机制文字顶上，但手感会掉一档。</div>
+
+<h3>B 级 · 建议有（合计 1348 字）</h3>
+
+<h4>B1 · 章节机制说明（5 条，各 ≤14 字）</h4>
+<p>每章开头一行，告诉玩家「这一章的世界变了什么」。只写现象，不写对策。</p>
+<div class="quote"><b>第 2 章 · 长夜</b>　<span class="fill">（这一句等你写）</span><br><span class="small">参考写法：雨水是酸的。木头的和铁的都撑不住，只有火不怕。</span></div>
+
+<h4>B2 · 随机事件（10 个，这是最大的一块，960 字）</h4>
+<p>每章 2 个，固定出现在第 3 天和第 17 天的黄昏。玩家看到一个场景描述，然后从三个选项里挑一个。后果由我配数值，你只负责「场景」和「你怎么选」。</p>
+
+<table>
+  <thead><tr><th style="width:96px">部件</th><th class="num" style="width:56px">字数</th><th>写法</th><th style="width:200px">示例</th></tr></thead>
+  <tbody>
+    <tr><td>标题</td><td class="num">6 字</td><td>一个具体的物件或动作，不要「艰难抉择」</td><td>翻倒的车</td></tr>
+    <tr><td>正文</td><td class="num">60 字</td><td>2~3 句。第一句给画面，第二句给钩子，第三句给代价的暗示</td><td>车门还开着，人已经不动了。后座堆着半箱罐头，标签都泡烂了。天色在往下沉。</td></tr>
+    <tr><td>选项 ×3</td><td class="num">各 10 字</td><td>必须是三种不同的取舍，不能是「好/中/坏」</td><td>撬开后厢，搬走罐头<br>拆下零件，能修车<br>绕开，别停</td></tr>
+  </tbody>
+</table>
+<div class="note"><b>每个事件请不要自己写后果。</b>你写「撬开后厢」，我配「+30 木，车损 6」。如果你顺手把后果也写了，反而会锁死我调平衡的空间。</div>
+
+<h4>B3 · 每日战报模板（1 组，18 字）</h4>
+<p>每天入夜前，屏幕底部滚一行字，闭合这一天。需要一个模板带三个空位。</p>
+<div class="quote">参考：<b>第 12 天 · 搜刮 7 户 · 折损 3 座</b> —— 需要你定的是这三个空位分别叫什么，以及要不要加一句人话尾巴。</div>
+
+<h4>B4 · Boss（5 个）</h4>
+<table>
+  <thead><tr><th style="width:96px">部件</th><th class="num" style="width:56px">字数</th><th>要求</th><th style="width:200px">示例</th></tr></thead>
+  <tbody>
+    <tr><td>名字</td><td class="num">≤3 字</td><td>不要「僵王」这种直白命名，要像人给它起的外号</td><td>守夜的 / 大个儿</td></tr>
+    <tr><td>登场一句</td><td class="num">≤12 字</td><td>夜里出现时闪一行，压住气氛</td><td>它把整条路堵上了。</td></tr>
+  </tbody>
+</table>
+
+<h4>B5 · 开局三选（5 章 × 3 张 = 15 条，各 12 字）</h4>
+<p class="small">这是我在草图里新加的设计，还没进方案。如果你觉得多余可以直接砍，砍掉后 B 级少 180 字。</p>
+
+<h4>B6 · 教学提示（3 条，各 ≤15 字）</h4>
+<p>第一次进三个时段各弹一次，之后不再出现。要「一句话说清操作」，不要写「点击按钮以建造」。</p>
+<div class="quote">参考：<b>按住左右拖，车会自己往前开</b> / <b>松手就放，放错了整备期能拆</b> / <b>球撞到才停，蹭边也算</b></div>
+
+<h3>C 级 · 长线（合计 525 字，可以先欠着）</h3>
+<table>
+  <thead><tr><th style="width:120px">写什么</th><th class="num" style="width:56px">数量</th><th class="num" style="width:60px">字数/条</th><th>用在哪</th></tr></thead>
+  <tbody>
+    <tr><td>图鉴说明</td><td class="num">13</td><td class="num">25 字</td><td>怪 8 + 建筑 5，点开看的一句话设定</td></tr>
+    <tr><td>死亡页</td><td class="num">5</td><td class="num">20 字</td><td>车里报废时随机一句，避免每次一样的挫败感</td></tr>
+    <tr><td>章节过场</td><td class="num">5</td><td class="num">20 字</td><td>章节切换时的一句话，替代 CG</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section id="s07">
+<h2><span class="n">07</span>字数账</h2>
+<div class="kpi">
+  <div class="k"><b>343</b><span>A 级 · 不写就没有界面</span></div>
+  <div class="k"><b>1348</b><span>B 级 · 决定味道</span></div>
+  <div class="k"><b>525</b><span>C 级 · 可以欠着</span></div>
+  <div class="k"><b>2216</b><span>全写完的总量（约 3 页 A4）</span></div>
+</div>
+<p>真正卡住开发的是 A 级这 343 字。它比一篇短的公众号还少，一下午能写完。B 级里 960 字是那 10 个事件，那是唯一需要你连续想两三天的一块。</p>
+<div class="good"><b>所以建议的写作顺序</b>：先一次写完 A 级 343 字（我拿到就能把界面全部填满，不再有占位符）→ 再慢慢写 10 个事件 → Boss 和章节名最后写，因为那时你应该已经想清楚这五个地方长什么样了。</div>
+</section>
+
+<section id="s08">
+<h2><span class="n">08</span>名词表（写之前请先扫一眼）</h2>
+<p>代码里有几处旧称呼和新设定冲突，玩家会看到不一致。以这张表为准。</p>
+<table>
+  <thead><tr><th style="width:110px">统一用</th><th style="width:150px">不要用</th><th>含义</th></tr></thead>
+  <tbody>
+    <tr><td><b>悬浮球</b></td><td>房子、店铺、球</td><td>白天撞的东西。里面有物资，撞上才开</td></tr>
+    <tr><td><b>户</b></td><td>家、个、米</td><td>唯一位移单位。「走了 137 户」</td></tr>
+    <tr><td><b>篝火</b></td><td>火堆、营火、火把</td><td>近身灼烧 + 减速</td></tr>
+    <tr><td><b>箭塔</b></td><td>塔、炮台、哨塔</td><td>远程点杀</td></tr>
+    <tr><td><b>布防</b></td><td>造塔、建设、布置</td><td>黄昏时段的行为</td></tr>
+    <tr><td><b>搜刮</b></td><td>搜索、收集、拾取</td><td>白天撞球后那 1.4 秒</td></tr>
+    <tr><td><b>图纸</b></td><td>蓝图、卡牌、技能</td><td>抽卡用的货币</td></tr>
+    <tr><td><b>整备期</b></td><td>准备阶段、休整、结算</td><td>章末那段时间，可以拆了重摆</td></tr>
+    <tr><td><b>它 / 它们</b></td><td>怪物、僵尸（作为统称）</td><td>夜里的东西。具体种类用它自己的名字</td></tr>
+  </tbody>
+</table>
+<div class="note"><b>三条硬约束</b>：① 字数上限是物理限制，卡面固定宽度里 13 字是极限，超了会被截断，不是不好看而已；② 文案不解释机制，机制由数字和图标说，文案只给因果和语气；③ 同一个东西全篇只用一个词，见上表。</div>
+</section>
+
+<section>
+<h2><span class="n">09</span>你可以怎么交给我</h2>
+<p>三种都行，按你顺手的来：</p>
+<table>
+  <thead><tr><th style="width:130px">方式</th><th>效果</th></tr></thead>
+  <tbody>
+    <tr><td>直接贴文本</td><td>按 A1~A9 的编号分段贴，我逐个贴进代码。最快，推荐</td></tr>
+    <tr><td>写进 Word / 石墨</td><td>发我文件，我解析。适合长文（事件那 960 字）</td></tr>
+    <tr><td>只给方向</td><td>比如「怪名我想要军事代号风」，我按你的方向先出一版你再改</td></tr>
+  </tbody>
+</table>
+<p class="small">另外：v2.2 里那 18 个卡名和风味句我已经写了一版（助燃 / 扩光 / 余烬 / 连弩 / 多重箭 / 穿透 / 加固 / 尖刺 / 铁壁 / 装药 / 连锁 / 增幅 / 广域 / 钢板 / 车灯 / 冲撞 / 深搜 / 图纸嗅觉），你可以直接拿去改，或者整批推翻——它们只是占位。</p>
+</section>
+
+</div>
+</body>
+</html>
