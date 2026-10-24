@@ -12,13 +12,17 @@
 
 ## 快速试玩
 
-- **浏览器直接玩**：打开 [`demo/preview.html`](demo/preview.html)（2.3MB 单文件，图片已内联，双击即跑，无需服务器）
+- **在线玩（推荐手机竖屏打开）**：<https://mizuki-aki.github.io/MyHub/>
+- **本地直接玩**：打开 [`demo/preview.html`](demo/preview.html)（2.3MB 单文件，图片已内联，双击即跑，无需服务器）
 - **微信开发者工具**：导入 `minigame/` 目录，`compileType: game`，AppID 可用测试号
+
+> 线上版本由 GitHub Pages 托管 `main` 分支根目录，入口是 [`index.html`](index.html)（项目落地页），点「开始游戏」进入 `demo/preview.html`。
 
 ## 目录
 
 ```
 .
+├── index.html                 GitHub Pages 入口（项目落地页）
 ├── demo/preview.html          单文件可玩预览（由 tools/build_preview.py 生成）
 ├── docs/                      各版本游戏设计方案
 ├── minigame/                  微信小游戏工程（源码 + 素材）

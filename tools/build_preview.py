@@ -41,16 +41,28 @@ html = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>永夜微光 · v1.1 碰碰车</title>
 <style>
-  html,body{margin:0;height:100%;background:#0d1018;overflow:hidden;
+  :root{ --sab: env(safe-area-inset-bottom, 0px); }
+  html,body{margin:0;height:100%;background:#0b0e15;overflow:hidden;
+    overscroll-behavior:none;-webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;user-select:none;
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none;}
   canvas{display:block;box-shadow:0 10px 50px rgba(0,0,0,.6);border-radius:18px;}
-  #hint{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);color:#7c879b;
-    font-size:11px;letter-spacing:.4px;white-space:nowrap;}
+  #hint{position:fixed;left:50%;bottom:calc(6px + var(--sab));transform:translateX(-50%);
+    color:#7c879b;font-size:11px;letter-spacing:.4px;text-align:center;
+    max-width:92vw;line-height:1.5;pointer-events:none;}
+  /* 竖版游戏：横屏时给出提示，避免玩家在错误方向上手忙脚乱 */
+  #rotate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:#0b0e15;color:#ffcf7a;font-size:14px;letter-spacing:1px;z-index:9;}
+  @media (orientation:landscape) and (max-height:520px){
+    #stage{visibility:hidden;} #rotate{display:flex;} #hint{display:none;}
+  }
+  @media (max-width:520px){ #hint{display:none;} }
 </style>
 </head>
 <body>
 <div id="stage"><canvas id="game"></canvas></div>
+<div id="rotate">请竖屏游玩</div>
 <div id="hint">永夜微光 v1.1 · 白天拖车横移撞悬浮球 · 黄昏点格子布防 · 夜晚守车 · 撑过 100 天或开过 800 户</div>
 <script>
 __CORE__
@@ -59,16 +71,28 @@ __CORE__
 var ASSETS = __ASSETS__;
 (function(){
   var MAX_W = 480;
-  var cssW = Math.min(window.innerWidth, MAX_W);
-  var cssH = window.innerHeight;
   var dpr = window.devicePixelRatio || 1;
   var canvas = document.getElementById('game');
+  var stage = document.getElementById('stage');
+
+  // 安全区：iPhone 底部 Home 指示条会盖住游戏底部的按钮区，高度要先扣掉
+  var sab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0;
+  var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  var cssW = Math.min(stage.clientWidth || window.innerWidth, MAX_W);
+  var cssH = Math.max(360, (vh || window.innerHeight) - sab);
+
   canvas.style.width = cssW + 'px';
   canvas.style.height = cssH + 'px';
   canvas.width = Math.round(cssW * dpr);
   canvas.height = Math.round(cssH * dpr);
   var ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // 挡住 iOS 的双击缩放与双指缩放，否则拖动控车会误触放大页面
+  document.addEventListener('dblclick', function(e){ e.preventDefault(); }, { passive: false });
+  ['gesturestart', 'gesturechange'].forEach(function(t){
+    document.addEventListener(t, function(e){ e.preventDefault(); }, { passive: false });
+  });
 
   var images = {}, keys = Object.keys(ASSETS), loaded = 0, started = false;
   function start(){

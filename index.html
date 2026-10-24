@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>永夜微光 · Nightfall Glow</title>
+<meta name="description" content="末世公路生存微信小游戏。白天开着越野车在废墟公路上撞破悬浮球搜刮补给，黄昏布防，夜晚守车。坚守 100 天，或开过 800 户抵达救援中心。">
+<meta property="og:title" content="永夜微光 · Nightfall Glow">
+<meta property="og:description" content="末世公路生存微信小游戏。坚守 100 天，或开过 800 户抵达救援中心。">
+<meta property="og:image" content="screenshots/v4_travel.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='17' r='9' fill='%23ffcf7a'/%3E%3Ccircle cx='16' cy='17' r='14' fill='%23ffcf7a' opacity='.22'/%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --ink:#eef3ff; --dim:#8794ab; --warm:#ffcf7a; --hot:#ff9d5c;
+    --line:rgba(255,255,255,.09); --panel:rgba(255,255,255,.032);
+  }
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(125% 62% at 50% -12%, rgba(255,166,84,.20), transparent 62%),
+      radial-gradient(90% 46% at 92% 8%, rgba(96,124,255,.13), transparent 60%),
+      #080b12;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.7;
+  }
+  .wrap{
+    max-width:820px;margin:0 auto;
+    padding:clamp(34px,9vw,76px) 22px calc(48px + env(safe-area-inset-bottom));
+  }
+
+  /* ---------- 首屏 ---------- */
+  .eyebrow{
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--warm);opacity:.85;margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";display:inline-block;width:26px;height:1px;background:var(--warm);
+    vertical-align:middle;margin-right:10px;opacity:.6}
+  h1{
+    font-size:clamp(46px,13vw,78px);line-height:1.06;margin:0;letter-spacing:.06em;font-weight:800;
+    text-shadow:0 0 44px rgba(255,190,110,.34), 0 0 100px rgba(255,150,80,.16);
+  }
+  .latin{
+    font-size:clamp(11px,2.6vw,13px);letter-spacing:.42em;color:var(--dim);
+    margin:14px 0 0;text-transform:uppercase;
+  }
+  .lead{
+    font-size:clamp(14px,3.6vw,16px);color:#c3ccdd;max-width:46ch;margin:26px 0 0;
+  }
+  .lead b{color:var(--warm);font-weight:600}
+  .cta{
+    display:inline-flex;align-items:center;gap:12px;margin-top:34px;
+    padding:15px 36px;border-radius:999px;
+    background:linear-gradient(135deg,#ffd489,#ff9d5c);color:#221304;
+    font-weight:800;font-size:16px;letter-spacing:.06em;text-decoration:none;
+    box-shadow:0 10px 34px rgba(255,150,80,.30);transition:transform .22s, box-shadow .22s;
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 15px 42px rgba(255,150,80,.46)}
+  .cta span{font-size:18px;line-height:1}
+  .meta{margin-top:16px;font-size:12px;color:var(--dim);letter-spacing:.03em}
+
+  /* ---------- 截图 ---------- */
+  .shots{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:52px 0 0}
+  .shots figure{margin:0}
+  .shots img{
+    width:100%;display:block;border-radius:13px;
+    border:1px solid var(--line);background:#0e1219;
+  }
+  .shots figcaption{
+    margin-top:8px;font-size:11.5px;color:var(--dim);letter-spacing:.05em;text-align:center;
+  }
+  @media(max-width:600px){
+    .shots{
+      display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;padding-bottom:8px;margin-top:42px;
+    }
+    .shots figure{flex:0 0 64%;scroll-snap-align:center}
+  }
+
+  /* ---------- 特性 ---------- */
+  .facts{display:grid;gap:1px;margin:56px 0 0;background:var(--line);
+    border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .fact{background:#0a0e16;padding:22px 22px 24px}
+  .fact .no{
+    font-size:11px;letter-spacing:.2em;color:var(--warm);opacity:.75;margin-bottom:8px;
+  }
+  .fact h3{margin:0 0 8px;font-size:15.5px;letter-spacing:.02em;font-weight:700}
+  .fact p{margin:0;font-size:13.5px;color:#a8b3c6;line-height:1.78}
+  .fact p em{color:var(--warm);font-style:normal}
+
+  /* ---------- 链接 ---------- */
+  .links{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:34px 0 0;
+  }
+  .links a{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:11px;
+    background:var(--panel);color:#cfd8e8;text-decoration:none;
+    font-size:13.5px;transition:border-color .2s, color .2s, background .2s;
+  }
+  .links a span{color:var(--dim);font-size:12px;transition:color .2s}
+  .links a:hover{border-color:rgba(255,207,122,.45);color:var(--warm);background:rgba(255,207,122,.05)}
+  .links a:hover span{color:var(--warm)}
+  @media(max-width:560px){ .links{grid-template-columns:1fr} }
+
+  footer{
+    margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:11.5px;color:#5f6a7e;letter-spacing:.04em;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">微信小游戏 · Web Demo</div>
+  <h1>永夜微光</h1>
+  <p class="latin">Nightfall Glow</p>
+
+  <p class="lead">
+    太阳不再升起。开着越野车沿废墟公路一路向前——白天撞破悬浮球搜刮补给，
+    黄昏布防，夜晚守在阵前。<b>坚守 100 天</b>，或者<b>开过 800 户抵达救援中心</b>。
+  </p>
+
+  <a class="cta" href="demo/preview.html">开始游戏 <span>→</span></a>
+  <div class="meta">竖屏 · 一天 60 秒 · 无需安装，浏览器直接运行</div>
+
+  <section class="shots">
+    <figure>
+      <img src="screenshots/v4_travel.png" alt="白天行进阶段：越野车在公路上压向悬浮球">
+      <figcaption>白天 · 拖车抢球</figcaption>
+    </figure>
+    <figure>
+      <img src="screenshots/v4_swing.png" alt="横穿车道抢下另一侧的悬浮球">
+      <figcaption>横穿 · 一次吃两个</figcaption>
+    </figure>
+    <figure>
+      <img src="screenshots/v4_night.png" alt="夜间防守：篝火与箭塔守住公路">
+      <figcaption>夜晚 · 篝火与箭塔</figcaption>
+    </figure>
+  </section>
+
+  <section class="facts">
+    <div class="fact">
+      <div class="no">01 / 节奏</div>
+      <h3>一天三段，60 秒</h3>
+      <p>行进 15 秒、黄昏布防 15 秒、夜袭 30 秒。行进省下的时间<em>直接并入布防</em>，所以升车速等于换布防时间。</p>
+    </div>
+    <div class="fact">
+      <div class="no">02 / 取舍</div>
+      <h3>车宽一条道，撞球才停下</h3>
+      <p>球只挂最外侧两条车道，成对分布。撞上就停 1.4 秒搜刮——<em>车停了，倒计时照走</em>。搜满 8 个要 11.2 秒，所以车速不升到 Lv3 就推不动每天 8 户。</p>
+    </div>
+    <div class="fact">
+      <div class="no">03 / 形态</div>
+      <h3>斜着往远处开</h3>
+      <p>5 车道 × 9 行纵深格，整体顺时针旋转 15°，公路斜着收进地平线。远端路宽收敛到近端 46%，怪物从远处俯冲下来。</p>
+    </div>
+  </section>
+
+  <section class="links">
+    <a href="docs/游戏设计方案_v1.1_碰碰车.html">设计文档 · v1.1 现行 <span>→</span></a>
+    <a href="https://github.com/mizuki-aki/MyHub/blob/main/README.md">项目说明 <span>→</span></a>
+    <a href="https://github.com/mizuki-aki/MyHub/tree/main/docs">历史版本方案 <span>→</span></a>
+    <a href="https://github.com/mizuki-aki/MyHub/tree/main/minigame">小游戏工程源码 <span>→</span></a>
+  </section>
+
+  <footer>
+    <span>永夜微光 · v1.1 碰碰车</span>
+    <span>Canvas 渲染 · 微信小游戏 / 浏览器双端</span>
+  </footer>
+
+</div>
+</body>
+</html>
