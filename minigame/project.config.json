@@ -1,0 +1,17 @@
+{
+  "description": "永夜微光 M1 原型（末世生存经营 · 微信小游戏）",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "game",
+  "libVersion": "3.4.0",
+  "appid": "touristappid",
+  "projectname": "yongye-weiguang"
+}

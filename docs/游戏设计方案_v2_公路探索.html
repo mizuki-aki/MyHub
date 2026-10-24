@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v2（公路探索版）</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:32px 20px 72px; background:var(--bg); color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto}
+  header{margin-bottom:26px}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:29px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:15px;max-width:760px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--warnbg);color:var(--warn);font-size:12.5px;font-weight:600;border:1px solid #f5d6c6}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px;color:var(--ink)}
+  h3:first-of-type{margin-top:14px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:#e9f7f0;color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfdff}
+  .box h4{margin:0 0 6px;font-size:13.5px}
+  .box p{margin:4px 0;font-size:13px;color:var(--ink2)}
+  .askbox{background:var(--askbg);border:1px solid #cfe9ee;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .askbox p{margin:5px 0;font-size:13.5px;color:#0d5f6b}
+  .warnbox{background:var(--warnbg);border:1px solid #f6d8c9;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .warnbox p{margin:5px 0;font-size:13.5px;color:#8a3309}
+  ol,ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .small{font-size:12.5px;color:var(--ink3)}
+  figure{margin:16px 0 6px}
+  figcaption{font-size:12.5px;color:var(--ink3);margin-top:6px;text-align:center}
+  .q{counter-reset:q}
+  .q li{margin:10px 0}
+  .q b{color:var(--ink)}
+  .pill{display:inline-block;background:#f1f3f8;border-radius:6px;padding:1px 7px;font-size:12px;color:var(--ink2)}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .flow .step{flex:1;min-width:150px;border-radius:10px;padding:11px 13px;border:1px solid var(--line);background:#fcfdff}
+  .flow .step b{display:block;font-size:13px;margin-bottom:2px}
+  .flow .step span{font-size:12px;color:var(--ink3)}
+  .flow .arrow{color:#c3c9d8;font-weight:700}
+  .day1{border-left:3px solid var(--day)}
+  .day2{border-left:3px solid #d9a13b}
+  .night{border-left:3px solid var(--night)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Project 永夜微光 · 设计稿</div>
+  <h1>方案 v2：公路探索 + 篝火防线</h1>
+  <p class="sub">白天开车沿公路搜刮路边建筑攒资源，黄昏停车布防，夜晚守住篝火防线。地面由草坪改为公路，基地由木墙改为越野车，白天拆成「行进搜刮」与「黄昏布防」两段。</p>
+  <div class="status">讨论稿 · 尚未编码 · 等你确认后再执行</div>
+</header>
+
+<section>
+  <h2><span class="n">01</span>与上一版的差异</h2>
+  <table>
+    <tr><th>项</th><th>上一版（已废弃）</th><th>本方案</th></tr>
+    <tr><td>地面</td><td>5 路草坪，正交竖版</td><td><b>公路</b>，整条路面顺时针倾斜约 15°</td></tr>
+    <tr><td>格网</td><td>5 列 × 7~11 行</td><td>沿用（5 车道 × 纵深若干行）</td></tr>
+    <tr><td>两侧</td><td>空地 / 无装饰</td><td><b>路边建筑</b>：超市、医院、工厂、民房</td></tr>
+    <tr><td>基地</td><td>底部木墙</td><td><b>越野车</b>，停在路上</td></tr>
+    <tr><td>白天</td><td>单一发育阶段 30s</td><td><b>行进搜刮 15s + 黄昏布防 15s</b></td></tr>
+    <tr><td>夜晚</td><td>20s</td><td><b>30s</b></td></tr>
+    <tr><td>阻挡方式</td><td>光域灼伤，怪可穿过</td><td><b>篝火是路障</b>，怪被挡在篝火格前</td></tr>
+    <tr><td>资源</td><td>只有「木头」</td><td>木头 / 篝火 / 面包 / 药物 / 图纸 / 箭塔</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">02</span>一天的循环</h2>
+  <div class="flow">
+    <div class="step day1"><b>① 行进搜刮 15s</b><span>车自动前进，点路边建筑停车搜刮</span></div>
+    <div class="arrow">→</div>
+    <div class="step day2"><b>② 黄昏布防 15s</b><span>可用暂停 / 跳过，摆篝火与箭塔</span></div>
+    <div class="arrow">→</div>
+    <div class="step night"><b>③ 夜晚防守 30s</b><span>怪物沿公路进攻，守住车</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>④ 结算 → 下一天</b><span>天数 +1，回到 ①</span></div>
+  </div>
+  <p class="small">单日 60s。撑过 100 天 ≈ 100 分钟（1x）——这个总时长在下面第 9 节需要你定。</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>场景与视角</h2>
+  <p class="lead">公路斜穿屏幕，远端收窄形成纵深；车在近端下方，路两侧的房子随行进依次出现在屏幕右侧与左侧。</p>
+
+  <figure>
+    <svg viewBox="0 0 680 360" width="100%" role="img" aria-label="公路与房子布局示意">
+      <defs>
+        <linearGradient id="asph" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6b7280"/><stop offset="1" stop-color="#3f4655"/>
+        </linearGradient>
+        <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8b93a3" stop-opacity="0"/><stop offset="1" stop-color="#2b3140" stop-opacity=".28"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="680" height="360" fill="#f2f4f9"/>
+      <g transform="rotate(15 340 332)">
+        <!-- 路面 -->
+        <polygon points="292,26 388,26 512,332 168,332" fill="url(#asph)"/>
+        <polygon points="292,26 388,26 512,332 168,332" fill="url(#shade)"/>
+        <!-- 车道线 -->
+        <g stroke="#e8eef7" stroke-opacity=".55" stroke-width="2">
+          <line x1="311" y1="26" x2="237" y2="332"/>
+          <line x1="330" y1="26" x2="306" y2="332"/>
+          <line x1="349" y1="26" x2="375" y2="332"/>
+          <line x1="368" y1="26" x2="444" y2="332"/>
+        </g>
+        <!-- 边线 -->
+        <g stroke="#f3d48a" stroke-width="2.5" stroke-opacity=".8">
+          <line x1="293" y1="26" x2="169" y2="332"/>
+          <line x1="387" y1="26" x2="511" y2="332"/>
+        </g>
+        <!-- 房子：左 4 右 4 -->
+        <g>
+          <rect x="212" y="52"  width="52" height="30" rx="4" fill="#c96f4a"/>
+          <rect x="212" y="112" width="52" height="30" rx="4" fill="#4f8fbd"/>
+          <rect x="196" y="176" width="56" height="32" rx="4" fill="#8a7bb8"/>
+          <rect x="176" y="244" width="58" height="34" rx="4" fill="#c9a24a"/>
+          <rect x="412" y="66"  width="52" height="30" rx="4" fill="#4f8fbd"/>
+          <rect x="404" y="130" width="56" height="32" rx="4" fill="#c96f4a"/>
+          <rect x="394" y="200" width="58" height="34" rx="4" fill="#5f9e73"/>
+          <rect x="384" y="272" width="60" height="34" rx="4" fill="#8a7bb8"/>
+        </g>
+        <!-- 越野车 -->
+        <g>
+          <rect x="316" y="304" width="48" height="26" rx="7" fill="#f4b942" stroke="#8a5b12" stroke-width="2"/>
+          <rect x="324" y="309" width="32" height="10" rx="3" fill="#c6d4e2"/>
+          <circle cx="326" cy="332" r="4.5" fill="#2b3140"/><circle cx="354" cy="332" r="4.5" fill="#2b3140"/>
+        </g>
+      </g>
+      <!-- 标注 -->
+      <text x="340" y="20" text-anchor="middle" font-size="12" fill="#7b8398">远 · 怪物来向</text>
+      <text x="340" y="352" text-anchor="middle" font-size="12" fill="#7b8398">近 · 越野车（基地）</text>
+      <text x="118" y="196" text-anchor="middle" font-size="11.5" fill="#7b8398">左侧建筑</text>
+      <text x="566" y="196" text-anchor="middle" font-size="11.5" fill="#7b8398">右侧建筑</text>
+      <g transform="translate(600,300)">
+        <path d="M0,-16 A16,16 0 0 1 13,9" fill="none" stroke="#e8892b" stroke-width="2" stroke-opacity=".8"/>
+        <path d="M13,9 l-5,-3 l6,-3" fill="#e8892b" fill-opacity=".8"/>
+        <text x="0" y="30" text-anchor="middle" font-size="11" fill="#e8892b">顺时针 15°</text>
+      </g>
+    </svg>
+    <figcaption>布局示意：5 车道公路，顺时针倾斜约 15°，两侧各 4 个可探索建筑</figcaption>
+  </figure>
+
+  <h3>15° 倾斜的两种实现</h3>
+  <table>
+    <tr><th></th><th>做法</th><th>效果</th><th>代价</th></tr>
+    <tr>
+      <td><span class="tag t-ok">建议</span></td>
+      <td><b>整体旋转</b>：场景、格子、车、怪一起 `rotate(15°)`，UI 不转</td>
+      <td>路、格子、房子朝向一致，斜向构图有速度感</td>
+      <td>四角会露空（需补背景）；点击坐标要做逆变换</td>
+    </tr>
+    <tr>
+      <td><span class="tag t-ask">备选</span></td>
+      <td><b>只斜路面</b>：道路贴图倾斜，格子仍正交</td>
+      <td>实现简单，点击不用换算</td>
+      <td>「斜路配正格」会很别扭，格子压在斜路上对不齐</td>
+    </tr>
+  </table>
+
+  <div class="askbox">
+    <p><b>待确认 ①</b>　是否接受「整体旋转」？我建议是——不然斜路和正方格会互相打架。</p>
+    <p><b>待确认 ②</b>　你说的「后面的房子去掉」我理解有两种可能，是哪一种？<br>
+      (a) 去掉远景里装饰性的建筑群，只保留路边可交互的 8 个房子；<br>
+      (b) 车开过去的房子（身后的）不再显示，屏幕上只留前方未经过的房子。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">04</span>白天 ①：行进搜刮（15s）</h2>
+  <p class="lead">车自动匀速前进，房子进入「可探索」范围时高亮；点一下 → 停车搜刮 1.0s → 车继续开。15s 到点强制结束，没搜的房子就错过。</p>
+
+  <h3>时间预算（按你给的三条约束倒推）</h3>
+  <table>
+    <tr><th>参数</th><th class="num">取值</th><th>说明</th></tr>
+    <tr><td>房子总数</td><td class="num">8</td><td>左右各 4 个，交替出现</td></tr>
+    <tr><td>房子间距 <code>S</code></td><td class="num">1.2s</td><td>车速固定，每个房子间隔 1.2s 抵达</td></tr>
+    <tr><td>单次搜刮 <code>E</code></td><td class="num">1.0s</td><td>停车 + 翻找动画</td></tr>
+    <tr><td>操作延迟 <code>d</code></td><td class="num">0.25s</td><td>人从看到到点到；熟练可压到 0.05s</td></tr>
+    <tr><td>连点加速</td><td class="num">最短 0.85s</td><td>搜刮动画可点击「抢」，压 15%</td></tr>
+  </table>
+  <p class="small">推导式：搜第 k+1 个到第 k+n 个，耗时 = (k+n)×1.2 + n×(1.0+0.25)。</p>
+
+  <figure>
+    <svg viewBox="0 0 680 250" width="100%" role="img" aria-label="15 秒时间预算">
+      <rect x="0" y="0" width="680" height="250" fill="#fcfdff"/>
+      <!-- 时间轴 -->
+      <g font-size="11" fill="#9aa1b2">
+        <line x1="130" y1="214" x2="640" y2="214" stroke="#e3e6ee"/>
+        <text x="130" y="232">0s</text><text x="300" y="232">5s</text>
+        <text x="470" y="232">10s</text><text x="634" y="232">15s</text>
+      </g>
+      <line x1="640" y1="26" x2="640" y2="214" stroke="#c2410c" stroke-dasharray="4 4" stroke-opacity=".6"/>
+      <text x="640" y="20" text-anchor="middle" font-size="11" fill="#c2410c">15s 上限</text>
+
+      <!-- A -->
+      <text x="122" y="52" text-anchor="end" font-size="12" fill="#4a5163">不跳过 · 搜 6 个</text>
+      <rect x="130" y="38" width="245" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="375" y="38" width="255" height="22" rx="4" fill="#e8892b" fill-opacity=".85"/>
+      <text x="638" y="53" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.7s</text>
+
+      <!-- B -->
+      <text x="122" y="94" text-anchor="end" font-size="12" fill="#4a5163">跳过 2 个 · 搜 5 个</text>
+      <rect x="130" y="80" width="286" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="416" y="80" width="212" height="22" rx="4" fill="#e8892b" fill-opacity=".85"/>
+      <text x="624" y="95" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.65s</text>
+
+      <!-- C -->
+      <text x="122" y="136" text-anchor="end" font-size="12" fill="#4a5163">跳过 3 个 · 手速搜 5 个</text>
+      <rect x="130" y="122" width="326" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="456" y="122" width="153" height="22" rx="4" fill="#2f9e6a"/>
+      <text x="605" y="137" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.1s</text>
+
+      <!-- D -->
+      <text x="122" y="178" text-anchor="end" font-size="12" fill="#4a5163">跳过 4 个 · 只够搜 4 个</text>
+      <rect x="130" y="164" width="326" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="456" y="164" width="170" height="22" rx="4" fill="#5b5ea8" fill-opacity=".8"/>
+      <text x="622" y="179" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.6s</text>
+
+      <g font-size="11" fill="#9aa1b2">
+        <rect x="130" y="196" width="10" height="8" rx="2" fill="#c9d0de"/><text x="146" y="204">行进</text>
+        <rect x="186" y="196" width="10" height="8" rx="2" fill="#e8892b" fill-opacity=".85"/><text x="202" y="204">搜刮</text>
+        <rect x="242" y="196" width="10" height="8" rx="2" fill="#2f9e6a"/><text x="258" y="204">手速加速</text>
+      </g>
+    </svg>
+    <figcaption>三种跳过策略的实际耗时；「跳过 3 个」绿条即手速把延迟与动画都压到极限</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>你的要求</th><th>本参数下的结果</th><th>校验</th></tr>
+    <tr><td>跳过 2 个，还能搜 5 个</td><td>7×1.2 + 5×1.25 = <b>14.65s</b></td><td><span class="tag t-ok">通过</span>余 0.35s</td></tr>
+    <tr><td>跳过 3 个，手速快刚好搜 5 个</td><td>常规 15.85s ✗ ／ 手速 9.6 + 4.5 = <b>14.1s</b></td><td><span class="tag t-ok">通过</span>只有手速能达成</td></tr>
+    <tr><td>跳过 4 个，只能搜 4 个</td><td>9.6 + 5×1.25 = <b>14.6s</b>（第 9 个房子不存在）</td><td><span class="tag t-ok">通过</span>上限就是 4</td></tr>
+  </table>
+
+  <div class="warnbox">
+    <p><b>一个副产品，需要你确认要不要保留：</b>完全不跳过时能搜 <b>6 个</b>（14.7s），也就是「贪心全搜」收益最高但拿不到后面远端的工厂。这样就形成了取舍：<b>前面民房/超市稳，后面工厂量大但要不跳才能赶到</b>。</p>
+    <p>另外：如果完全不搜，车在 9.6s 就到终点，会空转 5.4s。我的建议是「到终点后自动提前进入黄昏」，省下的时间并入布防（等于选择「放弃搜刮换布防时间」）。</p>
+  </div>
+
+  <h3>路边建筑与产出（每次搜刮）</h3>
+  <table>
+    <tr><th>建筑</th><th class="num">木头</th><th class="num">篝火</th><th class="num">面包</th><th class="num">药物</th><th class="num">图纸</th><th class="num">箭塔</th><th>定位</th></tr>
+    <tr><td>超市</td><td class="num">少（6）</td><td class="num">中（2）</td><td class="num">少（1）</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>稳定补给，篝火来源</td></tr>
+    <tr><td>医院</td><td class="num">少（2）</td><td class="num">—</td><td class="num">少（1）</td><td class="num">中（3）</td><td class="num">15%</td><td class="num">—</td><td>药物 + 图纸赌运气</td></tr>
+    <tr><td>工厂</td><td class="num">大（14）</td><td class="num">少（1）</td><td class="num">—</td><td class="num">—</td><td class="num">20%</td><td class="num">25%</td><td>木头主力，高价值但远</td></tr>
+    <tr><td>民房</td><td class="num">中（4）</td><td class="num">—</td><td class="num">大（5）</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>面包唯一稳定来源</td></tr>
+  </table>
+  <p class="small">数值是我按「一天约搜 4~5 个房子，够建 3~4 个篝火 + 补一次油」倒推的，后面可以整体缩放。</p>
+
+  <div class="askbox">
+    <p><b>待确认 ③</b>　<b>药物</b> 用来干什么？我目前没找到用途，备选：治疗越野车耐久 / 提升搜刮速度 / 合成图纸 / 应急回能量。</p>
+    <p><b>待确认 ④</b>　<b>图纸</b> 用来干什么？备选：解锁箭塔建造 / 升级篝火（伤害或耐久）/ 一次性强化。</p>
+    <p><b>待确认 ⑤</b>　工厂概率掉落的<b>箭塔</b>是「免费放置的道具」还是「解锁建造权限」？前者更好懂。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">05</span>白天 ②：黄昏布防（15s）</h2>
+  <p class="lead">车停住，怪还没来。这 15 秒是唯一能布防的窗口，用搜来的篝火 + 木头把车前方封住。</p>
+  <table>
+    <tr><th>操作</th><th>规则（建议）</th></tr>
+    <tr><td>建造</td><td>优先消耗「篝火道具」（免费）；不够再用木头（10 木 / 个）。箭塔同理（道具优先，否则 25 木）</td></tr>
+    <tr><td><b>暂停</b></td><td>暂停倒计时，可继续建造。<b>建议每人每天最多暂停 1 次、最多 10s</b>，否则「跳过」没意义</td></tr>
+    <tr><td><b>跳过</b></td><td>立刻结束布防进入夜晚，不返还时间（换取更快的推进）</td></tr>
+    <tr><td>倒计时结束</td><td>自动进入夜晚，未花完的时间不保留</td></tr>
+  </table>
+  <div class="askbox">
+    <p><b>待确认 ⑥</b>　暂停按钮要不要限次/限时？不限的话玩家会一直暂停到满意为止，跳过按钮就废了。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">06</span>夜晚：防守（30s）</h2>
+  <p class="lead">篝火从「光域灼伤」改成「路障」：怪被挡在篝火所在格前方，必须先拆掉它。</p>
+
+  <div class="grid2">
+    <div class="box">
+      <h4>篝火阻挡</h4>
+      <p>篝火占据 1 格，怪物沿车道向下推进时<b>被挡在该格前</b>，不能穿过（除非拆掉）。同车道多排篝火 = 多道关卡。</p>
+    </div>
+    <div class="box">
+      <h4>伤害范围：十字 5 格</h4>
+      <p>篝火所在格 + 上下左右各 1 格。进入范围的怪<b>持续掉血 + 减速</b>，也就是说贴脸拆篝火的怪一定在伤害区内。</p>
+    </div>
+    <div class="box">
+      <h4>篝火耐久</h4>
+      <p>近战怪 <b>3 下</b>打破，远程（骷髅）<b>4 下</b>打破。换算：篝火 3 点耐久，近战每击 1 点，远程每击 0.75 点。</p>
+    </div>
+    <div class="box">
+      <h4>骷髅射程 1.5 格</h4>
+      <p>停在篝火上方 1.5 格放箭 —— 正好在十字伤害圈之外，所以光靠篝火杀不掉它，需要箭塔或其他手段。</p>
+    </div>
+  </div>
+
+  <h3>修补经济</h3>
+  <table>
+    <tr><th>动作</th><th class="num">木头</th><th>说明</th></tr>
+    <tr><td>新建篝火</td><td class="num">10</td><td>白天搜到的篝火道具可 0 木直接放</td></tr>
+    <tr><td><b>修补篝火</b></td><td class="num">5</td><td><b>新建的 1/2</b>，回复满耐久（对应你说的 1:2）</td></tr>
+  </table>
+  <p class="small">这样「破了就补」永远比「重建」便宜，玩家会倾向于在旧位置补，而不是另开一格。</p>
+
+  <div class="askbox">
+    <p><b>待确认 ⑦</b>　「补充和新建消耗木头 1:2」我按「<b>修补 = 新建的一半</b>」理解（新建 10 / 修补 5），对吗？还是反过来（修补是新建的 2 倍）？</p>
+    <p><b>待确认 ⑧</b>　篝火破掉之后：<b>(a)</b> 变成废墟仍占格但不再阻挡；<b>(b)</b> 直接消失、格子空出来。我建议 (a)，视觉上更能看出「这里曾经有防线」。</p>
+    <p><b>待确认 ⑨</b>　怪物突破全部篝火后打到<b>越野车</b>会怎样？车有耐久吗？被打爆 = 游戏结束？还是掉资源？</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">07</span>能量与面包</h2>
+  <p class="lead">车要开就得吃面包 —— 面包是唯一的能量来源，民房因此成为每天必搜的点。</p>
+  <table>
+    <tr><th>项</th><th class="num">建议值</th></tr>
+    <tr><td>能量上限</td><td class="num">100</td></tr>
+    <tr><td>每段行进消耗</td><td class="num">1.5 / 个房子间距（跑完 8 个 ≈ 12）</td></tr>
+    <tr><td>每次停车搜刮</td><td class="num">2（下车、怠速）</td></tr>
+    <tr><td>单日典型消耗</td><td class="num">22 左右，约 4~5 天见底</td></tr>
+    <tr><td>面包 → 能量</td><td class="num">1 个 = +15</td></tr>
+    <tr><td>能量不足</td><td>低于 25 时车速下降（可搜的房子变少）；为 0 则当天无法出发，只能原地守夜</td></tr>
+  </table>
+  <div class="box">
+    <h4>补充能量时的提示</h4>
+    <p style="font-size:13.5px;color:#1f2430;background:#fff4e6;border-radius:8px;padding:10px 12px;border:1px solid #f3dcc2">
+      「AI 都吃大白饭了，我吃面包咋了，我吃面包很合理呀」</p>
+    <p class="small">这句按原话保留，做成吃面包时的气泡台词（约 2.5s 淡出）。</p>
+  </div>
+  <div class="askbox">
+    <p><b>待确认 ⑩</b>　能量是「每天固定消耗」还是「开多远消耗多少」？我建议后者（开得远/搜得多更费油），这样跳过房子还有一个省油的理由。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">08</span>资源用途一览</h2>
+  <table>
+    <tr><th>资源</th><th>来源</th><th>用途</th><th>状态</th></tr>
+    <tr><td>木头</td><td>超市 / 工厂 / 民房</td><td>新建与修补篝火、建箭塔</td><td><span class="tag t-ok">已定</span></td></tr>
+    <tr><td>篝火</td><td>超市 / 工厂（道具）</td><td>免费放置或修补</td><td><span class="tag t-ok">已定</span></td></tr>
+    <tr><td>面包</td><td>民房 / 超市 / 医院</td><td>补充车能量</td><td><span class="tag t-ok">已定</span></td></tr>
+    <tr><td>药物</td><td>医院</td><td>—</td><td><span class="tag t-warn">待定</span></td></tr>
+    <tr><td>图纸</td><td>医院 / 工厂（概率）</td><td>—</td><td><span class="tag t-warn">待定</span></td></tr>
+    <tr><td>箭塔</td><td>工厂（概率）</td><td>免费放置</td><td><span class="tag t-warn">待定</span></td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">09</span>需要你拍板的事</h2>
+  <ol class="q">
+    <li><b>整体旋转 15°</b>（格子跟着斜）还是只斜路面？</li>
+    <li><b>「后面的房子去掉」</b>指远景装饰建筑，还是车已开过的房子？</li>
+    <li><b>药物</b>作用？</li>
+    <li><b>图纸</b>作用？</li>
+    <li><b>工厂掉的箭塔</b>是免费道具还是解锁权限？</li>
+    <li><b>暂停按钮</b>是否限次限时？</li>
+    <li><b>修补 = 新建的一半木头</b>，确认？</li>
+    <li><b>篝火破损后</b>变废墟（仍占格）还是消失？</li>
+    <li><b>越野车</b>有耐久吗？被打爆算失败吗？</li>
+    <li><b>能量</b>按距离消耗还是每天固定？</li>
+    <li><b>100 天 × 60s ≈ 100 分钟</b>是否太长？要不要压缩到 30 天，或默认 2x？</li>
+  </ol>
+  <p class="small">你可以只回编号 + 选择（例如「1 整体旋转；2b；3 治疗车」）。我按你的回答改方案，等你说「开做」再动代码。</p>
+</section>
+
+<section>
+  <h2><span class="n">10</span>确认之后的执行顺序（暂不开始）</h2>
+  <table>
+    <tr><th>阶段</th><th>内容</th><th>产出</th></tr>
+    <tr><td>M1</td><td>公路场景 + 15° 旋转 + 5 车道格网 + 越野车</td><td>可看的静态场景</td></tr>
+    <tr><td>M2</td><td>行进搜刮（15s 预算、停车、产出入账）+ 面包能量</td><td>白天可玩</td></tr>
+    <tr><td>M3</td><td>黄昏布防（暂停/跳过）+ 篝火路障 + 夜晚 30s 防守</td><td>完整一天循环</td></tr>
+    <tr><td>M4</td><td>药物/图纸/箭塔接入、天数与结算、难度曲线</td><td>可跑多天的版本</td></tr>
+  </table>
+  <p class="small">现有 `minigame/` 里的竖版代码只保留素材与网格/透视的部分，AI 与白天流程基本重写。素材方面：公路、房子（超市/医院/工厂/民房）、越野车都还需要出图，确认方案后我列清单。</p>
+</section>
+
+</div>
+</body>
+</html>

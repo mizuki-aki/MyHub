@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v3</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:800px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--warnbg);color:var(--warn);font-size:12.5px;font-weight:600;border:1px solid #f5d6c6}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfdff}
+  .box h4{margin:0 0 6px;font-size:13.5px}
+  .box p{margin:4px 0;font-size:13px;color:var(--ink2)}
+  .askbox{background:var(--askbg);border:1px solid #cfe9ee;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .askbox p{margin:5px 0;font-size:13.5px;color:#0d5f6b}
+  .warnbox{background:var(--warnbg);border:1px solid #f6d8c9;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .warnbox p{margin:5px 0;font-size:13.5px;color:#8a3309}
+  .okbox{background:var(--okbg);border:1px solid #cae8da;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .okbox p{margin:5px 0;font-size:13.5px;color:#1c6b48}
+  ol,ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .small{font-size:12.5px;color:var(--ink3)}
+  figure{margin:16px 0 6px}
+  figcaption{font-size:12.5px;color:var(--ink3);margin-top:6px;text-align:center}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .flow .step{flex:1;min-width:140px;border-radius:10px;padding:11px 13px;border:1px solid var(--line);background:#fcfdff}
+  .flow .step b{display:block;font-size:13px;margin-bottom:2px}
+  .flow .step span{font-size:12px;color:var(--ink3)}
+  .flow .arrow{color:#c3c9d8;font-weight:700}
+  .day1{border-left:3px solid var(--day)}
+  .day2{border-left:3px solid #d9a13b}
+  .night{border-left:3px solid var(--night)}
+  .q{counter-reset:q}
+  .q li{margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Project 永夜微光 · 设计稿 v3</div>
+  <h1>公路探索 · 数值定稿版</h1>
+  <p class="sub">已并入你确认的 6 项决策与新数值（搜索 1.4s／跨路 1s／同侧 2s／车速 5 级／药物两类／图纸三条升级线／救援中心）。15 秒行进预算已按新数值重算，结论与你要的三条约束完全吻合。</p>
+  <div class="status">讨论稿 · 仍未编码 · 等你说「开做」</div>
+</header>
+
+<section>
+  <h2><span class="n">01</span>已定稿的决策</h2>
+  <table>
+    <tr><th style="width:88px">编号</th><th>你的决定</th><th>落地方式</th></tr>
+    <tr><td>1</td><td>整体旋转</td><td>场景 + 格子 + 车 + 怪一起 <code>rotate(15°)</code>，UI 不转</td></tr>
+    <tr><td>2</td><td>2b</td><td>车开过的房子不显示，屏幕只留前方未经过的房子</td></tr>
+    <tr><td>3</td><td>药物两类</td><td>① 治疗车耐久　② 60s 加速（搜索 + 建造）</td></tr>
+    <tr><td>4</td><td>初始有篝火/箭塔</td><td>图纸只做升级：箭塔伤害、车速、车耐久</td></tr>
+    <tr><td>5</td><td>暂停每天 1 次 10s</td><td>倒计时暂停，可继续建造</td></tr>
+    <tr><td>6</td><td>车有耐久</td><td>药可回；能量满后缓慢回；打爆 = 失败</td></tr>
+    <tr><td>胜利</td><td>两种</td><td><b>坚守 100 天</b> 或 <b>抵达救援中心</b>（开过 500 个房子）</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">02</span>一天的结构（60s）</h2>
+  <div class="flow">
+    <div class="step day1"><b>① 行进搜刮 15s</b><span>开车 + 停车搜刮，二选一取舍</span></div>
+    <div class="arrow">→</div>
+    <div class="step day2"><b>② 黄昏布防 15s</b><span>建造 0 时间，可暂停 1 次 10s</span></div>
+    <div class="arrow">→</div>
+    <div class="step night"><b>③ 夜晚防守 30s</b><span>建/修各需 1s，加速后 0.5s</span></div>
+  </div>
+  <p class="small">药物加速持续 <b>60s = 正好一整天</b>，所以「今天吃药」本质是「今天整天都快」——和「留着治车」形成每天一次的取舍。</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>15 秒行进预算（按你的新数值重算）</h2>
+  <table>
+    <tr><th>参数</th><th class="num">数值</th><th>说明</th></tr>
+    <tr><td>每个路段房子数</td><td class="num">8</td><td>左右交替，一天一段</td></tr>
+    <tr><td>前进 1 个房子位</td><td class="num">1.0s</td><td>车速 Lv1；同侧 = 2 个位 = 2.0s，跨侧 = 1 个位 = 1.0s</td></tr>
+    <tr><td>搜索 1 个房子</td><td class="num">1.4s</td><td>吃药后 0.8s</td></tr>
+    <tr><td>目标窗口</td><td class="num">15s</td><td>到点强制结束</td></tr>
+  </table>
+  <p class="small">推导式：跳到第 k+1 个开始搜 n 个 → 耗时 = (k+n)×1.0 + n×1.4。<b>注意这里的「前进」是按房子位算的，跳过也要开过去，所以跳过越多、可用时间反而越少</b>——这正是你那三条约束的成因。</p>
+
+  <figure>
+    <svg viewBox="0 0 680 300" width="100%" role="img" aria-label="15 秒行进预算">
+      <rect x="0" y="0" width="680" height="300" fill="#fcfdff"/>
+      <line x1="640" y1="26" x2="640" y2="252" stroke="#c2410c" stroke-dasharray="4 4" stroke-opacity=".65"/>
+      <text x="640" y="20" text-anchor="middle" font-size="11" fill="#c2410c">15s 上限</text>
+
+      <text x="122" y="53" text-anchor="end" font-size="12" fill="#4a5163">不跳过 · 搜 6</text>
+      <rect x="130" y="38" width="204" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="334" y="38" width="286" height="22" rx="4" fill="#e8892b" fill-opacity=".85"/>
+      <text x="612" y="53" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.4s</text>
+
+      <text x="122" y="95" text-anchor="end" font-size="12" fill="#4a5163">跳过 2 · 搜 5</text>
+      <rect x="130" y="80" width="238" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="368" y="80" width="238" height="22" rx="4" fill="#e8892b" fill-opacity=".85"/>
+      <text x="598" y="95" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">14.0s</text>
+
+      <text x="122" y="137" text-anchor="end" font-size="12" fill="#4a5163">跳过 3 · 搜 5（常规）</text>
+      <rect x="130" y="122" width="272" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="402" y="122" width="238" height="22" rx="4" fill="#c2410c" fill-opacity=".9"/>
+      <text x="632" y="137" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">15.0s</text>
+
+      <text x="122" y="179" text-anchor="end" font-size="12" fill="#4a5163">跳过 4 · 只够搜 4</text>
+      <rect x="130" y="164" width="272" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="402" y="164" width="190" height="22" rx="4" fill="#5b5ea8" fill-opacity=".8"/>
+      <text x="584" y="179" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">13.6s</text>
+
+      <text x="122" y="221" text-anchor="end" font-size="12" fill="#4a5163">跳过 3 · 搜 5（吃药）</text>
+      <rect x="130" y="206" width="272" height="22" rx="4" fill="#c9d0de"/>
+      <rect x="402" y="206" width="136" height="22" rx="4" fill="#2f9e6a"/>
+      <text x="530" y="221" text-anchor="end" font-size="11.5" fill="#fff" font-weight="700">12.0s</text>
+
+      <g font-size="11" fill="#9aa1b2">
+        <line x1="130" y1="252" x2="640" y2="252" stroke="#e3e6ee"/>
+        <text x="130" y="270">0s</text><text x="300" y="270">5s</text>
+        <text x="470" y="270">10s</text><text x="634" y="270">15s</text>
+        <rect x="130" y="282" width="10" height="8" rx="2" fill="#c9d0de"/><text x="146" y="290">前进</text>
+        <rect x="186" y="282" width="10" height="8" rx="2" fill="#e8892b" fill-opacity=".85"/><text x="202" y="290">搜索</text>
+        <rect x="242" y="282" width="10" height="8" rx="2" fill="#c2410c" fill-opacity=".9"/><text x="258" y="290">卡在上限</text>
+        <rect x="318" y="282" width="10" height="8" rx="2" fill="#2f9e6a"/><text x="334" y="290">吃药加速</text>
+      </g>
+    </svg>
+    <figcaption>四种跳过策略的耗时；「跳过 3 搜 5」正好压在 15.0s——常规手速做不到，手速快才能卡线完成</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>你的要求</th><th class="num">实际</th><th>结论</th></tr>
+    <tr><td>跳过 2 个，还能搜 5 个</td><td class="num">7 + 7.0 = 14.0s</td><td><span class="tag t-ok">成立</span>余 1s</td></tr>
+    <tr><td>跳过 3 个，手速快刚好搜 5 个</td><td class="num">8 + 7.0 = 15.0s</td><td><span class="tag t-ok">成立</span>零余量，慢一点就搜不完</td></tr>
+    <tr><td>跳过 4 个，只能搜 4 个</td><td class="num">8 + 5.6 = 13.6s</td><td><span class="tag t-ok">成立</span>后面只剩 4 个房子</td></tr>
+    <tr><td>（副产品）完全不跳过</td><td class="num">6 + 8.4 = 14.4s</td><td>最多搜 6 个，但拿不到远端工厂</td></tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>结论：</b>1.4s 搜索 + 1s 前进这组数值，天然满足你给的三条约束，<b>不需要额外「手速判定」</b>。手速的影响体现在「点击到停车」的反应延迟（约 0.15~0.25s），所以「跳过 3 搜 5」对普通玩家是 15.1~15.2s（差一点点），对熟练玩家正好 15.0s——正好是你要的手感。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">04</span>车速升级与搜索收益</h2>
+  <p class="lead">你给了两端（Lv1 跨路 1s／同侧 2s；Lv5 跨路 0s／同侧 0.5s），中间三级我按等差补了建议值，可改。</p>
+  <table>
+    <tr><th>车速等级</th><th class="num">跨侧</th><th class="num">同侧</th><th class="num">15s 可搜（连续）</th><th class="num">吃药后</th></tr>
+    <tr><td>Lv1（初始）</td><td class="num">1.0s</td><td class="num">2.0s</td><td class="num">6 个</td><td class="num">8 个（全搜）</td></tr>
+    <tr><td>Lv2 <span class="small">建议</span></td><td class="num">0.75s</td><td class="num">1.6s</td><td class="num">6 个</td><td class="num">8 个</td></tr>
+    <tr><td>Lv3 <span class="small">建议</span></td><td class="num">0.5s</td><td class="num">1.25s</td><td class="num">7 个</td><td class="num">8 个</td></tr>
+    <tr><td>Lv4 <span class="small">建议</span></td><td class="num">0.25s</td><td class="num">0.9s</td><td class="num">8 个</td><td class="num">8 个</td></tr>
+    <tr><td>Lv5</td><td class="num">0s<br><span class="small">可直接点对面</span></td><td class="num">0.5s</td><td class="num">8 个</td><td class="num">8 个</td></tr>
+  </table>
+  <p class="small">每组房子只有 8 个，所以车速升到 Lv4 后行进阶段就「封顶」了——升满会剩 3~4 秒空闲。这一点见第 9 节待确认 ③。</p>
+</section>
+
+<section>
+  <h2><span class="n">05</span>救援中心：500 个房子的距离</h2>
+  <table>
+    <tr><th>算法</th><th class="num">结果</th></tr>
+    <tr><td>每路段房子数</td><td class="num">8</td></tr>
+    <tr><td>每天推进</td><td class="num">8 个房子</td></tr>
+    <tr><td>抵达救援中心</td><td class="num">500 ÷ 8 ≈ <b>第 63 天</b></td></tr>
+    <tr><td>死守 100 天</td><td class="num"><b>第 100 天</b></td></tr>
+  </table>
+  <div class="warnbox">
+    <p><b>推导出的一个设计事实：</b>每天必须开 8 个房子，所以「抵达救援中心」永远在第 63 天，<b>比死守 100 天早了 37 天</b>。也就是说救援中心是目前<b>更优</b>的胜利条件，100 天反而变成「到不了才用的保底」。</p>
+    <p>要让两条路真的并列，得二选一：<br>
+      (a) 让「开车」有成本或风险——例如能量不足当天就开不动，或夜晚防线被冲破会逼你停下来修车，导致实际推进变慢；<br>
+      (b) 把救援中心推到约 800 个房子（≈第 100 天），两个条件在第 100 天重合。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">06</span>黄昏布防（15s）</h2>
+  <table>
+    <tr><th>项</th><th>规则</th></tr>
+    <tr><td>建造耗时</td><td><b>0 秒</b>（点了就成型），所以 15s 全部用于思考与摆放</td></tr>
+    <tr><td>暂停</td><td>每天 1 次，最长 10s，暂停期间可继续建造</td></tr>
+    <tr><td>跳过</td><td>立刻进入夜晚；建议按「剩余时间」给一点点木头奖励（否则没人用）</td></tr>
+    <tr><td>可建</td><td>篝火（道具优先，否则 10 木）／箭塔（道具优先，否则 25 木）</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">07</span>夜晚防守（30s）</h2>
+  <div class="grid2">
+    <div class="box">
+      <h4>篝火是路障</h4>
+      <p>怪被挡在篝火所在格前，拆掉才能继续走。同车道多排篝火 = 多道关卡。</p>
+    </div>
+    <div class="box">
+      <h4>伤害：十字 5 格</h4>
+      <p>篝火格 + 上下左右各 1 格，进入即持续掉血 + 减速。贴脸拆篝火的怪一定在圈里。</p>
+    </div>
+    <div class="box">
+      <h4>耐久：3 下 / 4 下</h4>
+      <p>近战 3 下破，骷髅远程 4 下破（每击 0.75）。</p>
+    </div>
+    <div class="box">
+      <h4>骷髅射程 1.5 格</h4>
+      <p>停在 1.5 格外，正好在十字伤害圈外，所以它能安全拆火，必须用箭塔或提前补位。</p>
+    </div>
+  </div>
+  <h3>防守阶段的建造与修补</h3>
+  <table>
+    <tr><th>动作</th><th class="num">耗时</th><th class="num">木头</th><th>备注</th></tr>
+    <tr><td>新建篝火</td><td class="num">1.0s<br><span class="small">药 0.5s</span></td><td class="num">10</td><td>有篝火道具则 0 木</td></tr>
+    <tr><td>修补篝火</td><td class="num">1.0s<br><span class="small">药 0.5s</span></td><td class="num">5</td><td>新建的一半（1:2）</td></tr>
+    <tr><td>建箭塔</td><td class="num">1.0s<br><span class="small">药 0.5s</span></td><td class="num">25</td><td>有道具则 0 木</td></tr>
+  </table>
+  <p class="small">夜里「一边修一边被打」是核心操作：30 秒里你只有 1s 一次的机会，修补期间篝火仍会被打，所以补位时机比手速更重要。</p>
+</section>
+
+<section>
+  <h2><span class="n">08</span>越野车 / 药物 / 图纸</h2>
+  <div class="grid3">
+    <div class="box"><h4>耐久</h4><p>被打爆即失败。回复：治疗类药物；能量满后缓慢自回。</p></div>
+    <div class="box"><h4>能量</h4><p>面包补充（1 面包 = +15）。决定当天能开多远 / 是否开得动。</p></div>
+    <div class="box"><h4>车速</h4><p>Lv1→Lv5，图纸升级。影响跨侧/同侧的移动耗时。</p></div>
+  </div>
+  <table>
+    <tr><th>道具</th><th>来源</th><th>作用</th></tr>
+    <tr><td>药物 · 治疗型</td><td>医院</td><td>恢复车耐久</td></tr>
+    <tr><td>药物 · 加速型</td><td>医院</td><td>60s 内搜索 1.4→0.8s、建造/修补 1.0→0.5s（正好覆盖一整天）</td></tr>
+    <tr><td>图纸</td><td>医院 15% / 工厂 20%</td><td>三选一升级：箭塔伤害 / 车速 / 车耐久</td></tr>
+    <tr><td>篝火（道具）</td><td>超市 2 / 工厂 1</td><td>免费放置或免费修补</td></tr>
+    <tr><td>箭塔（道具）</td><td>工厂 25%</td><td>免费放置</td></tr>
+    <tr><td>面包</td><td>民房 5 / 超市 1 / 医院 1</td><td>补能量；满了缓慢回耐久</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">09</span>还需要你补的 6 个数值 / 规则</h2>
+  <table>
+    <tr><th style="width:34px">#</th><th>问题</th><th>我的建议</th></tr>
+    <tr><td>①</td><td>车耐久上限、怪每次攻击扣多少、治疗药回多少</td><td>耐久 100；怪打到车 −8/次；治疗药 +40</td></tr>
+    <tr><td>②</td><td>「能量满后缓慢回耐久」的速率</td><td>满能量时 +0.5 耐久/秒（30s 夜晚 ≈ +15）</td></tr>
+    <tr><td>③</td><td>车速升到 Lv4/5 后，15s 只能搜 8 个会剩 3~4 秒空闲，怎么处理？</td><td>(a) 剩余时间并入黄昏布防（我倾向这个，且更符合"升级换时间"）；(b) 后期路段房子变多（8→10→12），但会拉长到救援中心的天数</td></tr>
+    <tr><td>④</td><td>救援中心与 100 天冲突（63 天 vs 100 天）</td><td>把救援中心推到约 800 个房子（≈第 100 天），两条胜利线同日抵达</td></tr>
+    <tr><td>⑤</td><td>白天没开动（能量 0）当天怎么算？</td><td>跳过行进阶段直接进黄昏，但当晚怪强度 +20%（停车的代价）</td></tr>
+    <tr><td>⑥</td><td>篝火破损后</td><td>变废墟占格但不阻挡，可用 5 木修回</td></tr>
+  </table>
+  <div class="askbox">
+    <p><b>如果这 6 条你直接回「按建议」，我就把方案冻结成 v1.0 定稿，然后按 M1→M4 开始做。</b></p>
+    <p>另外：单日 60s × 63 天到救援 ≈ <b>63 分钟</b>（1x），100 天 ≈ 100 分钟。要不要默认提供 2x/3x？</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">10</span>执行顺序（等你点头）</h2>
+  <table>
+    <tr><th>阶段</th><th>内容</th><th>产出</th></tr>
+    <tr><td>M1</td><td>公路场景 + 15° 整体旋转 + 5 车道格网 + 越野车 + 身后的房子消失</td><td>可看的静态场景</td></tr>
+    <tr><td>M2</td><td>行进搜刮（15s 预算 / 停车 / 8 个房子 / 产出入账）+ 车速等级 + 能量面包</td><td>白天可玩</td></tr>
+    <tr><td>M3</td><td>黄昏布防（0 时间建造 / 暂停 / 跳过）+ 夜晚 30s：篝火路障 + 十字伤害 + 3/4 下耐久 + 1s 修补</td><td>完整一天循环</td></tr>
+    <tr><td>M4</td><td>药物 / 图纸三条升级线 / 车耐久与失败判定 / 救援中心与 100 天双胜利</td><td>可玩多天的版本</td></tr>
+  </table>
+  <p class="small">素材缺口：公路路面、超市/医院/工厂/民房、越野车、救援中心。确认方案后我先出这批图，再接代码。</p>
+</section>
+
+</div>
+</body>
+</html>

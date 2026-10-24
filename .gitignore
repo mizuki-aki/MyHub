@@ -1,0 +1,22 @@
+# ---- 本地工作区数据（WorkBuddy 项目缓存，不入库）----
+.workbuddy/
+
+# ---- 原始美术素材与中间产物（约 265MB，仅本地保留）----
+# 工程实际使用的图已在 minigame/images/ 内，这里只是抠图/分类的过程产物
+assets/
+
+# ---- 打包与分发产物 ----
+*.zip
+
+# ---- 早期过程资料，非交付物 ----
+flova_信息清单.md
+微信小程序API文档.html
+
+# ---- 系统与工具 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+node_modules/
+__pycache__/
+*.pyc
+.venv/

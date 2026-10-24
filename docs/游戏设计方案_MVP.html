@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏设计方案 · MVP Demo</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --panel:#ffffff; --border:#e6e8ec; --text:#1f2329; --muted:#6b7280;
+    --safe:#07c160; --safe-soft:#e8f8ef; --night:#5b6ee1; --night-soft:#eef0fd;
+    --fire:#ff8f1f; --fire-soft:#fff4e6; --danger:#e5484d; --danger-soft:#fdecec;
+    --code:#f2f3f5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 60px;}
+  header{background:linear-gradient(135deg,#2b2f45,#3d2b4f 55%,#5b3060);color:#fff;
+    padding:44px 24px 38px;margin-bottom:28px;}
+  header .inner{max-width:960px;margin:0 auto;}
+  header h1{font-size:28px;font-weight:800;letter-spacing:1px;}
+  header .sub{opacity:.85;margin-top:8px;font-size:14px;}
+  header .tags{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+  header .tags span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
+    padding:3px 12px;border-radius:20px;font-size:12px;}
+  h2{font-size:19px;font-weight:800;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--safe);}
+  h3{font-size:15px;font-weight:700;margin:20px 0 8px;color:#111;}
+  p{margin-bottom:10px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr;}}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:14px;}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--muted);}
+  .kv .v{font-weight:600;text-align:right;}
+  .loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 4px;}
+  .loop .step{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--safe);
+    border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;}
+  .loop .arrow{color:var(--muted);font-weight:700;}
+  .pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:20px;margin:3px 6px 3px 0;}
+  .pill.safe{background:var(--safe-soft);color:var(--safe);}
+  .pill.night{background:var(--night-soft);color:var(--night);}
+  .pill.fire{background:var(--fire-soft);color:var(--fire);}
+  .pill.bad{background:var(--danger-soft);color:var(--danger);}
+  .monster{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed var(--border);}
+  .monster:last-child{border-bottom:none;}
+  .monster .ic{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-size:13px;color:#fff;}
+  .m1{background:#7c8a9a;} .m2{background:#9b7bb8;} .m3{background:#5aa469;} .m4{background:#3b3f52;}
+  .monster .t{font-weight:700;font-size:14px;}
+  .monster .d{font-size:13px;color:var(--muted);}
+  .tl{position:relative;padding-left:22px;margin-top:6px;}
+  .tl::before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border);}
+  .tl .item{position:relative;padding:0 0 16px;}
+  .tl .item::before{content:"";position:absolute;left:-22px;top:5px;width:12px;height:12px;border-radius:50%;
+    background:var(--safe);border:2px solid #fff;box-shadow:0 0 0 2px var(--safe-soft);}
+  .tl .item b{font-size:14px;}
+  .tl .item span{display:block;font-size:13px;color:var(--muted);}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel);border-radius:10px;overflow:hidden;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
+  th{background:#fafbfc;color:var(--muted);font-weight:700;font-size:12.5px;}
+  tr:last-child td{border-bottom:none;}
+  .note{background:var(--fire-soft);border:1px solid #ffd9a8;border-radius:10px;padding:14px 16px;font-size:13.5px;margin:12px 0;}
+  .note b{color:#b35c00;}
+  .ask{background:var(--night-soft);border:1px solid #cdd3f7;border-radius:10px;padding:16px 18px;margin:12px 0;}
+  .ask ol{margin-left:18px;}
+  .ask li{margin:6px 0;font-size:14px;}
+  code{font-family:"SFMono-Regular",Consolas,monospace;background:var(--code);padding:1px 6px;border-radius:5px;font-size:13px;}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <h1>《永夜微光》· 游戏设计方案</h1>
+    <div class="sub">末世生存经营 + 光暗攻防 &nbsp;|&nbsp; 微信小游戏 &nbsp;|&nbsp; MVP Demo 确认稿</div>
+    <div class="tags">
+      <span>经营养成</span><span>俯视 2D 点击建造</span><span>卡通 2.5D</span>
+      <span>光照灼伤/减速</span><span>生产建筑 + 科技树</span><span>单局 15–20 分钟</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2>01 一句话定位</h2>
+  <div class="card">
+    <p style="font-size:16px;font-weight:600;margin-bottom:6px;">白天靠光源圈地发展，夜晚抵御每 10 天进化一次的怪物潮，撑过 100 天。</p>
+    <p style="color:var(--muted);margin:0;">末世不等于丧尸。怪物是一套会进化的生态，而光既是人类的庇护所，也是对怪物的武器。</p>
+  </div>
+
+  <h2>02 核心循环</h2>
+  <div class="card">
+    <div class="loop">
+      <span class="step">白天：建造 / 生产 / 点科技</span>
+      <span class="arrow">&rarr;</span>
+      <span class="step">入夜：怪物来袭</span>
+      <span class="arrow">&rarr;</span>
+      <span class="step">光照灼伤 · 减速 · 清怪</span>
+      <span class="arrow">&rarr;</span>
+      <span class="step">结算 · 天数 +1</span>
+      <span class="arrow">&rarr;</span>
+      <span class="step">每 10 天进化</span>
+      <span class="arrow">&rarr;</span>
+      <span class="step">第 100 天胜利</span>
+    </div>
+  </div>
+
+  <h2>03 已锁定的设计决策</h2>
+  <table>
+    <tr><th>维度</th><th>决策</th><th>说明</th></tr>
+    <tr><td>玩法类型</td><td>经营养成</td><td>主循环是资源与科技，防守是压力检验</td></tr>
+    <tr><td>视角操作</td><td>俯视 2D + 点击建造</td><td>点选建筑落位，拖拽/点击调度</td></tr>
+    <tr><td>技术方案</td><td>flova 画布框架</td><td>按 Canvas 2D 设计，flova 适配层独立抽象</td></tr>
+    <tr><td>节奏时长</td><td>实时昼夜 · 15–20 分钟/局</td><td>1 天约 8–12 秒，100 天压缩推进</td></tr>
+    <tr><td>美术风格</td><td>卡通 2.5D</td><td>Image 2.5 出图 + SD 2.5 动效</td></tr>
+    <tr><td>光照机制</td><td>光 = 禁刷区 + 灼伤/减速</td><td>安全区 + 对抗武器双重作用</td></tr>
+    <tr><td>经营核心</td><td>生产建筑 + 科技树</td><td>自动产出，科技解锁更强能力</td></tr>
+    <tr><td>交付范围</td><td>先做可玩 Demo</td><td>不含变现/联网，优先验证核心循环</td></tr>
+  </table>
+
+  <h2>04 核心机制拆解</h2>
+
+  <h3>4.1 光暗系统（签名机制）</h3>
+  <div class="card">
+    <p><span class="pill safe">光内不刷怪</span><span class="pill fire">持续灼伤</span><span class="pill night">进入减速</span></p>
+    <p style="margin-top:8px;">光源由玩家建造并升级，形成可扩展的安全区。怪物只在黑暗中刷新；进入光照范围后会持续掉血并被减速，越靠近光源伤害越高。这让「扩光」同时是发展手段和防御手段。</p>
+    <div class="grid3" style="margin-top:12px;">
+      <div class="kv" style="display:block;border:none;padding:0;">
+        <div style="font-weight:700;font-size:13px;">篝火</div>
+        <div style="font-size:12.5px;color:var(--muted);">低成本、小范围，前期主力</div>
+      </div>
+      <div class="kv" style="display:block;border:none;padding:0;">
+        <div style="font-weight:700;font-size:13px;">灯塔</div>
+        <div style="font-size:12.5px;color:var(--muted);">高成本、大范围，中后期扩张</div>
+      </div>
+      <div class="kv" style="display:block;border:none;padding:0;">
+        <div style="font-weight:700;font-size:13px;">移动光源</div>
+        <div style="font-size:12.5px;color:var(--muted);">跟队/巡逻，主动清怪</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>4.2 昼夜节奏</h3>
+  <div class="card">
+    <div class="kv"><span class="k">单局时长</span><span class="v">15–20 分钟（100 天）</span></div>
+    <div class="kv"><span class="k">1 天时长</span><span class="v">约 8–12 秒</span></div>
+    <div class="kv"><span class="k">昼 : 夜</span><span class="v">约 7 : 3（白天发展，夜晚攻防）</span></div>
+    <div class="kv"><span class="k">加速</span><span class="v">支持 1x / 2x / 3x 快进</span></div>
+  </div>
+
+  <h3>4.3 经营系统</h3>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div style="font-weight:700;margin-bottom:6px;">资源（建议 3 种）</div>
+        <div class="kv"><span class="k">木材</span><span class="v">建造 / 基础科技</span></div>
+        <div class="kv"><span class="k">石料</span><span class="v">防御 / 高级建筑</span></div>
+        <div class="kv"><span class="k">能源</span><span class="v">光源 / 科技研究</span></div>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:6px;">科技树（建议 4 支）</div>
+        <div class="kv"><span class="k">光照</span><span class="v">光范围 / 灼伤强度</span></div>
+        <div class="kv"><span class="k">防御</span><span class="v">塔 / 城墙 / 陷阱</span></div>
+        <div class="kv"><span class="k">经济</span><span class="v">产出效率 / 存储上限</span></div>
+        <div class="kv"><span class="k">兵种</span><span class="v">守卫 / 巡逻单位</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>4.4 怪物体系与进化</h3>
+  <div class="card">
+    <div class="monster">
+      <div class="ic m1">僵</div>
+      <div><div class="t">普通僵尸 · 近战</div><div class="d">数量多、血薄，成群冲击，基础压力来源。</div></div>
+    </div>
+    <div class="monster">
+      <div class="ic m2">骷</div>
+      <div><div class="t">骷髅弓箭手 · 远程</div><div class="d">隔墙/远程射击，迫使玩家考虑视野与站位。</div></div>
+    </div>
+    <div class="monster">
+      <div class="ic m3">爆</div>
+      <div><div class="t">绿色自爆体 · 爆炸</div><div class="d">靠近即自爆，对建筑与光源造成范围伤害。</div></div>
+    </div>
+    <div class="monster">
+      <div class="ic m4">影</div>
+      <div><div class="t">黑色高个 · 瞬移</div><div class="d">可瞬移越过防线，直扑核心，后期高危单位。</div></div>
+    </div>
+    <div class="note">
+      <b>每 10 天进化：</b>建议进化为「数值强化 + 解锁新兵种 / 新技能」双轨。例如第 20 天骷髅学会齐射、第 40 天黑影可携自爆体瞬移。进化节点配合 BOSS/波峰，形成十天的压力阶梯。
+    </div>
+  </div>
+
+  <h3>4.5 胜负条件</h3>
+  <div class="card">
+    <div class="kv"><span class="k">胜利</span><span class="v"><span class="pill safe">存活满 100 天</span></span></div>
+    <div class="kv"><span class="k">失败</span><span class="v"><span class="pill bad">核心建筑被摧毁</span></span></div>
+    <div class="kv"><span class="k">评价</span><span class="v">按剩余核心血量 / 建筑数 / 天数评分</span></div>
+  </div>
+
+  <h2>05 美术与资产管线</h2>
+  <div class="card">
+    <div class="grid3">
+      <div>
+        <div style="font-weight:700;font-size:14px;">风格</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">卡通 2.5D，圆润造型、暖色调光源与冷色夜景强对比。</div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:14px;">图片（Image 2.5）</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">角色、建筑、怪物、地面/场景精灵，统一出图提示词与色板。</div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:14px;">动效（SD 2.5）</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">爆炸、灼烧、升级、波次登场等短演出，转序列帧/精灵动画。</div>
+      </div>
+    </div>
+    <div class="note" style="margin-bottom:0;">
+      <b>规范建议：</b>统一 2x 分辨率出图后按图集（atlas）打包；光源采用叠加贴图 + 遮罩实现「光内不刷怪」与灼伤范围可视化；控制单张图集 ≤ 1024，兼顾小游戏包体限制。
+    </div>
+  </div>
+
+  <h2>06 技术方案（MVP）</h2>
+  <div class="card">
+    <div class="kv"><span class="k">运行平台</span><span class="v">微信小游戏（Canvas，非小程序页面）</span></div>
+    <div class="kv"><span class="k">渲染</span><span class="v">flova 画布框架（适配层独立抽象）</span></div>
+    <div class="kv"><span class="k">游戏循环</span><span class="v">固定步长 update + 渲染解耦</span></div>
+    <div class="kv"><span class="k">核心模块</span><span class="v">实体系统 / 光照网格 / 波次管理 / 建造系统 / 科技树 / 存档</span></div>
+    <div class="kv"><span class="k">输入</span><span class="v">俯视点击落位建造、拖拽调度、双指缩放</span></div>
+    <div class="kv"><span class="k">数据</span><span class="v">本地存档（wx.setStorage），JSON 配置驱动数值</span></div>
+  </div>
+  <p style="font-size:13px;color:var(--muted);">flova 适配层统一封装：<code>canvas 初始化</code>、<code>精灵/图集加载</code>、<code>音频播放</code>、<code>触摸事件</code>、<code>帧循环</code>。其余逻辑与平台无关，方便后续替换引擎或移植。</p>
+
+  <h2>07 MVP Demo 范围</h2>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div style="font-weight:700;margin-bottom:6px;">包含</div>
+        <div class="kv"><span class="k">地图</span><span class="v">1 张固定地图 + 1 个核心</span></div>
+        <div class="kv"><span class="k">怪物</span><span class="v">4 种 + 10 天进化（Demo 可缩至 30 天）</span></div>
+        <div class="kv"><span class="k">资源</span><span class="v">3 种</span></div>
+        <div class="kv"><span class="k">建筑</span><span class="v">5–6 个（生产/光源/防御）</span></div>
+        <div class="kv"><span class="k">科技</span><span class="v">1 条主分支（光照优先）</span></div>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:6px;">暂不包含</div>
+        <div class="kv"><span class="k">商业化</span><span class="v">广告 / 内购</span></div>
+        <div class="kv"><span class="k">联网</span><span class="v">云存档 / 排行榜</span></div>
+        <div class="kv"><span class="k">多地图</span><span class="v">关卡与难度选择</span></div>
+        <div class="kv"><span class="k">社交</span><span class="v">好友 / 分享</span></div>
+        <div class="kv"><span class="k">完整音效</span><span class="v">仅核心反馈音</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>08 里程碑</h2>
+  <div class="card">
+    <div class="tl">
+      <div class="item"><b>M1 核心原型</b><span>可运行的昼夜循环 + 点击建造 + 1 种怪物攻防，验证手感与节奏。</span></div>
+      <div class="item"><b>M2 玩法闭环</b><span>3 资源 + 生产建筑 + 科技树 + 4 怪物 + 进化节点，形成完整经营防守闭环。</span></div>
+      <div class="item"><b>M3 美术替换</b><span>接入 Image 2.5 精灵与 SD 2.5 动效，统一卡通 2.5D 风格与光照表现。</span></div>
+      <div class="item"><b>M4 Demo 打磨</b><span>数值调优、UI、存档、性能与包体优化，产出可体验的 Demo。</span></div>
+    </div>
+  </div>
+
+  <h2>09 待你确认 / 补充</h2>
+  <div class="ask">
+    <ol>
+      <li><b>flova 能力边界（最关键）</b>：自研还是第三方？能否提供 sprite/图集、粒子、音频、多点触摸、微信小游戏适配与打包接口？给个文档或最小示例，我就能对接。</li>
+      <li><b>游戏暂定名</b>：现用《永夜微光》，可改。</li>
+      <li><b>资源 / 兵种</b>：3 资源（木/石/能源）、4 兵种是否 OK？是否要加更多生态怪？</li>
+      <li><b>Demo 天数</b>：完整 100 天，还是 Demo 先缩到 30 天快速验证？</li>
+      <li><b>编辑器/调试目标</b>：先跑通微信开发者工具，还是也要真机预览？</li>
+    </ol>
+  </div>
+
+  <footer>本方案为开发前确认稿 · 确认后再进入 M1 编码</footer>
+</div>
+</body>
+</html>

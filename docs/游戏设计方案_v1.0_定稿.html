@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v1.0 定稿</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:800px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cae8da}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfdff}
+  .box h4{margin:0 0 6px;font-size:13.5px}
+  .box p{margin:4px 0;font-size:13px;color:var(--ink2)}
+  .askbox{background:var(--askbg);border:1px solid #cfe9ee;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .askbox p{margin:5px 0;font-size:13.5px;color:#0d5f6b}
+  .warnbox{background:var(--warnbg);border:1px solid #f6d8c9;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .warnbox p{margin:5px 0;font-size:13.5px;color:#8a3309}
+  .okbox{background:var(--okbg);border:1px solid #cae8da;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .okbox p{margin:5px 0;font-size:13.5px;color:#1c6b48}
+  ol,ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .small{font-size:12.5px;color:var(--ink3)}
+  figure{margin:16px 0 6px}
+  figcaption{font-size:12.5px;color:var(--ink3);margin-top:6px;text-align:center}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .flow .step{flex:1;min-width:140px;border-radius:10px;padding:11px 13px;border:1px solid var(--line);background:#fcfdff}
+  .flow .step b{display:block;font-size:13px;margin-bottom:2px}
+  .flow .step span{font-size:12px;color:var(--ink3)}
+  .flow .arrow{color:#c3c9d8;font-weight:700}
+  .day1{border-left:3px solid var(--day)}
+  .day2{border-left:3px solid #d9a13b}
+  .night{border-left:3px solid var(--night)}
+  .done{color:var(--ok);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Project 永夜微光 · 设计稿 v1.0</div>
+  <h1>公路探索 · 定稿</h1>
+  <p class="sub">6 项待定数值已按「建议」全部采纳并冻结，M1→M4 一次性实现完毕。本文档中的数字与 <code>minigame/js/core.js</code> 里的常量一一对应，可直接当数值表查阅。</p>
+  <div class="status">v1.0 定稿 · 已编码实现 · 待真机验收</div>
+</header>
+
+<section>
+  <h2><span class="n">01</span>冻结的决策（含实现时的一处上调）</h2>
+  <table>
+    <tr><th style="width:88px">编号</th><th>决定</th><th>落地方式</th></tr>
+    <tr><td>1</td><td>整体旋转</td><td>场景 + 格子 + 车 + 怪一起 <code>rotate(15°)</code>，UI 不转</td></tr>
+    <tr><td>2</td><td>2b</td><td>车开过的房子不显示，屏幕只留前方未经过的房子</td></tr>
+    <tr><td>3</td><td>药物两类</td><td>① 治疗车耐久（+40）② 60s 加速（搜索 1.4→0.8s、建造/修补 1.0→0.5s）</td></tr>
+    <tr><td>4</td><td>初始有篝火/箭塔</td><td>图纸只做升级：箭塔伤害、车速、车耐久</td></tr>
+    <tr><td>5</td><td>暂停每天 1 次 10s</td><td>倒计时暂停，可继续建造</td></tr>
+    <tr><td>6</td><td>车有耐久</td><td>被打爆即失败；药可回；能量满后缓慢自回</td></tr>
+    <tr><td>胜利</td><td>两种</td><td><b>坚守 100 天</b> 或 <b>抵达救援中心</b>（开过 800 个房子）</td></tr>
+    <tr><td>倍速</td><td>1x / 2x / 3x</td><td>默认 1x，右上角切换（兑现「100 分钟太长」的问题）</td></tr>
+  </table>
+
+  <div class="warnbox">
+    <p><b>实现时唯一改动的数字：</b>车耐久上限从建议的 <b>100</b> 上调为 <b>120</b>。原因是用 100 跑平衡模拟时，第 2 天就会被拆穿（前期木头不够铺满 5 条车道，8 点/次的掉血过于致命）。上调到 120 后自动玩家的存活中位数从 2 天拉到 25 天以上，其余 5 条建议原样落地。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">02</span>一天的结构（60s）</h2>
+  <div class="flow">
+    <div class="step day1"><b>① 行进搜刮 15s</b><span>开车 + 停车搜刮，二选一取舍</span></div>
+    <div class="arrow">→</div>
+    <div class="step day2"><b>② 黄昏布防 15s</b><span>建造 0 耗时，可暂停 1 次 10s</span></div>
+    <div class="arrow">→</div>
+    <div class="step night"><b>③ 夜晚防守 30s</b><span>建/修各需 1s，加速后 0.5s</span></div>
+  </div>
+  <p class="small">药物加速持续 <b>60s = 正好一整天</b>，所以「今天吃药」本质是「今天整天都快」——和「留着治车」形成每天一次的取舍。</p>
+  <p class="small">决策 ③ 落地为：行进 15s 用不完的时间（车速升级后必然富余）<b>负值并入黄昏</b>，黄昏倒计时会显示成 10s、12s 等更长的布防时间。</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>行进预算与车速</h2>
+  <table>
+    <tr><th>参数</th><th class="num">数值</th><th>说明</th></tr>
+    <tr><td>每段房子数</td><td class="num">8</td><td>左右交替，一天一段</td></tr>
+    <tr><td>初始能量</td><td class="num">80</td><td>每跨过 1 个房子位扣 1 点，能量 0 就走不动</td></tr>
+    <tr><td>初始木头</td><td class="num">80</td><td>够铺 5 条车道里的一半，剩下靠搜刮</td></tr>
+    <tr><td>搜索 1 个房子</td><td class="num">1.4s</td><td>吃药后 0.8s</td></tr>
+    <tr><td>目标窗口</td><td class="num">15s</td><td>到点强制结束，余量并入黄昏</td></tr>
+  </table>
+
+  <h3>车速五级（秒 / 房子位）</h3>
+  <table>
+    <tr><th>等级</th><th class="num">秒/位</th><th class="num">跨侧(1 位)</th><th class="num">同侧(2 位)</th><th class="num">15s 连续可搜</th></tr>
+    <tr><td>Lv1（初始）</td><td class="num">1.00</td><td class="num">1.0s</td><td class="num">2.0s</td><td class="num">6 个</td></tr>
+    <tr><td>Lv2</td><td class="num">0.75</td><td class="num">0.75s</td><td class="num">1.5s</td><td class="num">6~7 个</td></tr>
+    <tr><td>Lv3</td><td class="num">0.55</td><td class="num">0.55s</td><td class="num">1.1s</td><td class="num">7 个</td></tr>
+    <tr><td>Lv4</td><td class="num">0.40</td><td class="num">0.40s</td><td class="num">0.8s</td><td class="num">8 个（全搜）</td></tr>
+    <tr><td>Lv5</td><td class="num">0.25</td><td class="num">0.25s</td><td class="num">0.5s</td><td class="num">8 个 + 富余 5s</td></tr>
+  </table>
+  <div class="okbox">
+    <p><b>为什么车速是核心升级：</b>800 户 ÷ 100 天 = 每天必须推进 8 户。Lv1 全搜 8 个要 (8×1.0 + 8×1.4) = 19.2s，超预算；<b>只有升到 Lv4 才能在 15s 内搜完全部 8 个房子</b>。所以「车速」不是手感升级，而是胜利线的硬门槛。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">04</span>救援中心：800 户</h2>
+  <table>
+    <tr><th>算法</th><th class="num">结果</th></tr>
+    <tr><td>每路段房子数</td><td class="num">8</td></tr>
+    <tr><td>每天最多推进</td><td class="num">8 户</td></tr>
+    <tr><td>抵达救援中心</td><td class="num">800 ÷ 8 = <b>第 100 天</b></td></tr>
+    <tr><td>死守 100 天</td><td class="num"><b>第 100 天</b></td></tr>
+  </table>
+  <p class="small">两条胜利线在第 100 天重合：<b>完美推进 = 刚好抵达救援中心</b>；中途停车搜刮多了就是「守到 100 天」。里程在 HUD 右上角实时显示为 <code>N/800 户</code>。</p>
+</section>
+
+<section>
+  <h2><span class="n">05</span>黄昏布防（15s，建造 0 耗时）</h2>
+  <table>
+    <tr><th>项</th><th>规则</th></tr>
+    <tr><td>建造耗时</td><td><b>0 秒</b>（点了就成型），15s 全部用于观察与摆放</td></tr>
+    <tr><td>网格提示</td><td>布防阶段路面浮现 5×9 淡格子，行进时自动隐藏；夜色中保留极淡网格方便补位</td></tr>
+    <tr><td>暂停</td><td>每天 1 次，最长 10s，暂停期间可继续建造</td></tr>
+    <tr><td>跳过</td><td><b>跳过行进</b>：立刻进入黄昏，把白天的时间换给布防</td></tr>
+    <tr><td>可建</td><td>篝火（有道具优先，否则 10 木）／箭塔（有道具优先，否则 25 木）</td></tr>
+    <tr><td>底部三键</td><td>篝火 / 箭塔 / 暂停（夜晚第三键变「用药」，无药则灰显）</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">06</span>夜晚防守（30s）</h2>
+  <div class="grid2">
+    <div class="box">
+      <h4>篝火是路障</h4>
+      <p>怪被挡在篝火格前，拆掉才能继续走。同车道多排篝火 = 多道关卡。</p>
+    </div>
+    <div class="box">
+      <h4>伤害：十字 5 格</h4>
+      <p>篝火格 + 上下左右各 1 格，进入即 <b>18/秒</b> 掉血并 <b>减速 45%</b>。贴脸拆火的怪一定在圈里。</p>
+    </div>
+    <div class="box">
+      <h4>耐久</h4>
+      <p>篝火 180 血（近战约 5 下）；箭塔 140 血。破损后变废墟<b>占格但不阻挡</b>，可用木头修回。</p>
+    </div>
+    <div class="box">
+      <h4>骷髅射程 1.5 格</h4>
+      <p>停在 1.5 格外，正好在十字伤害圈外，能安全拆火——必须用箭塔或提前补位。</p>
+    </div>
+  </div>
+
+  <h3>建造 / 修补数值</h3>
+  <table>
+    <tr><th>对象</th><th class="num">血</th><th class="num">造价</th><th class="num">修补</th><th class="num">夜晚耗时</th><th>备注</th></tr>
+    <tr><td>篝火</td><td class="num">180</td><td class="num">10 木</td><td class="num">2 木</td><td class="num">1.0s<br><span class="small">药 0.5s</span></td><td>光灼 18/s · 减速 45% · 十字 5 格</td></tr>
+    <tr><td>箭塔</td><td class="num">140</td><td class="num">25 木</td><td class="num">8 木</td><td class="num">1.0s<br><span class="small">药 0.5s</span></td><td>14 伤害 / 1.0s · 射程 4.2 格 · 覆盖本车道 ±1 列</td></tr>
+  </table>
+  <p class="small">夜里「一边修一边被打」是核心操作：30 秒里每 1s 只能动一次手，修补期间篝火仍会被打，所以补位时机比手速更重要。</p>
+</section>
+
+<section>
+  <h2><span class="n">07</span>越野车 / 药物 / 图纸</h2>
+  <div class="grid3">
+    <div class="box"><h4>耐久 120</h4><p>被打爆即失败。怪每次打车 <b>−8</b>；Lv1~Lv5 上限 120/140/160/180/200。</p></div>
+    <div class="box"><h4>能量 80 / 100</h4><p>面包 +15（民房一次给 5~8 个面包）。满能量时 <b>+0.5 耐久/秒</b>，30s 夜晚约 +15。</p></div>
+    <div class="box"><h4>车速 Lv1→Lv5</h4><p>图纸升级。见第 03 节——升到 Lv4 是搜满 8 户的前提。</p></div>
+  </div>
+  <table>
+    <tr><th>道具</th><th>来源</th><th>作用</th></tr>
+    <tr><td>治疗药</td><td>医院 55%</td><td>车耐久 +40</td></tr>
+    <tr><td>加速药</td><td>超市 10%</td><td>60s 内搜索 1.4→0.8s、建造/修补 1.0→0.5s</td></tr>
+    <tr><td>图纸</td><td>医院 16% / 工厂 20%</td><td>三选一：箭塔伤害 +20% / 车速 +1 级 / 耐久上限 +20（并立即修 20）</td></tr>
+    <tr><td>篝火（道具）</td><td>超市 34% / 工厂 22%</td><td>免费放置或免费修补</td></tr>
+    <tr><td>箭塔（道具）</td><td>工厂 26%</td><td>免费放置</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">08</span>商店产出表（含天数成长）</h2>
+  <p class="lead">木头收益随天数线性成长：<code>× (1 + min(0.40, (天−1) × 0.01))</code>，第 41 天封顶 1.4 倍。</p>
+  <table>
+    <tr><th>建筑</th><th class="num">木头</th><th>附加产出</th></tr>
+    <tr><td>民房</td><td class="num">12~19</td><td>面包 5~8（直接折成能量）</td></tr>
+    <tr><td>超市</td><td class="num">12~19</td><td>55% 面包 · 34% 篝火道具 · 10% 加速药</td></tr>
+    <tr><td>医院</td><td class="num">12~19</td><td>60% 面包 · 55% 治疗药 · 16% 图纸</td></tr>
+    <tr><td>工厂</td><td class="num">24~38</td><td>26% 箭塔 · 22% 篝火 · 20% 图纸</td></tr>
+  </table>
+  <p class="small">每段的第 6 个房子固定是工厂（远端高价值），第 5 个固定是超市；其余按天数加权随机。这是「跳过前面几个、专挑远端工厂」这个策略的由来。</p>
+</section>
+
+<section>
+  <h2><span class="n">09</span>怪物与刷怪</h2>
+  <table>
+    <tr><th>项</th><th>规则</th></tr>
+    <tr><td>种类</td><td>8 种：普通/快速/厚皮僵尸 · 两种骷髅弓手 · 小/大绿爆怪 · 紫黑影</td></tr>
+    <tr><td>强度成长</td><td>血量 <code>× (1 + (天−1)×0.06) × (1 + 惩罚)</code></td></tr>
+    <tr><td>阵容解锁</td><td>第 1 / 3 / 6 / 9 / 13 / 17 天各扩充一档，第 17 天起全种类混合</td></tr>
+    <tr><td>同屏上限</td><td><code>min(18, 4 + ⌊天×0.55⌋)</code></td></tr>
+    <tr><td>刷怪间隔</td><td><code>max(4.0, 9.2 − 天×0.30)</code> 秒，第 6 天起下限 4.0s</td></tr>
+    <tr><td>能量 0 惩罚</td><td>当天跳过行进，但夜晚怪强度 <b>+20%</b>、刷怪间隔缩短</td></tr>
+  </table>
+  <div class="grid2">
+    <div class="box"><h4>绿爆怪</h4><p>抛物线飞向「第一个建筑前一格」，落地引信 2.2s，引信期间原地待爆——给你留出补位窗口。</p></div>
+    <div class="box"><h4>紫黑影</h4><p>遇到建筑瞬移越过，冷却 5.0s。篝火拦不住它，只能靠箭塔输出。</p></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">10</span>平衡实测（自动玩家）</h2>
+  <p class="lead"><code>tools/balance_probe.js</code> 是一个「不聪明但会补防」的机器人：白天按顺序搜 8 家、黄昏在 2/5 行铺篝火、7 行铺箭塔、夜里给受威胁车道补位并修废墟。连跑 5 次的结局：</p>
+  <table>
+    <tr><th>局</th><th class="num">存活</th><th class="num">里程</th><th class="num">击杀</th><th class="num">结余木头</th></tr>
+    <tr><td>1</td><td class="num">22 天</td><td class="num">167 户</td><td class="num">113</td><td class="num">184</td></tr>
+    <tr><td>2</td><td class="num">24 天</td><td class="num">185 户</td><td class="num">129</td><td class="num">210</td></tr>
+    <tr><td>3</td><td class="num">25 天</td><td class="num">188 户</td><td class="num">128</td><td class="num">185</td></tr>
+    <tr><td>4</td><td class="num">47 天</td><td class="num">363 户</td><td class="num">280</td><td class="num">192</td></tr>
+    <tr><td>5</td><td class="num">48 天</td><td class="num">361 户</td><td class="num">279</td><td class="num">192</td></tr>
+  </table>
+  <div class="warnbox">
+    <p><b>数据说明：</b>机器人稳定死在「耐久归零」，且每次死时手里都剩 180~210 木头——<b>瓶颈是防线强度，不是经济</b>。它的布阵是写死的三行，不会随怪种变化调整，所以中位数 ~25 天应当视为「下限」而不是「平均玩家水平」。</p>
+    <p>是否要让它更容易，需要你定：</p>
+    <p>(a) <b>保持现状</b>——熟练玩家靠手速与布阵能到 60~80 天，100 天是硬核目标；<br>
+       (b) <b>整体下调</b>——怪血成长 0.06→0.045、同屏上限 18→14，机器人应能到 50 天左右；<br>
+       (c) <b>加一条成长线</b>——例如「篝火等级」或「木头换车甲」，把富余的 200 木变成生存力。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">11</span>交付物与验收</h2>
+  <table>
+    <tr><th>文件</th><th>用途</th></tr>
+    <tr><td><code>preview_永夜微光.html</code></td><td>单文件浏览器预览（素材内联 base64），双击即玩，可用于快速验收手感</td></tr>
+    <tr><td><code>minigame/</code></td><td>微信小游戏工程（<code>compileType: game</code>），用微信开发者工具导入即可</td></tr>
+    <tr><td><code>minigame_永夜微光_v1.0.zip</code></td><td>整包，方便换机器导入</td></tr>
+    <tr><td><code>tools/test_core.js</code></td><td>52 项无头回归（几何/拾取/建造/战斗/胜负/多分辨率）</td></tr>
+    <tr><td><code>tools/balance_probe.js</code></td><td>自动玩家平衡探针，参数：<code>搜索数 跳过数 [预留木]</code></td></tr>
+    <tr><td><code>tools/render_shot.js</code></td><td>离屏截图，场景：travel / travel_late / search / dusk / night / night_mid / pick / over</td></tr>
+  </table>
+  <div class="askbox">
+    <p><b>验收口径：</b>① 打开 preview 能跑完一天三段；② 黄昏能点格建篝火/箭塔；③ 夜晚篝火能烧怪、怪能拆火、车会被打；④ 搜到图纸弹出三选一；⑤ 撑到 100 天或 800 户弹胜利。</p>
+    <p>微信端还需你在开发者工具里导一次包确认真机触摸坐标（当前仅在 Node 离屏环境与浏览器预览下验证）。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">12</span>素材缺口</h2>
+  <p class="lead">当前所有房子、路面、车、救援中心都是 Canvas 矢量绘制，代码里已按 <code>images["shop/market"]</code>、<code>images["car/jeep"]</code> 预留了贴图接口，补图后自动替换矢量画法。</p>
+  <table>
+    <tr><th>类别</th><th>需要</th><th class="num">状态</th></tr>
+    <tr><td>路面</td><td>沥青路面 + 车道线 + 路肩</td><td class="num"><span class="tag t-warn">矢量占位</span></td></tr>
+    <tr><td>房子</td><td>超市 / 医院 / 工厂 / 民房 四类外观</td><td class="num"><span class="tag t-warn">矢量占位</span></td></tr>
+    <tr><td>载具</td><td>越野车（含车灯与损伤态）</td><td class="num"><span class="tag t-warn">矢量占位</span></td></tr>
+    <tr><td>终点</td><td>救援中心</td><td class="num"><span class="tag t-warn">未绘制</span></td></tr>
+    <tr><td>已就位</td><td>7 种怪 + 篝火 + 箭塔 + UI 条</td><td class="num"><span class="tag t-ok">已接入</span></td></tr>
+  </table>
+</section>
+
+</div>
+</body>
+</html>
