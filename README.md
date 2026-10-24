@@ -17,6 +17,7 @@
 - **微信开发者工具**：导入 `minigame/` 目录，`compileType: game`，AppID 可用测试号
 
 > 线上版本由 GitHub Pages 托管 `main` 分支根目录，入口是 [`index.html`](index.html)（项目落地页），点「开始游戏」进入 `demo/preview.html`。
+> 若线上地址返回 404，说明仓库还没开启 Pages：Settings → Pages → Source 选 `Deploy from a branch`，分支 `main`、目录 `/ (root)`，保存后约 1 分钟生效。
 
 ## 目录
 
