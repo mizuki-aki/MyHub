@@ -1871,72 +1871,262 @@ function drawAvatar(x, y, r) {
 }
 
 function drawCover() {
-  ctx.fillStyle = "#07090d";
-  ctx.fillRect(0, 0, W, H);
-  var g = ctx.createRadialGradient(W / 2, 0, 20, W / 2, 0, H * 0.62);
-  g.addColorStop(0, "rgba(255,166,84,.13)");
-  g.addColorStop(1, "rgba(255,166,84,0)");
+  var t = (typeof performance !== "undefined" && performance.now) ? performance.now() : 0;
+  var tt = t / 1000;
+
+  /* ---- 背景：夜空 + 尘幕太阳 ---- */
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "#0a0c12");
+  g.addColorStop(0.45, "#0d1018");
+  g.addColorStop(0.75, "#12141d");
+  g.addColorStop(1, "#07090d");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  txt("NIGHTFALL GLOW", W / 2, H * 0.075, 10, "rgba(255,207,122,.65)", "center", "600", "monospace");
-  txt("永 夜 微 光", W / 2, H * 0.125, 32, "#fff3dc", "center", "700");
-  drawAvatar(W / 2, H * 0.225, Math.min(52, W * 0.13));
+  /* 尘幕太阳：一轮被灰霾压住的暗黄 */
+  var sunX = W * 0.5, sunY = H * 0.20, sunR = W * 0.16;
+  var sg = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, sunR * 2.6);
+  sg.addColorStop(0, "rgba(255,176,96,.55)");
+  sg.addColorStop(0.35, "rgba(255,166,84,.20)");
+  sg.addColorStop(1, "rgba(255,166,84,0)");
+  ctx.fillStyle = sg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, 6.2832);
+  ctx.fillStyle = "rgba(255,188,110,.34)";
+  ctx.fill();
+  ctx.restore();
 
-  var rules = [
-    ["白天", "左右换道，撞开悬浮球搜刮", "撞得越多，今天走得越短"],
-    ["黄昏", "点格子布防，可跳过", "建筑只保一夜，塌了变料堆"],
-    ["夜晚", "守车", "篝火和箭塔挡在车前面"],
-    ["闷囊", "红色刺囊，撞了炸车", "躲开是本事，撞上是代价"]
+  /* 星点（固定伪随机，不抖） */
+  ctx.save();
+  var seed = 987654321;
+  function srand() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+  for (var si = 0; si < 40; si++) {
+    var sx = srand() * W, sy = srand() * H * 0.55;
+    var ss = 0.5 + srand() * 1.4;
+    var sa = 0.12 + srand() * 0.5 * (0.5 + 0.5 * Math.sin(tt * 1.5 + si));
+    ctx.fillStyle = "rgba(255,244,214," + sa.toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(sx, sy, ss, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
+
+  /* ---- 公路：一条斜向远方的冷黑路面（呼应游戏内风格） ---- */
+  var roadTop = H * 0.375, roadBot = H * 0.80;
+  var roadWTop = W * 0.10, roadWBot = W * 0.86;
+  var cx = W * 0.5;
+  var roadTilt = 26;  // 左高右低，带斜角
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx - roadWTop / 2 + roadTilt, roadTop);
+  ctx.lineTo(cx + roadWTop / 2 + roadTilt, roadTop);
+  ctx.lineTo(cx + roadWBot / 2, roadBot);
+  ctx.lineTo(cx - roadWBot / 2, roadBot);
+  ctx.closePath();
+  var rg = ctx.createLinearGradient(0, roadTop, 0, roadBot);
+  rg.addColorStop(0, "#1a1f2b");
+  rg.addColorStop(0.55, "#202634");
+  rg.addColorStop(1, "#282e3c");
+  ctx.fillStyle = rg;
+  ctx.fill();
+
+  /* 车道虚线（白，近粗远细）+ 黄色边线（银护栏感） */
+  ctx.strokeStyle = "rgba(255,255,255,.85)";
+  ctx.lineCap = "round";
+  var laneN = 5;
+  for (var lc = 1; lc < laneN; lc++) {
+    var frac = lc / laneN;
+    var dxTop = cx + roadTilt + (frac - 0.5) * roadWTop;
+    var dxBot = cx + (frac - 0.5) * roadWBot;
+    var segN = 7;
+    for (var sn = 0; sn < segN; sn++) {
+      var p0 = sn / segN, p1 = (sn + 0.55) / segN;
+      var y0 = roadTop + (roadBot - roadTop) * p0;
+      var y1 = roadTop + (roadBot - roadTop) * p1;
+      var xa = dxTop + (dxBot - dxTop) * p0;
+      var xb = dxTop + (dxBot - dxTop) * p1;
+      ctx.lineWidth = 0.6 + 1.8 * (p0 + 0.1);
+      ctx.beginPath(); ctx.moveTo(xa, y0); ctx.lineTo(xb, y1); ctx.stroke();
+    }
+  }
+  /* 黄色路沿（左右两条） */
+  ctx.strokeStyle = "#ffc45c";
+  ctx.lineWidth = 1.6;
+  ctx.globalAlpha = 0.75;
+  ctx.beginPath();
+  ctx.moveTo(cx - roadWTop / 2 + roadTilt, roadTop);
+  ctx.lineTo(cx - roadWBot / 2, roadBot);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + roadWTop / 2 + roadTilt, roadTop);
+  ctx.lineTo(cx + roadWBot / 2, roadBot);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  /* ---- 路面上的悬浮球：核心玩法元素，带暖光晕 ---- */
+  var orbDefs = [
+    { ch: "散", col: "#e2d6bb", x: 0.15, y: 0.455, r: 15 },
+    { ch: "罐", col: "#ffcf7a", x: 0.70, y: 0.545, r: 18 },
+    { ch: "药", col: "#7fe0b0", x: 0.265, y: 0.585, r: 17 },
+    { ch: "料", col: "#9fb0c8", x: 0.875, y: 0.715, r: 16 }
   ];
-  var ry = H * 0.325, rh = Math.min(52, (H * 0.62 - ry) / 4);
-  for (var i = 0; i < rules.length; i++) {
-    var r0 = rules[i];
+  for (var oi = 0; oi < orbDefs.length; oi++) {
+    var od = orbDefs[oi];
+    var ox = W * od.x, oy = H * od.y;
+    var bob = Math.sin(tt * 1.8 + oi * 1.7) * 3;
+    var oyy = oy + bob;
+    /* 光晕 */
+    var og = ctx.createRadialGradient(ox, oyy, 2, ox, oyy, od.r * 2.4);
+    og.addColorStop(0, "rgba(255,190,120,.28)");
+    og.addColorStop(1, "rgba(255,190,120,0)");
+    ctx.fillStyle = og;
+    ctx.beginPath(); ctx.arc(ox, oyy, od.r * 2.4, 0, 6.2832); ctx.fill();
+    /* 球体 */
     ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,.07)";
-    ctx.beginPath(); ctx.moveTo(W * 0.12, ry + i * rh); ctx.lineTo(W * 0.88, ry + i * rh); ctx.stroke();
+    ctx.beginPath(); ctx.arc(ox, oyy, od.r, 0, 6.2832);
+    ctx.fillStyle = "rgba(255,255,255,.06)";
+    ctx.fill();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = od.col;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
     ctx.restore();
-    txt(r0[0], W * 0.12, ry + i * rh + rh * 0.32, 11, "#ffcf7a", "left", "700");
-    txt(r0[1], W * 0.21, ry + i * rh + rh * 0.30, 11, "#dfe6f2", "left", "500");
-    txt(r0[2], W * 0.21, ry + i * rh + rh * 0.66, 9, "rgba(111,124,146,.9)", "left", "400");
+    txt(od.ch, ox, oyy + 1, od.r * 1.05, od.col, "center", "700");
+  }
+  /* 一个红色闷囊（危险品） */
+  var hz = { x: W * 0.86, y: H * 0.445, r: 13 };
+  var hzg = ctx.createRadialGradient(hz.x, hz.y, 2, hz.x, hz.y, hz.r * 2.6);
+  hzg.addColorStop(0, "rgba(255,107,107,.30)");
+  hzg.addColorStop(1, "rgba(255,107,107,0)");
+  ctx.fillStyle = hzg;
+  ctx.beginPath(); ctx.arc(hz.x, hz.y, hz.r * 2.6, 0, 6.2832); ctx.fill();
+  ctx.save();
+  ctx.beginPath();
+  for (var hi = 0; hi < 10; hi++) {
+    var ha = hi / 10 * 6.2832;
+    var hr = hi % 2 ? hz.r * 0.76 : hz.r * 1.0;
+    var hx = hz.x + Math.cos(ha) * hr, hy = hz.y + Math.sin(ha) * hr;
+    if (hi === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = "rgba(255,107,107,.9)";
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.restore();
+  txt("囊", hz.x, hz.y + 1, 13, "#ff8f8f", "center", "700");
+
+  /* ---- 远处暖光点（救援中心的灯，呼应主题） ---- */
+  var glX = cx + roadTilt, glY = roadTop - 4;
+  var glg = ctx.createRadialGradient(glX, glY, 1, glX, glY, 40);
+  glg.addColorStop(0, "rgba(255,220,150,.9)");
+  glg.addColorStop(0.4, "rgba(255,190,110,.30)");
+  glg.addColorStop(1, "rgba(255,190,110,0)");
+  ctx.fillStyle = glg;
+  ctx.beginPath(); ctx.arc(glX, glY, 40, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = "rgba(255,230,180,.9)";
+  ctx.beginPath(); ctx.arc(glX, glY, 2.4, 0, 6.2832); ctx.fill();
+
+  /* ---- 标题：发光大字 ---- */
+  var titleY = H * 0.105;
+  ctx.save();
+  ctx.shadowColor = "rgba(255,170,80,.55)";
+  ctx.shadowBlur = 22;
+  ctx.fillStyle = "#ffe9c8";
+  ctx.font = "700 34px \"PingFang SC\",\"Microsoft YaHei\",sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("永 夜 微 光", W / 2, titleY);
+  ctx.restore();
+  ctx.save();
+  ctx.fillStyle = "rgba(255,207,122,.7)";
+  ctx.font = "600 10px monospace";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("N I G H T F A L L   G L O W", W / 2, titleY + 28);
+  ctx.restore();
+  /* 副标题 */
+  ctx.save();
+  ctx.fillStyle = "rgba(159,176,200,.85)";
+  ctx.font = "500 12.5px \"PingFang SC\",\"Microsoft YaHei\",sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("车灯不灭，就能走到路的尽头", W / 2, titleY + 54);
+  ctx.restore();
+
+  /* ---- 小鱼：放大、带暖描边、轻微浮动 ---- */
+  var avatarR = Math.min(56, W * 0.14);
+  var avatarY = H * 0.245 + Math.sin(tt * 1.2) * 2.5;
+  drawAvatar(W / 2, avatarY, avatarR);
+
+  /* ---- 底部按钮区 ---- */
+  var bw2 = Math.min(230, W * 0.6), bh2 = 48, bx2 = (W - bw2) / 2;
+  var sv = loadSave();
+  var breathe = 1 + Math.sin(tt * 2.6) * 0.025;
+
+  if (sv) {
+    var svPct = Math.floor(clamp((sv.totalHouse || 0) / HOUSE_TOTAL, 0, 1) * 100);
+    var contY = H * 0.615;
+    /* 继续按钮：实心绿，发光 */
+    ctx.save();
+    ctx.shadowColor = "rgba(127,224,176,.55)";
+    ctx.shadowBlur = 18 * breathe;
+    ctx.fillStyle = "#2fbf7f";
+    ctx.beginPath();
+    roundRectPath(bx2, contY, bw2, bh2, bh2 / 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#07130d";
+    ctx.font = "600 14px \"PingFang SC\",\"Microsoft YaHei\",sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("继续 · 第 " + sv.day + " 天 · " + svPct + "%", W / 2, contY + bh2 / 2);
+    coverBtnCont = { x: bx2, y: contY, w: bw2, h: bh2 };
+
+    var ry2 = contY + bh2 + 14, rh2 = 34;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,207,122,.5)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); roundRectPath(bx2, ry2, bw2, rh2, rh2 / 2); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = "rgba(255,207,122,.8)";
+    ctx.font = "500 12px \"PingFang SC\",\"Microsoft YaHei\",sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("重新开始", W / 2, ry2 + rh2 / 2);
+    coverBtn = { x: bx2, y: ry2, w: bw2, h: rh2 };
+  } else {
+    var by2 = H * 0.645;
+    ctx.save();
+    ctx.shadowColor = "rgba(255,170,80,.6)";
+    ctx.shadowBlur = 20 * breathe;
+    ctx.fillStyle = "#ffb45c";
+    ctx.beginPath();
+    roundRectPath(bx2, by2, bw2, bh2, bh2 / 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#1c0e04";
+    ctx.font = "700 15px \"PingFang SC\",\"Microsoft YaHei\",sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("开 始 上 路", W / 2, by2 + bh2 / 2);
+    coverBtn = { x: bx2, y: by2, w: bw2, h: bh2 };
   }
 
+  /* 最好成绩 */
   var b = loadBest();
   if (b) {
     var bs = b.won ? ("最好：通关 · 第 " + b.day + " 天") : ("最好：走了 " + b.pct + "%");
-    txt(bs, W / 2, H * 0.60 + rh * 0.2, 10, "rgba(159,176,200,.55)", "center", "", "monospace");
+    ctx.fillStyle = "rgba(159,176,200,.6)";
+    ctx.font = "10px monospace";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(bs, W / 2, H * 0.855);
   }
+}
 
-  var bw2 = Math.min(210, W * 0.56), bh2 = 44, bx2 = (W - bw2) / 2;
-  var sv = loadSave();
-  var by2 = sv ? H * 0.60 : H * 0.68;
-  if (sv) {
-    /* 有进度：上面大按钮继续，下面小按钮重开 */
-    var svPct = Math.floor(clamp((sv.totalHouse || 0) / HOUSE_TOTAL, 0, 1) * 100);
-    var contY = H * 0.615;
-    ctx.save();
-    box(bx2, contY, bw2, bh2, "#7fe0b0", "rgba(127,224,176,.10)", 22);
-    ctx.restore();
-    txt("继续 · 第 " + sv.day + " 天 · " + svPct + "%", W / 2, contY + bh2 / 2 + 1, 12.5, "#7fe0b0", "center", "600");
-    coverBtnCont = { x: bx2, y: contY, w: bw2, h: bh2 };
-
-    var ry2 = contY + bh2 + 14, rh2 = 32;
-    ctx.save();
-    box(bx2, ry2, bw2, rh2, "rgba(255,207,122,.4)", "transparent", 16);
-    ctx.restore();
-    txt("重新开始", W / 2, ry2 + rh2 / 2 + 1, 11, "rgba(255,207,122,.75)", "center", "500");
-    coverBtn = { x: bx2, y: ry2, w: bw2, h: rh2 };
-    by2 = ry2;
-  } else {
-    coverBtnCont = null;
-    ctx.save();
-    box(bx2, by2, bw2, bh2, "#ffcf7a", "rgba(255,207,122,.10)", 22);
-    ctx.restore();
-    txt("开 始", W / 2, by2 + bh2 / 2 + 1, 14, "#ffcf7a", "center", "600");
-  }
-
-  txt("走到路的尽头就是救援中心 · 100 天是时限", W / 2, by2 + bh2 + 26, 9.5, "rgba(159,176,200,.4)", "center");
-  txt("路上每过十分之一，小鱼会告诉你一次", W / 2, by2 + bh2 + 42, 9.5, "rgba(159,176,200,.4)", "center");
+/* 圆角矩形路径（Canvas 无 roundRect 时用） */
+function roundRectPath(x, y, w, h, r) {
+  var rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
 }
 
 var coverBtnCont = null;
