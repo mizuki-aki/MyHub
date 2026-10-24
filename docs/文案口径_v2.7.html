@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 文案口径（v2.7）不再报户数</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p1:#a16207; --p1bg:#fefce8;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:20px 0 8px}
+  h3:first-of-type{margin-top:12px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  del{background:var(--delbg);color:var(--del);text-decoration:line-through;padding:0 3px;border-radius:3px}
+  ins{background:var(--insbg);color:var(--ins);text-decoration:none;padding:0 3px;border-radius:3px;font-weight:600}
+  .quote{background:#fafbfe;border:1px solid var(--line);border-left:3px solid var(--day);
+    border-radius:0 8px 8px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#5a3a15}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
+  .flow .s{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:11px 12px;text-align:center}
+  .flow .s b{display:block;font-size:13px;color:var(--day);margin-bottom:3px}
+  .flow .s span{font-size:11.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+  @media(max-width:760px){
+    .kpi{grid-template-columns:repeat(2,1fr)}
+    .flow{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">永夜微光 · 文案口径 / v2.7</div>
+<h1>界面上不再出现「多少户」</h1>
+<p class="sub">
+  所有进度一律用百分比表达，每走过十分之一由小鱼报一次「走了十分之一」。
+  户数退到后台，只作为计算用的内部数值，任何玩家看得到的文案里都不出现。
+</p>
+<div class="status">已落地 · core.js 仍一行未改 · 3 局自动试玩全胜</div>
+
+<section>
+  <h2><span class="n">1</span>一句话结论</h2>
+  <p class="lead">
+    玩家不该在末世里做除法。之前 HUD 写 <code>317 / 800</code>，玩家要自己算「还剩六成」，
+    算完也没法用，因为一天能走多远不由这个数决定。换成百分比之后，第一眼就是「39%」，
+    不需要换算；而「十分之一」这种报数方式，又比 39% 更有分量 —— 它是一个事件，不是一段进度。
+  </p>
+  <div class="kpi">
+    <div class="k"><b>0</b><span>界面上出现的户数</span></div>
+    <div class="k"><b>9</b><span>一路的里程碑提示</span></div>
+    <div class="k"><b>39%</b><span>顶部改为百分比</span></div>
+    <div class="k"><b>89 天</b><span>循环未变（3 局全胜）</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">2</span>改了哪六处</h2>
+  <table>
+    <tr>
+      <th style="width:22%">位置</th>
+      <th style="width:39%">改前</th>
+      <th style="width:39%">改后</th>
+    </tr>
+    <tr>
+      <td>顶部右上角</td>
+      <td><del>317 / 800</del></td>
+      <td><ins>39%</ins>（下方成功率条不变）</td>
+    </tr>
+    <tr>
+      <td>每天开头播报</td>
+      <td><del>第 37 天 · 霉雨 · 门牌 317</del></td>
+      <td><ins>第 37 天 · 霉雨</ins></td>
+    </tr>
+    <tr>
+      <td>白天底部右侧</td>
+      <td><del>已走 9 户</del></td>
+      <td><ins>本日 60%</ins>（当天这一屏走了多少）</td>
+    </tr>
+    <tr>
+      <td>通关结算</td>
+      <td><del>门牌 800 · 第 89 天</del></td>
+      <td><ins>走完全程 · 第 89 天</ins></td>
+    </tr>
+    <tr>
+      <td>失败结算</td>
+      <td><del>门牌 517 · 第 63 天</del></td>
+      <td><ins>走了 64% · 第 63 天</ins></td>
+    </tr>
+    <tr>
+      <td>开场说明 / 小鱼第一句</td>
+      <td><del>走满 800 户到救援中心</del><br><del>前面还有八百户。</del></td>
+      <td><ins>走到路的尽头就是救援中心</ins><br><ins>路还长。天要黑了。</ins></td>
+    </tr>
+  </table>
+  <div class="good">
+    顺带把一个隐性的心算负担也去掉了：原来「撞一个球差不多少走半户」，
+    玩家要在心里把球换算成户；现在是「撞得越多，今天走得越短」，不用算。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">3</span>里程碑的九句话</h2>
+  <p class="lead">
+    只在 <b>换日结算那一刻</b>判定，白天途中不打断。跨过门槛就报一句，抢在「天亮之前，把路堵上」之前说，
+    所以玩家在黄昏布防时看到的就是这一句。已经报过的档不会重报。
+  </p>
+  <table>
+    <tr><th class="num" style="width:12%">进度</th><th style="width:42%">小鱼说</th><th>触发时机</th></tr>
+    <tr><td class="num">10%</td><td>小鱼：走了十分之一。</td><td>约第 13 天，第一个门槛</td></tr>
+    <tr><td class="num">20%</td><td>小鱼：走了十分之二。</td><td>正好换章（第 1 章 → 第 2 章）</td></tr>
+    <tr><td class="num">30%</td><td>小鱼：走了十分之三。</td><td></td></tr>
+    <tr><td class="num">40%</td><td>小鱼：走了十分之四。</td><td></td></tr>
+    <tr><td class="num">50%</td><td>小鱼：走了十分之五。</td><td>约第 45 天。一半，第 3 章中段</td></tr>
+    <tr><td class="num">60%</td><td>小鱼：走了十分之六。</td><td></td></tr>
+    <tr><td class="num">70%</td><td>小鱼：走了十分之七。</td><td></td></tr>
+    <tr><td class="num">80%</td><td>小鱼：走了十分之八。</td><td>约第 73 天，正好第 5 章开始</td></tr>
+    <tr><td class="num">90%</td><td>小鱼：走了十分之九。</td><td>约第 81 天。之后不再报数，只等终点</td></tr>
+    <tr><td class="num">100%</td><td>（直接进结算，不报「十分之十」）</td><td>走完全程</td></tr>
+  </table>
+  <div class="flow">
+    <div class="s"><b>十分之一</b><span>约第 13 天</span></div>
+    <div class="s"><b>十分之二</b><span>约第 21 天</span></div>
+    <div class="s"><b>十分之三</b><span>约第 29 天</span></div>
+    <div class="s"><b>十分之四</b><span>约第 37 天</span></div>
+    <div class="s"><b>十分之五</b><span>约第 45 天</span></div>
+    <div class="s"><b>十分之六</b><span>约第 57 天</span></div>
+    <div class="s"><b>十分之七</b><span>约第 65 天</span></div>
+    <div class="s"><b>十分之八</b><span>约第 73 天</span></div>
+    <div class="s"><b>十分之九</b><span>约第 81 天</span></div>
+    <div class="s"><b>到了</b><span>第 88~89 天</span></div>
+  </div>
+  <p class="small">
+    实测（4 天步长采样，故实际触发日会早 1~3 天）。节奏不是均匀的：
+    <b>前五档几乎等距，每 8 天一次</b>；<b>第五到第六档拖了 12 天</b> —— 那一段木头和药箱都紧，
+    白天撞球最密，扣时最多，一天走不满。过了 60% 又回到 8 天一档。
+  </p>
+  <div class="note">
+    这个「中段变慢」不是 bug，是前面那些机制共同推出来的结果：撞球扣时 → 走得少 → 换日慢。
+    如果想让节奏更匀，最直接的办法是压中段的资源需求（图纸掉率、药箱数量），
+    而不是动里程碑的 10% 门槛。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">4</span>内部为什么还留着 800</h2>
+  <p class="lead">
+    户数从头到尾没被删掉，它只是<b>不再出现在玩家面前</b>。内部仍在用 <code>HOUSE_TOTAL = 800</code> 做三件事：
+  </p>
+  <table>
+    <tr><th style="width:26%">用途</th><th>说明</th></tr>
+    <tr><td>算百分比</td><td><code>totalHouse / 800</code>，显示时取整。改总量只改这一个数，所有文案自动跟。</td></tr>
+    <tr><td>定章节</td><td>每 160 户一章，正好五章，也正好每 20% 换一章 —— 章节和百分比天然对齐。</td></tr>
+    <tr><td>判胜利</td><td>唯一胜利条件仍是走满 800 户，100 天是时限。</td></tr>
+  </table>
+  <div class="ask">
+    也就是说：<b>以后要调总路程，只改 <code>HOUSE_TOTAL</code> 一个数</b>。里程碑的 9 个门槛是按比例算的，
+    不用手动改文案。想改成每 20% 报一次，也只改 <code>Math.floor(total / HOUSE_TOTAL * 10)</code> 里的 10。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">5</span>对你写文案的影响</h2>
+  <p class="lead">
+    你手上的《文案全稿》里如果还有具体户数，可以按下面这张表替换。原则只有一条：
+    <b>玩家看得到的数字只有百分比、天数、秒、木头、油、耐久、张数</b>，没有户。
+  </p>
+  <table>
+    <tr><th style="width:34%">想说</th><th>别写</th><th style="width:42%">改成</th></tr>
+    <tr><td>还剩多少路</td><td><del>还剩四百户</del></td><td><ins>还有一半</ins> / <ins>刚过十分之六</ins></td></tr>
+    <tr><td>今天走了多少</td><td><del>今天走了九户</del></td><td><ins>今天走了大半</ins></td></tr>
+    <tr><td>离终点多远</td><td><del>还差两百户</del></td><td><ins>还差两成</ins></td></tr>
+    <tr><td>某个地点在哪</td><td><del>往前三百户有个加油站</del></td><td><ins>再走三成，路边有个加油站</ins></td></tr>
+    <tr><td>门牌系统本身</td><td><del>门牌 317 号</del></td><td>可保留「门牌」这个词，但不带数字；或整句删掉</td></tr>
+  </table>
+  <div class="quote">
+    例子：小鱼在 50% 那一刻可以说的，不是「已经走了四百户」，而是
+    <br>「一半了。剩下那一半，天还是要黑的。」
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">6</span>验证</h2>
+  <table>
+    <tr><th style="width:46%">检查项</th><th>结果</th></tr>
+    <tr><td>全文件搜索「户」</td><td>只剩 9 处，<b>全部是代码注释</b>，界面零出现</td></tr>
+    <tr><td>80 户时报什么</td><td>走了十分之一</td></tr>
+    <tr><td>161 户时报什么</td><td>走了十分之二</td></tr>
+    <tr><td>400 户时报什么</td><td>走了十分之五</td></tr>
+    <tr><td>720 户时报什么</td><td>走了十分之九</td></tr>
+    <tr><td>805 户（已过线）</td><td>不报，直接进结算</td></tr>
+    <tr><td>重复经过同一门槛</td><td>不重报（<code>S.mile</code> 记已报档位）</td></tr>
+    <tr><td>循环是否受影响</td><td>否。3 局贪心：89 天 / 806~808 户 / 全胜，与 v2.6 完全一致</td></tr>
+  </table>
+  <a class="link" href="../demo/v25_text.html">打开 Demo 玩一局</a>
+</section>
+
+<p class="small" style="margin-top:26px">
+  永夜微光 · v2.7 文案口径 · 户数退到后台，界面只说百分比与十分之几
+</p>
+
+</div>
+</body>
+</html>

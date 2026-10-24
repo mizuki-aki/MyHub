@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>永夜微光 · v2.6 文字占位 Demo</title>
+<title>永夜微光 · v2.7 文字占位 Demo</title>
 <style>
   :root{ --sab: env(safe-area-inset-bottom, 0px); }
   html,body{margin:0;height:100%;background:#07090d;overflow:hidden;
@@ -48,26 +48,26 @@
 <div id="rotate">请竖屏游玩</div>
 <div id="intro">
   <div class="card">
-    <div class="kicker">NIGHTFALL GLOW · v2.6 文字占位 Demo</div>
+    <div class="kicker">NIGHTFALL GLOW · v2.7 文字占位 Demo</div>
     <h1>永夜微光</h1>
     <p class="sub">所有美术资源都是文字占位符。这一版只验证玩法与节奏。</p>
     <div class="rules">
-      <div class="r"><b>白天</b>左右换道，撞开悬浮球搜刮。<br><span>车不会停下，只顿一下做受击反应，时间从白天里按球扣掉 —— 撞一个球，差不多少走半户。</span></div>
+      <div class="r"><b>白天</b>左右换道，撞开悬浮球搜刮。<br><span>车不会停下，只顿一下做受击反应，时间从白天里按球扣掉 —— 撞得越多，今天走得越短。</span></div>
       <div class="r"><b>黄昏</b>点格子布防，30 秒。<br><span>布置完点右下「跳过」，直接进夜里。建筑只保一夜，塌了明天原地变料堆。</span></div>
       <div class="r"><b>夜晚</b>守车，30 秒。<br><span>篝火和箭塔挡在车前面，漏一只就掉一截耐久。</span></div>
       <div class="r"><b>闷囊</b>红色刺囊，撞了不扣时间但炸车。<br><span>躲开是本事，撞上是代价。</span></div>
     </div>
-    <div class="goal">走满 <b>800 户</b> 到救援中心。100 天是时限，不是胜利条件。</div>
+    <div class="goal">走到路的尽头就是救援中心。路上每过十分之一，小鱼会告诉你一次。<b>100 天是时限，不是胜利条件。</b></div>
     <button id="startBtn">开 始</button>
   </div>
 </div>
-<div id="badge">v2.6 · 全文字占位 · 无一张图片</div>
+<div id="badge">v2.7 · 全文字占位 · 无一张图片</div>
 <script>
 (function () {
 "use strict";
 
 /* ==================================================================
-   永夜微光 · v2.6 文字占位 Demo
+   永夜微光 · v2.7 文字占位 Demo
    --------------------------------------------------------------
    本文件的目的：用最低成本验证「改完之后的游戏长什么样、什么手感」。
    所有美术资源一律用带字的虚框/圆/三角代替，正式版全部替换为矢量绘制。
@@ -105,7 +105,8 @@ var CAR_MAX      = 140;
 var CAR_HIT      = 8;    // 怪打车扣耐久
 var HAZARD_DMG   = 5;    // 闷囊炸车扣耐久
 
-var HOUSE_TOTAL  = 800;  // 唯一胜利条件
+var HOUSE_TOTAL  = 800;  // 唯一胜利条件（内部只用它算比例，文案里不出现户数）
+var TEN_CN = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
 var CHAPTER_H    = 160;  // 每章 160 户，正好五章
 var DAY_LIMIT    = 100;  // 100 天是时限，不是胜利条件
 var SALVAGE_K    = 1 / 3;// 料堆返还造价的三分之一
@@ -202,7 +203,8 @@ function newState() {
 
     carV: 0, carCol: 2, carColT: 2, carLerp: 2,
     gone: 0,                       // 门牌：这一天已经走过的户
-    totalHouse: 0,                 // 累计门牌
+    totalHouse: 0,                 // 累计门牌（内部数值，只用来算百分比与章节）
+    mile: 0,                       // 已经报过「十分之几」
     bp: 0,                         // 图纸
 
     orbs: [], piles: [], builds: [], mobs: [], arrows: [], fx: [],
@@ -315,6 +317,7 @@ function enterDusk() {
   S.orbs = S.orbs.filter(function (o) { return o.kind === "hazard" && !o.searched; });
   S.orbs = [];
   if (S.totalHouse >= HOUSE_TOTAL) { win(); return; }
+  if (checkMile()) return;              // 里程碑优先，别被布防提示盖掉
   say("小鱼：天亮之前，把路堵上。", 2.4);
 }
 
@@ -345,7 +348,16 @@ function nextDay() {
   S.carV = 0; S.carCol = 2; S.carColT = 2; S.carLerp = 2;
   S.bump = 0; S.lostT = 0; S.hint = null;
   newOrbs();
-  say("第 " + S.day + " 天 · " + chapterOf(S.totalHouse) + " · 门牌 " + S.totalHouse, 2.2);
+  say("第 " + S.day + " 天 · " + chapterOf(S.totalHouse), 2.2);
+}
+
+/* 每走过十分之一，小鱼报一次。跨多档时只报最新那档，不补播堆叠 */
+function checkMile() {
+  var t = Math.floor(S.totalHouse / HOUSE_TOTAL * 10);
+  if (t <= S.mile) return false;
+  S.mile = Math.min(t, 9);
+  say("小鱼：走了十分之" + TEN_CN[S.mile] + "。", 2.8);
+  return true;
 }
 
 function chapterOf(house) {
@@ -1071,14 +1083,15 @@ function drawHUD() {
   ctx.fillRect(0, 0, W, 116);
   ctx.restore();
 
-  /* --- 第一行：天 / 章 / 门牌 --- */
+  /* --- 第一行：天 / 章 / 路程百分比 --- */
   txt("DAY " + S.day, 14, 18, 12, "#ffcf7a", "left", "700", "monospace");
   txt("/ " + DAY_LIMIT, 64, 18, 9, "rgba(255,255,255,.28)", "left", "", "monospace");
 
   var chIdx = clamp(Math.floor(S.totalHouse / CHAPTER_H), 0, 4);
   txt("第 " + (chIdx + 1) + " 章 · " + CHAPTERS[chIdx], CX, 18, 11, "rgba(255,255,255,.60)", "center", "500");
 
-  txt(Math.min(S.totalHouse, HOUSE_TOTAL) + " / 800", W - 14, 18, 10.5, "#eef3ff", "right", "700", "monospace");
+  var pct = Math.floor(clamp(S.totalHouse / HOUSE_TOTAL, 0, 1) * 100);
+  txt(pct + "%", W - 14, 18, 10.5, "#eef3ff", "right", "700", "monospace");
   var pw = 86, px = W - 14 - pw;
   ctx.fillStyle = "rgba(255,255,255,.09)";
   ctx.fillRect(px, 27, pw, 2);
@@ -1190,7 +1203,7 @@ function drawTravelPanel(y0) {
   if (haz > 0) {
     txt("闷囊 " + haz, W - 14, y0 + 38, 10, "rgba(255,107,107,.75)", "right", "", "monospace");
   }
-  txt("已走 " + Math.round(S.carV) + " 户", W - 14, y0 + 54, 10, "rgba(255,207,122,.7)", "right", "", "monospace");
+  txt("本日 " + Math.round(clamp(S.carV / ROWS, 0, 1) * 100) + "%", W - 14, y0 + 54, 10, "rgba(255,207,122,.7)", "right", "", "monospace");
 
   // 本日进度：时间条（剩多少白天）
   var mw = W - 28, mx = 14, my = y0 + 74;
@@ -1266,12 +1279,13 @@ function drawOverlay() {
 
   if (S.won) {
     txt("到 了", W / 2, H * 0.36, 34, "#ffcf7a", "center", "700");
-    txt("门牌 800 · 第 " + S.day + " 天", W / 2, H * 0.43, 12, "rgba(255,255,255,.6)", "center", "", "monospace");
+    txt("走完全程 · 第 " + S.day + " 天", W / 2, H * 0.43, 12, "rgba(255,255,255,.6)", "center", "", "monospace");
     txt("救援中心的灯还亮着。", W / 2, H * 0.48, 11, "rgba(255,255,255,.42)", "center");
   } else {
     txt("停 在 这 里", W / 2, H * 0.36, 30, "#ff6b6b", "center", "700");
     txt(S.overReason || "", W / 2, H * 0.43, 11, "rgba(255,255,255,.55)", "center");
-    txt("门牌 " + S.totalHouse + " · 第 " + S.day + " 天", W / 2, H * 0.48, 11, "rgba(255,255,255,.38)", "center", "", "monospace");
+    var lpct = Math.floor(clamp(S.totalHouse / HOUSE_TOTAL, 0, 1) * 100);
+    txt("走了 " + lpct + "% · 第 " + S.day + " 天", W / 2, H * 0.48, 11, "rgba(255,255,255,.38)", "center", "", "monospace");
   }
 
   // 统计
@@ -1447,7 +1461,7 @@ function restart() {
 }
 
 /* ============================ 20. 启动 ============================ */
-say("小鱼：前面还有八百户。天要黑了。", 3.4);
+say("小鱼：路还长。天要黑了。", 3.4);
 S.turbo = 1;
 document.getElementById("startBtn").addEventListener("click", function () {
   document.getElementById("intro").classList.add("hide");
