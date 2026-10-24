@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>永夜微光 · v2.5 文字占位 Demo</title>
+<title>永夜微光 · v2.6 文字占位 Demo</title>
 <style>
   :root{ --sab: env(safe-area-inset-bottom, 0px); }
   html,body{margin:0;height:100%;background:#07090d;overflow:hidden;
@@ -48,26 +48,26 @@
 <div id="rotate">请竖屏游玩</div>
 <div id="intro">
   <div class="card">
-    <div class="kicker">NIGHTFALL GLOW · v2.5 文字占位 Demo</div>
+    <div class="kicker">NIGHTFALL GLOW · v2.6 文字占位 Demo</div>
     <h1>永夜微光</h1>
     <p class="sub">所有美术资源都是文字占位符。这一版只验证玩法与节奏。</p>
     <div class="rules">
-      <div class="r"><b>白天</b>左右换道，撞开悬浮球搜刮。<br><span>搜刮要 1.4 秒，车停着 —— 撞得越多，走得越少。</span></div>
-      <div class="r"><b>黄昏</b>点格子布防，15 秒。<br><span>建筑只保一夜，塌了就变成料堆，明天白天撞它返料。</span></div>
+      <div class="r"><b>白天</b>左右换道，撞开悬浮球搜刮。<br><span>车不会停下，只顿一下做受击反应，时间从白天里按球扣掉 —— 撞一个球，差不多少走半户。</span></div>
+      <div class="r"><b>黄昏</b>点格子布防，30 秒。<br><span>布置完点右下「跳过」，直接进夜里。建筑只保一夜，塌了明天原地变料堆。</span></div>
       <div class="r"><b>夜晚</b>守车，30 秒。<br><span>篝火和箭塔挡在车前面，漏一只就掉一截耐久。</span></div>
-      <div class="r"><b>闷囊</b>红色五边形，撞了不花时间但炸车。<br><span>躲开是本事，撞上是代价。</span></div>
+      <div class="r"><b>闷囊</b>红色刺囊，撞了不扣时间但炸车。<br><span>躲开是本事，撞上是代价。</span></div>
     </div>
     <div class="goal">走满 <b>800 户</b> 到救援中心。100 天是时限，不是胜利条件。</div>
     <button id="startBtn">开 始</button>
   </div>
 </div>
-<div id="badge">v2.5 · 全文字占位 · 无一张图片</div>
+<div id="badge">v2.6 · 全文字占位 · 无一张图片</div>
 <script>
 (function () {
 "use strict";
 
 /* ==================================================================
-   永夜微光 · v2.5 文字占位 Demo
+   永夜微光 · v2.6 文字占位 Demo
    --------------------------------------------------------------
    本文件的目的：用最低成本验证「改完之后的游戏长什么样、什么手感」。
    所有美术资源一律用带字的虚框/圆/三角代替，正式版全部替换为矢量绘制。
@@ -80,17 +80,27 @@ var ctx = cv.getContext("2d");
 /* ============================ 0. 常量 ============================ */
 var W = 375, H = 780;
 
-var DAY_TRAVEL = 20, DAY_DUSK = 15, DAY_NIGHT = 30;
+var DAY_TRAVEL = 22, DAY_DUSK = 30, DAY_NIGHT = 30;
 
 var ROWS   = 15;      // 可见纵深：15 排 = 15 户，球正好一排一个
 var LANES  = 5;
 
 var ORB_N        = 15;   // 每天 15 个悬浮球
 var HAZARD_N     = 2;    // 其中 2~3 个闷囊（危险品）
-var SEARCH_T     = 1.40; // 搜刮一次 1.4s，车冻住，倒计时照走
-var HAZARD_T     = 0.30; // 闷囊撞开只要 0.3s
-var SEC_PER_HOUSE= 0.55; // 每走一户 0.55s
-var FUEL_PER_HOUSE = 1.0;// 每户烧 1 点油
+var SEC_PER_HOUSE= 1.50; // 每走一户 1.5s（原来 0.55s，靠停车搜刮凑节奏；现在不停车，速度要摊平）
+var BUMP_T       = 0.22; // 撞到球的顿挫时长（不中断行驶，只是被撞一下）
+var BUMP_SLOW    = 0.42; // 顿挫期间车速降到 42%
+var HAZARD_T     = 0.30; // 闷囊撞开只顿 0.3s
+
+/* 撞球要付的时间代价：从当天剩余的白天时间里直接扣掉（单位：秒） */
+var ORB_COST = {
+  scatter: 0.7,   // 散装：翻一下就走
+  can:     0.9,   // 罐头：要撬
+  med:     1.1,   // 药箱：要拆
+  parts:   1.3,   // 料包：最费事，在最后面
+  hazard:  0.25   // 闷囊：一下就炸，代价是耐久不是时间
+};
+var FUEL_PER_HOUSE = 0.85;// 每户烧 0.85 点油（日行 9 户 ≈ 7.7 点，罐头日供 10 点左右，略有盈余）
 var CAR_MAX      = 140;
 var CAR_HIT      = 8;    // 怪打车扣耐久
 var HAZARD_DMG   = 5;    // 闷囊炸车扣耐久
@@ -196,7 +206,9 @@ function newState() {
     bp: 0,                         // 图纸
 
     orbs: [], piles: [], builds: [], mobs: [], arrows: [], fx: [],
-    searching: null, searchT: 0, searchMax: 1,
+    bump: 0,                       // 撞击顿挫剩余时间
+    lostT: 0,                      // 今天撞球扣掉的时间
+    hint: null,                    // 前方最近那个球的提示
 
     buildType: "fire", buildCd: 0,
     towerLv: 1,
@@ -204,6 +216,7 @@ function newState() {
     stat: { search: 0, hazard: 0, kill: 0, salvage: 0, built: 0 },
 
     over: false, won: false, overT: 0, paused: true,
+    btnSkip: null,
     pickMsg: null
   };
 }
@@ -227,11 +240,12 @@ function newOrbs() {
   var deck = ["scatter", "scatter", "scatter", "scatter", "can", "can", "parts"];
   for (var i = 0; i < ORB_N; i++) kinds.push(pick(deck));
 
-  // 远端两个固定是料包（想拿好货就得开到最后）
-  kinds[ORB_N - 1] = "parts";
-  kinds[ORB_N - 2] = "parts";
-  kinds[7] = "med";        // 每天第二份药箱，别让耐久全靠运气
-  kinds[12] = "med";
+  /* 料包压在"一天能走到的尽头"：撞得越多越走不到，想拿好货就得少撞前面的球。
+     不再放在最后两排 —— 车速摊平后，一天只走 9~10 户，最后两排永远够不着。 */
+  kinds[7] = "parts";
+  kinds[8] = "parts";
+  kinds[5] = "med";        // 中途一份药箱，别让耐久全靠运气
+  kinds[10] = "med";       // 拼一把才拿得到
 
   // 挑 2~3 个位置放闷囊，避开最前面两排（给玩家反应时间）
   var used = {};
@@ -270,7 +284,8 @@ function rollOrb(kind, day) {
     o.heal = 16;
   } else if (kind === "parts") {
     o.wood = Math.round(irnd(13, 20) * mb);
-    o.bp = 1;
+    /* 图纸是稀的：料包不是每次都夹带。89 天约 62 张，正好对得上 62 层卡池 */
+    if (Math.random() < 0.30) o.bp = 1;
   } else if (kind === "hazard") {
     o.wood = irnd(3, 5);            // 闷囊里能捞到一点料
   }
@@ -293,10 +308,10 @@ function applyLoot(o) {
 
 /* ============================ 7. 阶段流转 ============================ */
 function enterDusk() {
-  S.gone = Math.floor(S.carV);
+  S.gone = Math.round(S.carV);
   S.totalHouse += S.gone;
   S.stage = "dusk"; S.stageT = 0;
-  S.carV = 0; S.searching = null;
+  S.carV = 0; S.bump = 0; S.lostT = 0; S.hint = null;
   S.orbs = S.orbs.filter(function (o) { return o.kind === "hazard" && !o.searched; });
   S.orbs = [];
   if (S.totalHouse >= HOUSE_TOTAL) { win(); return; }
@@ -328,7 +343,7 @@ function nextDay() {
   if (S.day > DAY_LIMIT) { lose("一百天到了。救援中心的灯，熄了。"); return; }
   S.stage = "travel"; S.stageT = 0;
   S.carV = 0; S.carCol = 2; S.carColT = 2; S.carLerp = 2;
-  S.searching = null;
+  S.bump = 0; S.lostT = 0; S.hint = null;
   newOrbs();
   say("第 " + S.day + " 天 · " + chapterOf(S.totalHouse) + " · 门牌 " + S.totalHouse, 2.2);
 }
@@ -342,31 +357,48 @@ function win() { S.over = true; S.won = true; S.overT = 0; }
 function lose(reason) { S.over = true; S.won = false; S.overReason = reason; S.overT = 0; }
 
 /* ============================ 8. 白天 ============================ */
-function updateTravel(dt) {
-  S.stageT += dt;
+/* 撞开一个球：车不停，只顿一下，代价从当天剩下的白天时间里扣 */
+function hitOrb(o) {
+  o.searched = true;
+  o.flash = 1;
+  var sp = orbScreen(o);
 
-  /* --- 搜刮中：车冻住，倒计时照走 --- */
-  if (S.searching) {
-    S.searchT -= dt;
-    S.searching.flash = 1;
-    if (S.searchT <= 0) {
-      var o = S.searching;
-      o.searched = true;
-      var loot = rollOrb(o.kind, S.day);
-      applyLoot(loot);
-      S.stat.search++;
-      var sp = orbScreen(o);
-      addFx("loot", sp.x, sp.y - 18, lootLabel(loot), ORB_K[o.kind].col, 1.1);
-      S.searching = null;
-    }
-    if (S.stageT >= DAY_TRAVEL && !S.searching) enterDusk();
+  if (o.kind === "hazard") {
+    /* 闷囊：代价是耐久，不是时间 */
+    S.stageT = Math.min(DAY_TRAVEL, S.stageT + ORB_COST.hazard);
+    S.lostT += ORB_COST.hazard;
+    S.bump = HAZARD_T;
+    S.dur = Math.max(0, S.dur - HAZARD_DMG);
+    S.stat.hazard++;
+    var g = rollOrb("hazard", S.day);
+    wood(g.wood);
+    addFx("boom", sp.x, sp.y, "-" + HAZARD_DMG + " 耐久", "#ff6b6b", 1.2);
+    say("小鱼：闷囊。别撞第二次。", 1.8);
+    if (S.dur <= 0) lose("车废了。");
     return;
   }
 
-  /* --- 横移 --- */
-  S.carCol += (S.carColT - S.carCol) * Math.min(1, dt * 8);
+  /* 普通球：车照走，扣时间 */
+  var cost = ORB_COST[o.kind] || 1.0;
+  S.stageT = Math.min(DAY_TRAVEL, S.stageT + cost);
+  S.lostT += cost;
+  S.bump = BUMP_T;
 
-  /* --- 撞球 --- */
+  var loot = rollOrb(o.kind, S.day);
+  applyLoot(loot);
+  S.stat.search++;
+  addFx("loot", sp.x, sp.y - 18, lootLabel(loot), ORB_K[o.kind].col, 1.0);
+  addFx("time", sp.x + 26, sp.y - 34, "-" + cost.toFixed(1) + "s", "#ff9b6b", 0.95);
+}
+
+function updateTravel(dt) {
+  S.stageT += dt;
+  if (S.bump > 0) S.bump = Math.max(0, S.bump - dt);
+
+  /* --- 横移 --- */
+  S.carCol += (S.carColT - S.carCol) * Math.min(1, dt * 7);
+
+  /* --- 撞球：一帧最多撞一个，撞完继续开 --- */
   var near = null, best = 99;
   for (var i = 0; i < S.orbs.length; i++) {
     var ob = S.orbs[i];
@@ -377,23 +409,8 @@ function updateTravel(dt) {
     if (d < best) { best = d; near = ob; }
   }
   if (near) {
-    if (near.kind === "hazard") {
-      // 闷囊：不扣时间，炸车，捞一点木头
-      near.searched = true;
-      S.dur = Math.max(0, S.dur - HAZARD_DMG);
-      var g = rollOrb("hazard", S.day);
-      wood(g.wood);
-      S.stat.hazard++;
-      var hp = orbScreen(near);
-      addFx("boom", hp.x, hp.y, "-" + HAZARD_DMG + " 耐久", "#ff6b6b", 1.2);
-      say("小鱼：闷囊。别撞第二次。", 1.8);
-      if (S.dur <= 0) { lose("车废了。"); return; }
-      S.searchT = HAZARD_T; S.searchMax = HAZARD_T; S.searching = near;
-      return;
-    }
-    S.searching = near;
-    S.searchT = SEARCH_T; S.searchMax = SEARCH_T;
-    return;
+    hitOrb(near);
+    if (S.over) return;
   }
 
   /* --- 料堆（不费时间，直接收） --- */
@@ -414,8 +431,9 @@ function updateTravel(dt) {
     S.dur = Math.min(S.durMax, S.dur + 0.10 * dt);
   }
 
-  /* --- 前进 --- */
+  /* --- 前进（撞球的顿挫会临时把车速压下去） --- */
   var spd = 1 / SEC_PER_HOUSE;
+  if (S.bump > 0) spd *= BUMP_SLOW;
   if (S.fuel <= 0) spd *= 0.5;                 // 油尽：半速，不当场卡死
   var step = dt * spd;
   var before = Math.floor(S.carV);
@@ -426,6 +444,17 @@ function updateTravel(dt) {
     S.fuel = Math.max(0, S.fuel - n * FUEL_PER_HOUSE);
     if (S.fuel <= 0) say("小鱼：油表见底。车还能爬，就是慢。", 2.2);
   }
+
+  /* --- 前方最近的那个球，给玩家一个落点 --- */
+  var h = null, hd = 999;
+  for (var k = 0; k < S.orbs.length; k++) {
+    var ok = S.orbs[k];
+    if (ok.searched || ok.skipped) continue;
+    var dd = ok.v - S.carV;
+    if (dd < 0.15) continue;
+    if (dd < hd) { hd = dd; h = ok; }
+  }
+  S.hint = h;
 
   if (S.carV >= ROWS || S.stageT >= DAY_TRAVEL) enterDusk();
 }
@@ -771,8 +800,8 @@ function drawRoad() {
     ctx.restore();
   }
 
-  // 里程刻度：每 5 户一个小横杠
-  for (var m = 5; m <= ROWS; m += 5) {
+  // 里程刻度：每 5 户一个小横杠。只在白天显示，夜里是干扰
+  for (var m = 5; m <= ROWS && S.stage === "travel"; m += 5) {
     var lx = w2s(leftX(m) - 6, rowY(m));
     var rx = w2s(leftX(m) + wAt(m) + 6, rowY(m));
     line(lx.x, lx.y, rx.x, rx.y, "rgba(255,255,255,.10)", 1, [3, 5]);
@@ -807,6 +836,12 @@ function drawOrb(o) {
     ctx.stroke();
     ctx.restore();
     txt("囊", p.x, p.y + 1, Math.max(9, r * 0.95), "#ff8f8f", "center", "700");
+    if (o === S.hint) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(p.x, p.y, r + 4.5, 0, 6.2832);
+      ctx.strokeStyle = "rgba(238,243,255,.28)"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.restore();
+    }
     return;
   }
 
@@ -830,6 +865,18 @@ function drawOrb(o) {
   ctx.globalAlpha = 0.18;
   line(p.x, p.y + r + 2, p.x, p.y + r + 9, def.col, 1, [2, 3]);
   ctx.restore();
+
+  // 下一个要面对的球，给一个外圈，让眼睛有落点
+  if (o === S.hint) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r + 4.5, 0, 6.2832);
+    ctx.strokeStyle = "rgba(238,243,255,.30)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  }
+
 }
 
 function drawPile(p) {
@@ -865,8 +912,8 @@ function drawBuild(b) {
   // 作用范围（篝火 / 塔 / 信标）
   if (def.r > 0 && (S.stage === "night" || S.stage === "dusk")) {
     var pc = w2s(laneCX(b.col, b.v), rowY(b.v));
-    var rx = def.r * laneUnit(b.v);
-    var ry = def.r * rowH;
+    var rx = def.r * laneUnit(b.v) * 0.58;   // 横向收窄，纯示意，别横跨整屏
+    var ry = def.r * rowH * 0.92;
     ctx.save();
     ctx.beginPath();
     ctx.ellipse(pc.x, pc.y, rx, ry, 0, 0, 6.2832);
@@ -939,7 +986,13 @@ function drawMob(m) {
 
 function drawCar() {
   var v = S.carV;
+  var bp = S.stage === "travel" ? S.bump : 0;
+  var k = bp > 0 ? bp / BUMP_T : 0;                 // 0..1，撞得越狠越大
+  // 顿挫：车身上下一抖，横向也带一点
+  var shake = k * 3.2;
   var p = w2s(laneCX(S.carCol, v), rowY(v) - 4);
+  p.x += Math.sin((1 - k) * 42) * shake;
+  p.y += Math.cos((1 - k) * 37) * shake * 0.6;
   var u = laneUnit(Math.max(v, 0.4));
   var w = u * 0.95, h = u * 0.62;
 
@@ -952,29 +1005,29 @@ function drawCar() {
   ctx.beginPath(); ctx.arc(p.x, p.y, 44, 0, 6.2832); ctx.fill();
   ctx.restore();
 
+  /* 撞击反应：外包一圈红环，迅速散掉 */
+  if (k > 0) {
+    ctx.save();
+    ctx.globalAlpha = k * 0.7;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, u * (0.55 + (1 - k) * 0.30), 0, 6.2832);
+    ctx.strokeStyle = "#ff6b6b";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
   ctx.save();
   ctx.beginPath();
   ctx.rect(p.x - w / 2, p.y - h / 2, w, h);
-  ctx.fillStyle = "rgba(255,207,122,.14)";
+  ctx.fillStyle = k > 0 ? "rgba(255,107,107,.22)" : "rgba(255,207,122,.14)";
   ctx.fill();
-  ctx.strokeStyle = "#ffcf7a";
+  ctx.strokeStyle = k > 0 ? "#ff8f8f" : "#ffcf7a";
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.restore();
 
   txt("车", p.x, p.y + 1, Math.max(10, u * 0.40), "#ffe9c4", "center", "700");
-
-  // 搜刮进度环
-  if (S.searching && S.stage === "travel") {
-    var t = 1 - clamp(S.searchT / S.searchMax, 0, 1);
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, u * 0.62, -1.5708, -1.5708 + t * 6.2832);
-    ctx.strokeStyle = "#ffcf7a";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-  }
 }
 
 function drawArrows() {
@@ -1110,25 +1163,49 @@ function drawPanel() {
 
 function drawTravelPanel(y0) {
   txt("白天 · 撞开悬浮球搜刮", 14, y0 + 18, 11.5, "rgba(255,255,255,.62)", "left", "600");
-  txt("左右拖动 / ← → 换道", 14, y0 + 38, 9.5, "rgba(255,255,255,.26)", "left");
-  txt("不想要的球，躲开就是", 14, y0 + 54, 9.5, "rgba(255,255,255,.26)", "left");
 
-  var done = 0, haz = 0, rest = 0;
+  var done = 0, haz = 0;
   for (var i = 0; i < S.orbs.length; i++) {
     var o = S.orbs[i];
-    if (o.kind === "hazard") { if (o.searched) done++; else haz++; }
-    else if (o.searched) done++; else rest++;
+    if (o.kind === "hazard") { if (o.searched) haz++; }
+    else if (o.searched) done++;
   }
-  txt("已搜 " + done + " / " + ORB_N, W - 14, y0 + 38, 10, "rgba(255,255,255,.42)", "right", "", "monospace");
-  txt("闷囊 " + haz, W - 14, y0 + 54, 10, haz > 0 ? "rgba(255,107,107,.75)" : "rgba(255,255,255,.2)", "right", "", "monospace");
 
-  // 里程：去掉了 8 户封顶，一天最多 15 户
-  var mw = 108, mx = W - 14 - mw, my = y0 + 78;
-  txt("门牌 +" + Math.floor(S.carV) + " / " + ROWS, 14, my, 9.5, "rgba(255,207,122,.7)", "left", "", "monospace");
+  /* 撞球代价：已经扣掉的白天时间，和最直观的一句换算 */
+  var normalN = 0;
+  for (var q = 0; q < S.orbs.length; q++) if (S.orbs[q].kind !== "hazard") normalN++;
+  txt("已搜 " + done + " / " + normalN, 14, y0 + 38, 9.5, "rgba(255,255,255,.42)", "left", "", "monospace");
+  if (S.hint) {
+    var hk = ORB_K[S.hint.kind], hc = ORB_COST[S.hint.kind] || 1.0;
+    txt("下一个", 14, y0 + 54, 9.5, "rgba(255,255,255,.28)", "left");
+    txt(hk.ch, 54, y0 + 54, 9.5, hk.col, "left", "700");
+    txt("-" + hc.toFixed(1) + "s", 66, y0 + 54, 9.5, "rgba(255,155,107,.9)", "left", "", "monospace");
+    if (S.lostT > 0.05) {
+      txt("今天已扣 -" + S.lostT.toFixed(1) + "s", 108, y0 + 54, 9.5, "rgba(255,155,107,.45)", "left", "", "monospace");
+    }
+  } else {
+    txt("前面没球了，赶紧走", 14, y0 + 54, 9.5, "rgba(255,255,255,.24)", "left");
+  }
+
+  if (haz > 0) {
+    txt("闷囊 " + haz, W - 14, y0 + 38, 10, "rgba(255,107,107,.75)", "right", "", "monospace");
+  }
+  txt("已走 " + Math.round(S.carV) + " 户", W - 14, y0 + 54, 10, "rgba(255,207,122,.7)", "right", "", "monospace");
+
+  // 本日进度：时间条（剩多少白天）
+  var mw = W - 28, mx = 14, my = y0 + 74;
   ctx.fillStyle = "rgba(255,255,255,.09)";
   ctx.fillRect(mx, my - 3, mw, 4);
+  var k = clamp(S.stageT / DAY_TRAVEL, 0, 1);
   ctx.fillStyle = "#ffcf7a";
-  ctx.fillRect(mx, my - 3, mw * clamp(S.carV / ROWS, 0, 1), 4);
+  ctx.fillRect(mx, my - 3, mw * k, 4);
+  // 扣掉的那一段标红
+  if (S.lostT > 0.05) {
+    var lostW = mw * clamp(S.lostT / DAY_TRAVEL, 0, 1);
+    var lx = Math.max(mx, mx + mw * k - lostW);
+    ctx.fillStyle = "rgba(255,107,107,.55)";
+    ctx.fillRect(lx, my - 3, mw * k - (lx - mx), 4);
+  }
 }
 
 function drawTurboBtn(rx, cy) {
@@ -1138,11 +1215,14 @@ function drawTurboBtn(rx, cy) {
 }
 
 function drawDuskPanel(y0) {
-  txt("黄昏 · 布防（15 秒）", 14, y0 + 15, 11, "#9fb0c8", "left", "700");
-  txt("点车道格子放建筑 · 建筑只保一夜", 14, y0 + 32, 9.5, "rgba(255,255,255,.26)", "left");
+  var left = Math.max(0, Math.ceil(DAY_DUSK - S.stageT));
+  txt("黄昏 · 布防", 14, y0 + 15, 11, "#9fb0c8", "left", "700");
+  txt(left + "s", 14 + 58, y0 + 15, 11, left <= 8 ? "#ffcf7a" : "rgba(159,176,200,.45)", "left", "700", "monospace");
+  txt("点格子放建筑 · 只保一夜", 14, y0 + 32, 9, "rgba(255,255,255,.26)", "left");
+  txt("木 " + S.wood, W - 14, y0 + 15, 10, "#e2d6bb", "right", "700", "monospace");
 
   // 建造选择条
-  var cx = 12, cy = y0 + 62, bw = 64, bh = 40;
+  var cx = 12, cy = y0 + 60, bw = 64, bh = 38;
   for (var i = 0; i < BUILD_ORDER.length; i++) {
     var key = BUILD_ORDER[i], def = BUILD[key];
     var on = S.buildType === key;
@@ -1157,8 +1237,14 @@ function drawDuskPanel(y0) {
     S.btnBuild[i] = { x: bx, y: cy - bh / 2, w: bw, h: bh, key: key };
   }
 
-  txt("木 " + S.wood, W - 14, y0 + 15, 10, "#e2d6bb", "right", "700", "monospace");
-  txt("跳过 →", W - 14, y0 + 34, 10, "rgba(255,255,255,.4)", "right");
+  /* 跳过：布过 3 秒之后才亮，免得手滑点掉 */
+  var sw = 74, sh = 28, sx = W - 14 - sw, sy = y0 + 96;
+  var hot = S.stageT > 3;
+  box(sx, sy, sw, sh, hot ? "rgba(159,176,200,.55)" : "rgba(255,255,255,.10)", "rgba(255,255,255,.03)", 14);
+  txt("跳过 →", sx + sw / 2, sy + sh / 2, 10.5, hot ? "rgba(255,255,255,.78)" : "rgba(255,255,255,.22)", "center", "600");
+  S.btnSkip = { x: sx, y: sy, w: sw, h: sh, ok: hot };
+
+  txt(hot ? "布置完了就跳" : "布完再跳", 14, y0 + 110, 9, "rgba(255,255,255,.22)", "left");
 }
 
 function drawNightPanel(y0) {
@@ -1300,10 +1386,10 @@ function onDown(e) {
 
   // 底部按钮优先
   if (S.stage === "dusk") {
+    if (S.btnSkip && S.btnSkip.ok && hit(p, S.btnSkip)) { enterNight(); return; }
     for (var i = 0; i < S.btnBuild.length; i++) {
       if (hit(p, S.btnBuild[i])) { S.buildType = S.btnBuild[i].key; return; }
     }
-    if (p.y > baseY + 40 && p.y < baseY + 70 && p.x > W - 60) { enterNight(); return; }
   }
   if (p.y > baseY + 34 && p.y < baseY + 62 && p.x > W - 62) {
     S.turbo = S.turbo === 1 ? 2 : 1;
@@ -1324,7 +1410,7 @@ function onDown(e) {
 }
 
 function onMove(e) {
-  if (!dragging || S.stage !== "travel" || S.searching || S.over) return;
+  if (!dragging || S.stage !== "travel" || S.over) return;
   var p = toLocal(e);
   var dx = p.x - dragX;
   var col = clamp(dragCol0 + dx / 34, 0, LANES - 1);
@@ -1378,6 +1464,14 @@ window.YY = {
   nextDay: nextDay,
   enterDusk: enterDusk,
   enterNight: enterNight,
+
+  /* 单步推进：调试用，可以精确停在撞击那一帧 */
+  tick: function (dt) {
+    if (S.stage === "travel") updateTravel(dt);
+    else if (S.stage === "dusk") updateDusk(dt);
+    else updateNight(dt);
+    updateFx(dt);
+  },
 
   /* 自动试玩：不渲染，按固定步长快进，用来验证流程与数值
      mode = "greedy"（见球就撞） / "smart"（缺什么才撞，其余躲开） */

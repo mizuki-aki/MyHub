@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 文字占位 Demo 说明（v2.6）</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:20px 0 8px}
+  h3:first-of-type{margin-top:12px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c9d0e0;color:var(--ink)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  del{background:var(--delbg);color:var(--del);text-decoration:line-through;padding:0 3px;border-radius:3px}
+  ins{background:var(--insbg);color:var(--ins);text-decoration:none;padding:0 3px;border-radius:3px;font-weight:600}
+  .link{display:inline-block;margin-top:10px;padding:10px 18px;border-radius:999px;
+    background:var(--daybg);color:var(--day);font-size:13.5px;font-weight:600;text-decoration:none;
+    border:1px solid #f6dcc0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Nightfall Glow · Text Placeholder Demo</div>
+  <h1>永夜微光 · 文字占位 Demo（v2.6）</h1>
+  <p class="sub">
+    这一版只改了三件事：<b>白天不再因为撞球停车</b>、<b>车速摊平到人能想清楚</b>、<b>黄昏给到 30 秒并且可以跳过</b>。
+    改完之后整条数值链都得重算，下面把重算过程写清楚。
+  </p>
+  <div class="status">已可玩 · 7 局自动试玩全部通关 · 89~90 天到 800 户 · core.js 一行未改</div>
+
+  <div class="toc">
+    <a href="#what">这三条怎么落的</a>
+    <a href="#model">碰撞模型前后对比</a>
+    <a href="#how">怎么玩</a>
+    <a href="#cost">为什么白天变成 22 秒</a>
+    <a href="#numbers">数值表</a>
+    <a href="#sim">自动试玩</a>
+    <a href="#bugs">改出来的三个新问题</a>
+    <a href="#todo">还没做的</a>
+  </div>
+
+  <section id="what">
+    <h2><span class="n">01</span>这三条怎么落的</h2>
+
+    <h3>① 20 秒白天够 —— 保留，但因为下面第二条变成了 22 秒</h3>
+    <p class="lead">
+      你说「够」，所以不往回缩。之所以最后还是 +2 秒，是第二条的连锁反应：撞球改成扣时间之后，
+      白天要留出被扣的余量，否则撞三个球天就黑了。<b>2 秒是给"被扣掉"的那部分预留的空间，不是把节奏拖长。</b>
+    </p>
+
+    <h3>② 撞球不停车 —— 顿一下 + 扣时间</h3>
+    <p class="lead">这一条是核心，下面单独一节讲。简单说：</p>
+    <table>
+      <tr><th style="width:150px">环节</th><th>现在的做法</th></tr>
+      <tr><td>车</td><td><b>不停</b>。撞击瞬间车速降到 42%，持续 0.22 秒，然后自己恢复。</td></tr>
+      <tr><td>车的样子</td><td>车身按正弦抖动 3 像素，外框从暖黄变红，再套一圈红环，0.22 秒内散掉。</td></tr>
+      <tr><td>代价</td><td>直接从<b>当天剩余的白天时间</b>里扣 <code>0.7~1.3 秒</code>（按球的种类），扣掉的部分在底部时间条上标红。</td></tr>
+      <tr><td>反馈</td><td>球的位置飘出 <code>-1.3s</code>；底部面板写「下一个 料 -1.3s　今天已扣 -4.2s」。</td></tr>
+    </table>
+
+    <h3>③ 黄昏 30 秒 + 跳过</h3>
+    <table>
+      <tr><th style="width:150px">项</th><th>做法</th></tr>
+      <tr><td>时长</td><td><code>15</code> → <code>30</code> 秒</td></tr>
+      <tr><td>跳过按钮</td><td>面板右下角，布防满 3 秒后才亮。<b>3 秒前点不动</b>，防手滑。</td></tr>
+      <tr><td>其他入口</td><td>键盘 <code>空格</code> 同样能跳。夜里原来的 ×1/×2 倍速按钮保留。</td></tr>
+    </table>
+    <div class="good">
+      <b>为什么是 3 秒才亮：</b>布防是唯一需要你动脑的环节。如果一进来就能点跳过，
+      手指会习惯性地点掉它，然后夜里被打穿。给 3 秒的「冷静期」，逼你看一眼前面的阵型。
+    </div>
+  </section>
+
+  <section id="model">
+    <h2><span class="n">02</span>碰撞模型前后对比</h2>
+    <p class="lead">
+      先说一个意外的数学结论：<b>「停车搜刮」和「扣时间」在数值上是等价的</b>。
+      停车 1.4 秒，这 1.4 秒里车走 0 户；扣掉 1.4 秒，白天就少 1.4 秒。两条路一天走出来的户数一模一样。
+    </p>
+    <p>
+      所以这次改动<b>不是数值平衡调整，是手感调整</b>。真正的差别在于「车怎么动」：
+    </p>
+    <table>
+      <tr><th style="width:150px">项</th><th style="width:180px">v2.5（停车搜刮）</th><th style="width:180px">v2.6（顿挫扣时）</th><th>差别</th></tr>
+      <tr>
+        <td>每户耗时</td>
+        <td class="num"><del>0.55 s</del></td>
+        <td class="num"><ins>1.50 s</ins></td>
+        <td>慢了 <b>2.7 倍</b></td>
+      </tr>
+      <tr>
+        <td>球的屏幕速度</td>
+        <td class="num">56 px/s</td>
+        <td class="num"><ins>21 px/s</ins></td>
+        <td>肉眼可见地慢下来</td>
+      </tr>
+      <tr>
+        <td>一天里的节奏</td>
+        <td>冲 0.55 秒 → <b>急停 1.4 秒</b> → 再冲</td>
+        <td><ins>匀速 1.5 秒 → 顿 0.22 秒 → 继续匀速</ins></td>
+        <td>从「一段段顿挫」变成「连续可预判」</td>
+      </tr>
+      <tr>
+        <td>撞球代价</td>
+        <td>停住的时间白流，玩家看不见损失了多少</td>
+        <td><ins>时间条上一段变红，飘出 -1.3s</ins></td>
+        <td>代价从「感觉」变成「数字」</td>
+      </tr>
+      <tr>
+        <td>换道时机</td>
+        <td>停下来的时候可以随便换，冲起来就来不及</td>
+        <td><ins>全程可换，但要提前看</ins></td>
+        <td>决策窗口恒定，不靠赌</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      <b>「车速太快」的根因找到了。</b>不是总时长 20 秒的问题，是 <code>SEC_PER_HOUSE = 0.55</code> 这个值
+      ——车在一户上只花半秒，一秒钟窜两户，而撞球又强制停 1.4 秒。
+      合起来就是「猛冲一下、急刹、再猛冲」，你的眼睛跟不上冲刺段，不是跟不上总节奏。
+      把每户摊到 1.5 秒、把急刹换成顿挫，冲刺段就没了。
+    </div>
+
+    <h3>具体扣多少</h3>
+    <table>
+      <tr><th style="width:130px">球</th><th class="num" style="width:110px">扣时</th><th>为什么要撬更久</th></tr>
+      <tr><td>散装封条</td><td class="num">0.7 s</td><td>袋子一扯就开</td></tr>
+      <tr><td>罐头封条</td><td class="num">0.9 s</td><td>要撬</td></tr>
+      <tr><td>药箱封条</td><td class="num">1.1 s</td><td>要拆扣</td></tr>
+      <tr><td>料包封条</td><td class="num">1.3 s</td><td>捆得最死，也最值钱</td></tr>
+      <tr><td>闷囊</td><td class="num"><b>0.25 s</b></td><td>一下就炸，代价在耐久不在时间</td></tr>
+    </table>
+    <p class="small">
+      换算：撞一个普通球 ≈ 少走半户。这个比例是刻意压低的——如果做成「一球一户」，
+      撞满十几个球当天就原地不动了，取舍会变成「只能二选一」，太硬。
+    </p>
+  </section>
+
+  <section id="how">
+    <h2><span class="n">03</span>怎么玩</h2>
+    <p class="lead">打开 <code>demo/v25_text.html</code> 就是完整一局，点「开始」即可。竖屏，鼠标拖拽或方向键都能玩。</p>
+    <table>
+      <tr><th style="width:88px">阶段</th><th style="width:80px">时长</th><th>你要做的事</th></tr>
+      <tr>
+        <td><span class="tag t-day">白天</span></td><td class="num">22 秒</td>
+        <td>左右换道。撞上球<b>不会停车</b>，只顿一下，然后从白天时间里扣 0.7~1.3 秒。<br>
+        <span class="small">核心取舍：撞得越多，当天走得越少。<b>车门前的球数 × 时间，就是你的里程预算。</b></span></td>
+      </tr>
+      <tr>
+        <td><span class="tag t-ask">黄昏</span></td><td class="num">30 秒</td>
+        <td>点车前方 8 排的格子放建筑。布完点右下「跳过 →」直接进夜。<br>
+        <span class="small">布防满 3 秒后跳过按钮才亮。</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag t-night">夜晚</span></td><td class="num">30 秒</td>
+        <td>怪从远处一格格压下来。篝火灼烧、箭塔点射、油桶爆炸、信标减速。<br>
+        <span class="small">挡不住的怪摸到车 → 掉耐久。耐久归零就结束。</span></td>
+      </tr>
+    </table>
+    <div class="good">
+      <b>胜利只有一条：</b>走满 800 户到救援中心。100 天是<b>时限</b>——活到 100 天但没走到，一样算输。
+    </div>
+    <p class="small">
+      倍速按钮在夜里；方向键 1~5 切换建筑，空格跳黄昏。底部那行「下一个 料 -1.3s」是给你做预算用的，
+      看一眼就知道这颗值不值得撞。
+    </p>
+  </section>
+
+  <section id="cost">
+    <h2><span class="n">04</span>为什么白天变成 22 秒</h2>
+    <p class="lead">这是这一轮唯一一个我主动加大的数，得解释一下，因为它和你的第 ① 条看起来矛盾。</p>
+
+    <h3>先算一笔账</h3>
+    <p>把三个约束摆在一起：</p>
+    <table>
+      <tr><th style="width:190px">约束</th><th>来源</th></tr>
+      <tr><td>一天 15 个球</td><td>你的第 11 条指令</td></tr>
+      <tr><td>撞球要扣时间</td><td>你这一轮的第 ② 条</td></tr>
+      <tr><td>车速必须慢到能想清楚</td><td>你这一轮的第 ② 条</td></tr>
+    </table>
+    <p>
+      撞球扣时间意味着：白天总时长 = 行驶时间 + 被扣掉的时间。而车速慢意味着每户占的行驶时间更长。
+      两者相乘，一天能走的户数会被压到很低。实测：
+    </p>
+    <table>
+      <tr><th style="width:120px">白天</th><th class="num" style="width:130px">每户耗时</th><th class="num" style="width:150px">实际日行</th><th class="num" style="width:130px">到 800 户</th><th>结论</th></tr>
+      <tr>
+        <td class="num">20 s</td><td class="num">1.50 s</td><td class="num">约 7.7 户</td><td class="num">104 天</td>
+        <td><b>超时</b>，100 天走不完</td>
+      </tr>
+      <tr>
+        <td class="num"><ins>22 s</ins></td><td class="num"><ins>1.50 s</ins></td><td class="num"><ins>约 9.4 户</ins></td><td class="num"><ins>89 天</ins></td>
+        <td><ins>留 11 天余量</ins></td>
+      </tr>
+      <tr>
+        <td class="num">24 s</td><td class="num">1.50 s</td><td class="num">约 10.4 户</td><td class="num">81 天</td>
+        <td>余量太多，时限又变成摆设</td>
+      </tr>
+    </table>
+
+    <div class="ask">
+      <b>一个附带的好处：</b>100 天这个数字第一次真的有牙了。
+      之前 v2.5 是 75 天到终点、留 25 天空余，等于时限形同虚设；
+      现在 89 天到、留 11 天，你玩到后半程会真的开始算「今天必须走够几户」。
+    </div>
+
+    <p class="small">
+      还想更快一点的话，改一个数就行：<code>SEC_PER_HOUSE</code> 从 1.50 调到 1.75，一天就只走 8 户，能拖到 100 天出头；
+      调到 1.30，会缩到 82 天。所有结论都在这一个变量上。
+    </p>
+  </section>
+
+  <section id="numbers">
+    <h2><span class="n">05</span>数值表（demo 当前值）</h2>
+
+    <h3>白天</h3>
+    <table>
+      <tr><th>项</th><th class="num">值</th><th>项</th><th class="num">值</th></tr>
+      <tr><td>白天时长</td><td class="num">22 s</td><td>每户耗时</td><td class="num"><ins>1.50 s</ins></td></tr>
+      <tr><td>球数</td><td class="num">15</td><td>闷囊数</td><td class="num">2~3</td></tr>
+      <tr><td>撞球顿挫</td><td class="num">0.22 s</td><td>顿挫期车速</td><td class="num">42%</td></tr>
+      <tr><td>撞球扣时</td><td class="num">0.7~1.3 s</td><td>闷囊炸车</td><td class="num">−5 耐久</td></tr>
+      <tr><td>油耗</td><td class="num"><ins>0.85 / 户</ins></td><td>油尽惩罚</td><td class="num">车速减半</td></tr>
+      <tr><td>药箱</td><td class="num">+16 耐久</td><td>白天自修</td><td class="num">0.1 / s</td></tr>
+    </table>
+
+    <h3>黄昏 / 夜晚</h3>
+    <table>
+      <tr><th>项</th><th class="num">值</th><th>项</th><th class="num">值</th></tr>
+      <tr><td>黄昏时长</td><td class="num"><ins>30 s</ins></td><td>跳过解锁</td><td class="num">满 3 s</td></tr>
+      <tr><td>夜晚时长</td><td class="num">30 s</td><td>每晚出怪</td><td class="num">min(14, 3+天数×0.45)</td></tr>
+      <tr><td>怪血</td><td class="num">52 + 天数×1.6</td><td>怪速</td><td class="num">0.62 户/s</td></tr>
+      <tr><td>怪打车</td><td class="num">−8 耐久</td><td>出怪间隔</td><td class="num">max(0.55, 2.6−天数×0.03)</td></tr>
+    </table>
+
+    <h3>建筑</h3>
+    <table>
+      <tr><th>建筑</th><th class="num">木</th><th class="num">血</th><th class="num">伤害</th><th class="num">范围</th><th>作用</th></tr>
+      <tr><td>篝火</td><td class="num">10</td><td class="num">180</td><td class="num">16 /s</td><td class="num">2.4 户</td><td>范围内持续灼烧</td></tr>
+      <tr><td>箭塔</td><td class="num">20</td><td class="num">140</td><td class="num">14 /发</td><td class="num">4.2 户</td><td>每秒一发，优先打最靠前的</td></tr>
+      <tr><td>路障</td><td class="num">6</td><td class="num">260</td><td class="num">—</td><td class="num">—</td><td>挡路，拖时间</td></tr>
+      <tr><td>油桶</td><td class="num">12</td><td class="num">60</td><td class="num">46</td><td class="num">1.5 户</td><td>怪贴上来就炸，一次性</td></tr>
+      <tr><td>信标</td><td class="num">35</td><td class="num">120</td><td class="num">—</td><td class="num">2.6 户</td><td>范围内怪减速 45%</td></tr>
+    </table>
+    <p class="small">怪的血量和伤害比原版 <code>core.js</code> 那套「三系数全开」的成长曲线慢了一半——那是上一轮沙盘验证的结论。</p>
+  </section>
+
+  <section id="sim">
+    <h2><span class="n">06</span>自动试玩</h2>
+    <p class="lead">
+      demo 内置 <code>YY.sim(天数, 策略)</code>，不渲染、按 1/60 秒步长快进。两种策略：
+      <code>greedy</code>（见球就撞）、<code>smart</code>（缺资源才撞，其余躲开）。
+    </p>
+
+    <div class="kpi">
+      <div class="k"><b>89 天</b><span>到 800 户的中位数</span></div>
+      <div class="k"><b>7 / 7</b><span>局全部通关</span></div>
+      <div class="k"><b>11 天</b><span>剩余到时限</span></div>
+      <div class="k"><b>0.4 秒</b><span>局间标准差（本版极稳）</span></div>
+    </div>
+
+    <table>
+      <tr><th>策略</th><th class="num">局数</th><th class="num">抵达天数</th><th class="num">最终门牌</th><th class="num">剩余木</th><th class="num">剩余油</th><th class="num">剩余耐久</th><th class="num">图纸</th></tr>
+      <tr><td>greedy</td><td class="num">5</td><td class="num">89 / 89 / 89 / 89 / 90</td><td class="num">800~807</td><td class="num">165~195</td><td class="num">82~95</td><td class="num">127~140</td><td class="num">55~64</td></tr>
+      <tr><td>smart</td><td class="num">2</td><td class="num">89 / 89</td><td class="num">800 / 801</td><td class="num">145~167</td><td class="num">38~93</td><td class="num">135</td><td class="num">—</td></tr>
+    </table>
+
+    <h3>几个能对上账的数字</h3>
+    <table>
+      <tr><th style="width:190px">指标</th><th class="num" style="width:130px">每局总量</th><th class="num" style="width:120px">折每天</th><th>说明</th></tr>
+      <tr><td>搜刮</td><td class="num">~685 次</td><td class="num">7.7 次</td><td>一天 12~13 个普通球，撞掉 8 个左右，剩下的躲开</td></tr>
+      <tr><td>闷囊</td><td class="num">~120 个</td><td class="num">1.35 个</td><td>每天 2~3 个，撞一半</td></tr>
+      <tr><td>放倒</td><td class="num">~1070 只</td><td class="num">12 只</td><td>与每晚出怪数吻合，说明防线没漏</td></tr>
+      <tr><td>建造</td><td class="num">~945 座</td><td class="num">10.6 座</td><td>每夜 10~11 座，木头刚好花完</td></tr>
+      <tr><td>图纸</td><td class="num">~60 张</td><td class="num">0.67 张</td><td>正好对上 62 层卡池，不多不少</td></tr>
+    </table>
+
+    <div class="good">
+      <b>本版比 v2.5 稳得多。</b>v2.5 的局间差距是 27~76 天（因为闷囊伤害是必然的、药箱靠运气碰），
+      这一版 7 局全部落在 89~90 天。原因是药箱固定在 v=6 和 v=11，闷囊伤害压到 5，白天满油自修兜底。
+    </div>
+  </section>
+
+  <section id="bugs">
+    <h2><span class="n">07</span>改出来的三个新问题</h2>
+    <p class="lead">这三个都是改完跑自动试玩才暴露的，不是设计问题，是数值链没接上。</p>
+
+    <table>
+      <tr><th style="width:180px">现象</th><th style="width:230px">根因</th><th>怎么修的</th></tr>
+      <tr>
+        <td><b>料包永远拿不到</b></td>
+        <td>料包原本固定在最后两排（v=14、15）。但车速摊平后一天只走 9~10 户，<b>最后 5 排一次都没走到过</b>。</td>
+        <td>料包移到 v=8、v=9 —— 一天能走到的尽头。想拿就得少撞前面的球，取舍才成立。</td>
+      </tr>
+      <tr>
+        <td><b>图纸从 82 张涨到 210 张</b></td>
+        <td>料包能拿到之后，每天稳定 2 个料包各给 1 张图纸。而卡池只有 62 层，直接溢出三倍。</td>
+        <td>料包改成 30% 概率夹带图纸。89 天掉 55~64 张，正好贴合卡池。</td>
+      </tr>
+      <tr>
+        <td><b>油掉到 0</b></td>
+        <td>油耗 1 点/户 × 日行 9.3 户 = 9.3 点/天，而罐头日供约 10 点，一次脸黑就见底。油尽车速减半，会连锁拖慢里程。</td>
+        <td>油耗降到 0.85/户。现在结算时剩 82~95 点，有稳定盈余但不溢出。</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      <b>还有一个我顺手改掉的旧毛病：</b>每天结束算门牌用的是 <code>Math.floor(carV)</code>，
+      也就是每天白丢半户。89 天累积丢 40 多户，等于凭空多出四天。改成四舍五入。
+    </div>
+  </section>
+
+  <section id="todo">
+    <h2><span class="n">08</span>还没做的</h2>
+    <table>
+      <tr><th style="width:190px">项</th><th>说明</th></tr>
+      <tr><td>卡池与抽卡</td><td>图纸现在只是个数。18 张卡 / 62 层还没接进来——要等你把卡的风味句写完。</td></tr>
+      <tr><td>事件</td><td>v2.3 定的 10 个事件一个都没做。</td></tr>
+      <tr><td>存档</td><td>刷新就从头开始。</td></tr>
+      <tr><td>音效</td><td>零音频。</td></tr>
+      <tr><td>章节切换演出</td><td>只在 HUD 上换个字，没有过场。</td></tr>
+      <tr><td>真机适配</td><td>只在 Chrome 390×844 下验过。微信开发者工具和真机还没跑。</td></tr>
+      <tr><td>回填 core.js</td><td><b>一行还没动。</b>等这三条手感确认了再动。</td></tr>
+    </table>
+
+    <div class="ask">
+      <b>这一轮只要三句话的反馈：</b><br>
+      ① 撞球顿一下再扣时间，这个力度对不对（会不会还是觉得赶）<br>
+      ② 22 秒里走 9 户，眼睛跟得上吗<br>
+      ③ 黄昏 30 秒够不够布完，跳过按钮的位置顺不顺手
+    </div>
+
+    <a class="link" href="../demo/v25_text.html">打开 demo 直接玩 →</a>
+    <a class="link" href="../index.html" style="margin-left:8px">回目录</a>
+  </section>
+
+  <p class="small" style="margin-top:26px">
+    文档生成于 2026-10-24 · 对应 <code>demo/v25_text.html</code> · 上一版说明见
+    <a href="文字占位Demo_v2.5.html">v2.5</a>
+  </p>
+
+</div>
+</body>
+</html>
