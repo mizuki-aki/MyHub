@@ -311,7 +311,9 @@ function enterDusk() {
   S.orbs = [];
   if (S.totalHouse >= HOUSE_TOTAL) { win(); return; }
   if (checkMile()) return;              // 里程碑优先，别被布防提示盖掉
-  say("小鱼：天亮之前，把路堵上。", 2.4);
+  if (S.day === 1) say("小鱼：点下面的建筑，放进车前面的格子里。放完点「跳过」。", 3.2);
+  else say("小鱼：天亮之前，把路堵上。", 2.4);
+  saveGame();
 }
 
 function enterNight() {
@@ -319,7 +321,8 @@ function enterNight() {
   S.spawnT = 0.5; S.spawned = 0;
   S.waveN = Math.min(14, 3 + Math.floor(S.day * 0.45));
   S.buildCd = 0;
-  say("小鱼：它们来了。", 1.6);
+  say(S.day === 1 ? "小鱼：它们只冲车来。篝火和塔会替你打。" : "小鱼：它们来了。", 2.2);
+  saveGame();
 }
 
 function nextDay() {
@@ -342,6 +345,7 @@ function nextDay() {
   S.bump = 0; S.lostT = 0; S.hint = null;
   newOrbs();
   say("第 " + S.day + " 天 · " + chapterOf(S.totalHouse), 2.2);
+  saveGame();
 }
 
 /* 每走过十分之一，小鱼报一次。跨多档时只报最新那档，不补播堆叠 */
@@ -358,8 +362,8 @@ function chapterOf(house) {
   return CHAPTERS[clamp(i, 0, 4)];
 }
 
-function win() { S.over = true; S.won = true; S.overT = 0; updateBest(); vib("medium"); }
-function lose(reason) { S.over = true; S.won = false; S.overReason = reason; S.overT = 0; updateBest(); vib("heavy"); }
+function win() { S.over = true; S.won = true; S.overT = 0; updateBest(); clearSave(); vib("medium"); }
+function lose(reason) { S.over = true; S.won = false; S.overReason = reason; S.overT = 0; updateBest(); clearSave(); vib("heavy"); }
 
 /* ============================ 8. 白天 ============================ */
 /* 撞开一个球：车不停，只顿一下，代价从当天剩下的白天时间里扣 */
@@ -401,6 +405,12 @@ function hitOrb(o) {
 function updateTravel(dt) {
   S.stageT += dt;
   if (S.bump > 0) S.bump = Math.max(0, S.bump - dt);
+
+  /* 第 1 天教学：车开起来之后补一句操作提示 */
+  if (S.day === 1 && !S.tut1 && S.carV > 1.0) {
+    S.tut1 = true;
+    say("小鱼：拖住屏幕左右滑，换道。", 2.6);
+  }
 
   /* --- 横移 --- */
   S.carCol += (S.carColT - S.carCol) * Math.min(1, dt * 7);
@@ -1677,6 +1687,7 @@ function toLocal(e) {
 function onDown(e) {
   if (cover) {
     var pc = toLocal(e);
+    if (coverBtnCont && hit(pc, coverBtnCont)) { continueGame(); return; }
     if (coverBtn && hit(pc, coverBtn)) startGame();
     return;
   }
@@ -1769,6 +1780,39 @@ function loadBest() {
 }
 function saveBest(rec) {
   try { if (IS_WX) wx.setStorageSync("yy_best_v1", rec); } catch (e) {}
+}
+
+/* ---- 进度存档：换日/进黄昏/进夜时保存，胜利失败清除。微信端落 storage，
+        浏览器/Node 端落在内存里（便于无头测试续玩路径） ---- */
+var SAVE_KEY = "yy_save_v1";
+var memSave = null;
+function saveGame() {
+  if (S.over) return;
+  try {
+    var snap = JSON.parse(JSON.stringify(S));
+    if (IS_WX) wx.setStorageSync(SAVE_KEY, snap);
+    else memSave = snap;
+  } catch (e) {}
+}
+function loadSave() {
+  try { if (IS_WX) return wx.getStorageSync(SAVE_KEY) || null; } catch (e) {}
+  return memSave;
+}
+function clearSave() {
+  memSave = null;
+  try { if (IS_WX) wx.removeStorageSync(SAVE_KEY); } catch (e) {}
+}
+function continueGame() {
+  var sv = loadSave();
+  if (!sv) return false;
+  S = Object.assign(newState(), sv);
+  S.btnBuild = S.btnBuild || [];
+  S.fx = S.fx || [];
+  cover = false;
+  S.paused = false;
+  last = 0;
+  say("小鱼：接着走。第 " + S.day + " 天。", 2.6);
+  return true;
 }
 function vib(kind) {
   try { if (IS_WX && wx.vibrateShort) wx.vibrateShort({ type: kind || "light" }); } catch (e) {}
@@ -1863,19 +1907,46 @@ function drawCover() {
     txt(bs, W / 2, H * 0.60 + rh * 0.2, 10, "rgba(159,176,200,.55)", "center", "", "monospace");
   }
 
-  var bw2 = Math.min(210, W * 0.56), bh2 = 44, bx2 = (W - bw2) / 2, by2 = H * 0.68;
-  ctx.save();
-  box(bx2, by2, bw2, bh2, "#ffcf7a", "rgba(255,207,122,.10)", 22);
-  ctx.restore();
-  txt("开 始", W / 2, by2 + bh2 / 2 + 1, 14, "#ffcf7a", "center", "600");
-  coverBtn = { x: bx2, y: by2, w: bw2, h: bh2 };
+  var bw2 = Math.min(210, W * 0.56), bh2 = 44, bx2 = (W - bw2) / 2;
+  var sv = loadSave();
+  var by2 = sv ? H * 0.60 : H * 0.68;
+  if (sv) {
+    /* 有进度：上面大按钮继续，下面小按钮重开 */
+    var svPct = Math.floor(clamp((sv.totalHouse || 0) / HOUSE_TOTAL, 0, 1) * 100);
+    var contY = H * 0.615;
+    ctx.save();
+    box(bx2, contY, bw2, bh2, "#7fe0b0", "rgba(127,224,176,.10)", 22);
+    ctx.restore();
+    txt("继续 · 第 " + sv.day + " 天 · " + svPct + "%", W / 2, contY + bh2 / 2 + 1, 12.5, "#7fe0b0", "center", "600");
+    coverBtnCont = { x: bx2, y: contY, w: bw2, h: bh2 };
+
+    var ry2 = contY + bh2 + 14, rh2 = 32;
+    ctx.save();
+    box(bx2, ry2, bw2, rh2, "rgba(255,207,122,.4)", "transparent", 16);
+    ctx.restore();
+    txt("重新开始", W / 2, ry2 + rh2 / 2 + 1, 11, "rgba(255,207,122,.75)", "center", "500");
+    coverBtn = { x: bx2, y: ry2, w: bw2, h: rh2 };
+    by2 = ry2;
+  } else {
+    coverBtnCont = null;
+    ctx.save();
+    box(bx2, by2, bw2, bh2, "#ffcf7a", "rgba(255,207,122,.10)", 22);
+    ctx.restore();
+    txt("开 始", W / 2, by2 + bh2 / 2 + 1, 14, "#ffcf7a", "center", "600");
+  }
 
   txt("走到路的尽头就是救援中心 · 100 天是时限", W / 2, by2 + bh2 + 26, 9.5, "rgba(159,176,200,.4)", "center");
   txt("路上每过十分之一，小鱼会告诉你一次", W / 2, by2 + bh2 + 42, 9.5, "rgba(159,176,200,.4)", "center");
 }
 
+var coverBtnCont = null;
+
 function startGame() {
+  clearSave();
   cover = false;
+  S = newState();
+  S.btnBuild = [];
+  newOrbs();
   S.paused = false;
   last = 0;
   say("小鱼：路还长。天要黑了。", 3.4);
@@ -1913,6 +1984,10 @@ GG.YY = {
   S: function () { return S; },
   start: startGame,
   isCover: function () { return cover; },
+  saveNow: saveGame,
+  cont: continueGame,
+  savedInfo: function () { var sv = loadSave(); return sv ? { day: sv.day, house: sv.totalHouse } : null; },
+  showCover: function () { cover = true; S.paused = true; },
   restart: restart,
   nextDay: nextDay,
   enterDusk: enterDusk,
