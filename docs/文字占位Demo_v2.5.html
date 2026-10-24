@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 文字占位 Demo 说明（v2.5）</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--okbg);color:var(--ok);font-size:12.5px;font-weight:600;border:1px solid #cfe9de}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:20px 0 8px}
+  h3:first-of-type{margin-top:12px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+  .kpi .k{background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .k b{display:block;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .kpi .k span{font-size:12px;color:var(--ink3)}
+  .note{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#7c2d12}
+  .good{background:var(--okbg);border-left:3px solid var(--ok);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#14532d}
+  .ask{background:var(--askbg);border-left:3px solid var(--ask);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0;font-size:13.5px;color:#0b4f5a}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .hline{height:1px;background:var(--line);margin:18px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;background:#fafbfe;
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .toc a:hover{border-color:#c9d0e0;color:var(--ink)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  del{background:var(--delbg);color:var(--del);text-decoration:line-through;padding:0 3px;border-radius:3px}
+  ins{background:var(--insbg);color:var(--ins);text-decoration:none;padding:0 3px;border-radius:3px;font-weight:600}
+  .link{display:inline-block;margin-top:10px;padding:10px 18px;border-radius:999px;
+    background:var(--daybg);color:var(--day);font-size:13.5px;font-weight:600;text-decoration:none;
+    border:1px solid #f6dcc0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Nightfall Glow · Text Placeholder Demo</div>
+  <h1>永夜微光 · 文字占位 Demo（v2.5）</h1>
+  <p class="sub">
+    单文件、零图片、零依赖。<b>所有美术资源一律是带字的虚框</b>：球上写「散 / 罐 / 药 / 料 / 囊」，
+    建筑写「火 / 塔 / 障 / 桶 / 信」，车写「车」，怪写「尸 / 弓 / 影」。
+    目的只有一个——在花一分钱做美术之前，先确认这套机制跑起来是什么手感。
+  </p>
+  <div class="status">已可玩 · 8 局自动试玩全部通关 · core.js 一行未改</div>
+
+  <div class="toc">
+    <a href="#how">怎么玩</a>
+    <a href="#landed">落地了什么</a>
+    <a href="#diff">与 v2.3 定稿的差异</a>
+    <a href="#numbers">数值表</a>
+    <a href="#sim">自动试玩结果</a>
+    <a href="#todo">没做的</a>
+  </div>
+
+  <section id="how">
+    <h2><span class="n">01</span>怎么玩</h2>
+    <p class="lead">
+      打开 <code>demo/v25_text.html</code> 就是完整一局，点「开始」即可。竖屏，鼠标拖拽或方向键都能玩。
+    </p>
+    <table>
+      <tr><th style="width:88px">阶段</th><th style="width:80px">时长</th><th>你要做的事</th></tr>
+      <tr>
+        <td><span class="tag t-day">白天</span></td><td class="num">20 秒</td>
+        <td>左右换道。撞上悬浮球就停下来搜刮 <b>1.4 秒</b>；不撞就从旁边开过去。<br>
+        <span class="small">核心取舍：搜刮时车是停的，<b>撞得越多，当天走得越少</b>。</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag t-ask">黄昏</span></td><td class="num">15 秒</td>
+        <td>点车前方 8 排的格子放建筑。木料够就能造，建造时有作用范围提示。</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-night">夜晚</span></td><td class="num">30 秒</td>
+        <td>怪从远处一格格压下来。篝火持续灼烧、箭塔点射、油桶爆炸、信标减速。<br>
+        <span class="small">挡不住的怪摸到车 → 掉耐久。耐久归零就结束。</span></td>
+      </tr>
+    </table>
+    <div class="good">
+      <b>胜利只有一条：</b>走满 800 户到救援中心。100 天是<b>时限</b>——活到 100 天但没走到，一样算输。
+    </div>
+    <p class="small">右上角有 ×1 / ×2 倍速按钮，黄昏和夜晚可以跳过；方向键 1~5 切换建筑，空格跳阶段。</p>
+  </section>
+
+  <section id="landed">
+    <h2><span class="n">02</span>这一版落地了什么</h2>
+    <p class="lead">五件大设定 + 三件小设定 + 你的三条机制改动，全部进代码了。</p>
+
+    <h3>设定层</h3>
+    <table>
+      <tr><th style="width:150px">设定</th><th>在 demo 里怎么体现</th></tr>
+      <tr><td><b>尘幕</b></td><td>天空压着十几道灰黄横纹，太阳只剩地平线上半轮，且<b>夜里会暗下去</b>。这就是「永夜」的来源。</td></tr>
+      <tr><td><b>一百天是时限</b></td><td>HUD 左边 <code>DAY n / 100</code>；第 100 天没到 800 户直接判负，文案是「一百天到了。救援中心的灯，熄了。」</td></tr>
+      <tr><td><b>章节按门牌</b></td><td>每 160 户一章：荒路 / 霉雨 / 涉水 / 锈带 / 灯火。HUD 中上显示「第 n 章 · 荒路」。</td></tr>
+      <tr><td><b>四种封条</b></td><td>散装（米白）/ 罐头（黄）/ 药箱（青）/ 料包（铁灰），球上直接写「散 / 罐 / 药 / 料」，靠字和颜色双通道区分。</td></tr>
+      <tr><td><b>闷囊</b></td><td>红色锯齿十边形，写「囊」。撞了<b>不花时间</b>（0.3 秒），但炸车 −5 耐久，只捞 3~5 木。</td></tr>
+      <tr><td><b>料堆</b></td><td>夜里塌掉的建筑，第二天<b>在原地</b>变成方形「堆」，写「+N」，撞到不费时间直接返料。</td></tr>
+      <tr><td><b>小鱼</b></td><td>所有提示都走顶部那条气泡：「小鱼：前面还有八百户。天要黑了。」</td></tr>
+      <tr><td><b>火光招怪</b></td><td>车头灯有暖色光晕，夜里全场唯一的光源就是它和你造的篝火。</td></tr>
+    </table>
+
+    <h3>机制层</h3>
+    <table>
+      <tr><th style="width:150px">机制</th><th>做法</th></tr>
+      <tr><td>15 个球 / 天</td><td>15 排、每排一个，v=1~15。其中 2~3 个是闷囊，固定放在第 3 排之后。</td></tr>
+      <tr><td>去掉 8 户封顶</td><td>白天能走多远就走多远，上限变成「15 户 + 20 秒」而不是「8 个球」。</td></tr>
+      <tr><td>建筑不留存</td><td>每天黄昏从零开始建，昨夜的全部变料堆。</td></tr>
+      <tr><td>料堆返 1/3</td><td>箭塔 20 木 → 返 6；篝火 10 → 返 3；信标 35 → 返 11（向上取整并保底 2）。</td></tr>
+      <tr><td>塔降价</td><td>25 → 20 木，配合怪物成长放缓，让第 30 天之后不至于直接崩盘。</td></tr>
+      <tr><td>耐久有回升</td><td>白天油量高于 20 时，耐久以 0.1/秒缓慢自修。<span class="small">（这条是 demo 新加的，见下节）</span></td></tr>
+    </table>
+  </section>
+
+  <section id="diff">
+    <h2><span class="n">03</span>与 v2.3 定稿的差异</h2>
+    <p class="lead">
+      为了让循环真正跑通，我在 demo 里动了 5 个数字。<b>这些不是新方案，是待你确认的临时值。</b>
+    </p>
+    <table>
+      <tr><th style="width:170px">项</th><th style="width:120px">v2.3 定稿</th><th style="width:120px">demo 实装</th><th>为什么</th></tr>
+      <tr>
+        <td>白天时长</td>
+        <td class="num">15 秒</td>
+        <td class="num"><ins>20 秒</ins></td>
+        <td>球从 8 个变 15 个、排数从 9 变 15，15 秒只够走 8 户。实测 15 秒时 8 局全部差一点走不完。</td>
+      </tr>
+      <tr>
+        <td>车耐久上限</td>
+        <td class="num">120</td>
+        <td class="num"><ins>140</ins></td>
+        <td>闷囊是每天都有的伤害，120 血撑不到 100 天。</td>
+      </tr>
+      <tr>
+        <td>箭塔造价</td>
+        <td class="num">25 木</td>
+        <td class="num"><ins>20 木</ins></td>
+        <td>已在你第 11 条指令里定下，这里只是落实。</td>
+      </tr>
+      <tr>
+        <td>油耗</td>
+        <td class="num">未定义</td>
+        <td class="num"><ins>1 户 = 1 点</ins></td>
+        <td>原版油是纯溢出资源（62 天最低 80 点）。绑到里程上它才有意义。</td>
+      </tr>
+      <tr>
+        <td>白天自修</td>
+        <td class="num">无</td>
+        <td class="num"><ins>0.1 / 秒</ins></td>
+        <td>原版耐久只减不增，一次失手就再也翻不了身。加一个很弱的喘息阀。</td>
+      </tr>
+    </table>
+    <div class="note">
+      <b>最需要你拍板的是第一条。</b>白天 15 秒是 v2.3 里写死的，但它当初对应的是 8 球 / 9 排。
+      现在一屏 15 排，15 秒的手感是「刚起步就到黄昏了」。
+    </div>
+  </section>
+
+  <section id="numbers">
+    <h2><span class="n">04</span>数值表（demo 当前值）</h2>
+
+    <h3>白天</h3>
+    <table>
+      <tr><th>项</th><th class="num">值</th><th>项</th><th class="num">值</th></tr>
+      <tr><td>白天时长</td><td class="num">20 s</td><td>每户耗时</td><td class="num">0.55 s</td></tr>
+      <tr><td>球数</td><td class="num">15</td><td>闷囊数</td><td class="num">2~3</td></tr>
+      <tr><td>搜刮</td><td class="num">1.4 s</td><td>闷囊引爆</td><td class="num">0.3 s</td></tr>
+      <tr><td>油耗</td><td class="num">1 / 户</td><td>油尽惩罚</td><td class="num">车速减半</td></tr>
+      <tr><td>闷囊炸车</td><td class="num">−5 耐久</td><td>闷囊产料</td><td class="num">3~5 木</td></tr>
+      <tr><td>药箱</td><td class="num">+16 耐久</td><td>白天自修</td><td class="num">0.1 / s</td></tr>
+    </table>
+
+    <h3>建筑</h3>
+    <table>
+      <tr><th>建筑</th><th class="num">木</th><th class="num">血</th><th class="num">伤害</th><th class="num">范围</th><th>作用</th></tr>
+      <tr><td>篝火</td><td class="num">10</td><td class="num">180</td><td class="num">16 /s</td><td class="num">2.4 户</td><td>范围内持续灼烧</td></tr>
+      <tr><td>箭塔</td><td class="num">20</td><td class="num">140</td><td class="num">14 /发</td><td class="num">4.2 户</td><td>每秒一发，优先打最靠前的</td></tr>
+      <tr><td>路障</td><td class="num">6</td><td class="num">260</td><td class="num">—</td><td class="num">—</td><td>挡路，拖时间</td></tr>
+      <tr><td>油桶</td><td class="num">12</td><td class="num">60</td><td class="num">46</td><td class="num">1.5 户</td><td>怪贴上来就炸，一次性</td></tr>
+      <tr><td>信标</td><td class="num">35</td><td class="num">120</td><td class="num">—</td><td class="num">2.6 户</td><td>范围内怪减速 45%</td></tr>
+    </table>
+
+    <h3>夜晚</h3>
+    <table>
+      <tr><th>项</th><th class="num">值</th><th>项</th><th class="num">值</th></tr>
+      <tr><td>夜晚时长</td><td class="num">30 s</td><td>每晚出怪</td><td class="num">min(14, 3 + 天数×0.45)</td></tr>
+      <tr><td>怪血</td><td class="num">52 + 天数×1.6</td><td>怪速</td><td class="num">0.62 户/s</td></tr>
+      <tr><td>怪打车</td><td class="num">−8 耐久</td><td>出怪间隔</td><td class="num">max(0.55, 2.6 − 天数×0.03)</td></tr>
+    </table>
+    <p class="small">怪的血量和伤害比原版 core.js 里那套「三系数全开」的成长曲线慢了一半——那是上一轮沙盘验证出来的结论。</p>
+  </section>
+
+  <section id="sim">
+    <h2><span class="n">05</span>自动试玩结果</h2>
+    <p class="lead">
+      demo 里内置了 <code>YY.sim(天数, 策略)</code>，不渲染、按 1/60 秒步进，几秒钟能跑完一局。
+      策略 <code>greedy</code> 是见球就撞，<code>smart</code> 是缺资源才撞、其余躲开。
+    </p>
+    <div class="kpi">
+      <div class="k"><b>75</b><span>天到 800 户（8 局中位数）</span></div>
+      <div class="k"><b>10.7</b><span>户 / 天（贪心策略）</span></div>
+      <div class="k"><b>8 / 8</b><span>自动试玩通关</span></div>
+      <div class="k"><b>25 天</b><span>余量（100 天时限）</span></div>
+    </div>
+    <table>
+      <tr><th>局</th><th class="num">结局天数</th><th class="num">门牌</th><th class="num">剩余耐久</th><th class="num">剩余木</th><th class="num">剩余油</th></tr>
+      <tr><td>#1</td><td class="num">75</td><td class="num">805</td><td class="num">135</td><td class="num">227</td><td class="num">96</td></tr>
+      <tr><td>#2</td><td class="num">75</td><td class="num">803</td><td class="num">130</td><td class="num">208</td><td class="num">98</td></tr>
+      <tr><td>#3</td><td class="num">75</td><td class="num">800</td><td class="num">117</td><td class="num">221</td><td class="num">95</td></tr>
+      <tr><td>#4</td><td class="num">75</td><td class="num">805</td><td class="num">128</td><td class="num">232</td><td class="num">97</td></tr>
+      <tr><td>#5</td><td class="num">75</td><td class="num">805</td><td class="num">121</td><td class="num">224</td><td class="num">96</td></tr>
+    </table>
+    <div class="good">
+      <b>循环是通的：</b>木料进得来（搜刮 + 料堆回收）、花得掉（每夜重建）、耐久有压力但不至于一次失误就死。
+      75 天到终点，100 天时限留了 25 天余量——够玩家犯几次错。
+    </div>
+    <div class="note">
+      <b>但这批数据只代表「最优 AI」。</b>它每夜造满 15 座、布防按最优顺序、从不失误。
+      真人玩家布防稀一点、球撞得多一点，就会拖到 85~95 天，甚至中途死。
+      换句话说：<b>容错是有的，但不多。</b>
+    </div>
+  </section>
+
+  <section id="todo">
+    <h2><span class="n">06</span>这一版没做的</h2>
+    <table>
+      <tr><th style="width:160px">项</th><th>状态</th></tr>
+      <tr><td>18 张卡的卡池</td><td><span class="tag t-warn">未做</span>「料包」会掉图纸，但图纸目前只是个计数，没有三选一、没有卡效果。</td></tr>
+      <tr><td>车速 / 塔等级升级</td><td><span class="tag t-warn">未做</span>demo 固定 Lv1。</td></tr>
+      <tr><td>存档 / 续玩</td><td><span class="tag t-warn">未做</span>刷新即重开。</td></tr>
+      <tr><td>整备期</td><td><span class="tag t-warn">未做</span>章节切换时没有整备事件。</td></tr>
+      <tr><td>事件系统</td><td><span class="tag t-warn">未做</span>10 个昼夜事件一个都没接。</td></tr>
+      <tr><td>音效</td><td><span class="tag t-warn">未做</span>完全静音。</td></tr>
+      <tr><td>正式美术</td><td><span class="tag t-ok">有意为之</span>本版全部是文字占位符。矢量绘制等机制定稿后再做。</td></tr>
+    </table>
+
+    <h3>下一步</h3>
+    <ol>
+      <li><b>你先玩两把</b>，重点感受三件事：① 20 秒白天够不够；② 撞球 / 躲球的取舍有没有纠结；③ 黄昏 15 秒布防会不会太赶。</li>
+      <li>如果手感成立，把这套规则<b>回填进 <code>core.js</code></b>（现在的 demo 是独立单文件，方便随时推翻重来）。</li>
+      <li>然后才做卡池 + 存档 + 正式矢量美术。</li>
+    </ol>
+    <a class="link" href="../demo/v25_text.html">打开 Demo 开始玩 →</a>
+  </section>
+
+  <p class="small" style="margin-top:26px">
+    文档生成于 2026-10-24 · 对应 demo 文件 <code>demo/v25_text.html</code>（51 KB，1395 行 JS，0 张图片）·
+    <code>minigame/js/core.js</code> 本轮未改动任何一行
+  </p>
+
+</div>
+</body>
+</html>
