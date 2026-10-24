@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>永夜微光 · 方案 v2.1 可行性复核</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink2:#4a5163; --ink3:#7b8398;
+    --line:#e3e6ee; --bg:#f6f7fb; --card:#ffffff;
+    --day:#e8892b; --daybg:#fff4e6;
+    --night:#5b5ea8; --nightbg:#eef0fb;
+    --ok:#2f9e6a; --okbg:#e9f7f0;
+    --warn:#c2410c; --warnbg:#fff1eb;
+    --ask:#0f7b8a; --askbg:#e8f6f8;
+    --p0:#b91c1c; --p0bg:#fef2f2;
+    --p1:#a16207; --p1bg:#fefce8;
+    --p2:#4b5563; --p2bg:#f3f4f6;
+    --del:#9f1d1d; --delbg:#fdecec;
+    --ins:#1f7a52; --insbg:#e9f6ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px 72px;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto}
+  .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+  h1{font-size:28px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);max-width:860px}
+  .status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:6px 12px;border-radius:999px;
+    background:var(--askbg);color:var(--ask);font-size:12.5px;font-weight:600;border:1px solid #cfe9ee}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,25,40,.04)}
+  h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:600;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:22px 0 8px}
+  h3:first-of-type{margin-top:14px}
+  h4{font-size:13.5px;margin:16px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13.5px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#fafbfe;color:var(--ink2);font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f1f3f8;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:700;
+    vertical-align:middle;margin-right:6px;white-space:nowrap}
+  .t-ok{background:var(--okbg);color:var(--ok)}
+  .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-ask{background:var(--askbg);color:var(--ask)}
+  .t-day{background:var(--daybg);color:var(--day)}
+  .t-night{background:var(--nightbg);color:var(--night)}
+  .t-p0{background:var(--p0bg);color:var(--p0)}
+  .t-p1{background:var(--p1bg);color:var(--p1)}
+  .t-p2{background:var(--p2bg);color:var(--p2)}
+  .t-del{background:var(--delbg);color:var(--del);text-decoration:line-through}
+  .t-ins{background:var(--insbg);color:var(--ins)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfdff}
+  .box h4{margin:0 0 6px;font-size:13.5px}
+  .box p{margin:4px 0;font-size:13px;color:var(--ink2)}
+  .box .src{font-size:11.5px;color:var(--ink3);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  .askbox{background:var(--askbg);border:1px solid #cfe9ee;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .askbox p{margin:5px 0;font-size:13.5px;color:#0d5f6b}
+  .warnbox{background:var(--warnbg);border:1px solid #f6d8c9;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .warnbox p{margin:5px 0;font-size:13.5px;color:#8a3309}
+  .okbox{background:var(--okbg);border:1px solid #cae8da;border-radius:10px;padding:14px 16px;margin:12px 0}
+  .okbox p{margin:5px 0;font-size:13.5px;color:#1c6b48}
+  ol,ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .small{font-size:12.5px;color:var(--ink3)}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .flow .step{flex:1;min-width:140px;border-radius:10px;padding:11px 13px;border:1px solid var(--line);background:#fcfdff}
+  .flow .step b{display:block;font-size:13px;margin-bottom:2px}
+  .flow .step span{font-size:12px;color:var(--ink3)}
+  .flow .arrow{color:#c3c9d8;font-weight:700}
+  .diag{display:grid;grid-template-columns:44px 1fr 92px;gap:10px;align-items:start;
+    padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .diag:last-child{border-bottom:none}
+  .diag .idx{color:var(--ink3);font-weight:700;font-variant-numeric:tabular-nums}
+  .diag .sev{text-align:right;font-size:12px;font-weight:700}
+  .sev-3{color:var(--p0)}
+  .sev-2{color:var(--p1)}
+  .sev-1{color:var(--ink3)}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .toc a{font-size:12.5px;color:var(--ink2);text-decoration:none;padding:4px 10px;border-radius:999px;
+    background:#f3f5fa;border:1px solid var(--line)}
+  .toc a:hover{background:#e9edf6}
+  .quote{border-left:3px solid var(--day);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:13.5px}
+  .diff td:nth-child(3){font-size:13px}
+  .big{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 6px}
+  @media(max-width:860px){.big{grid-template-columns:1fr 1fr}}
+  .big .k{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:#fcfdff}
+  .big .k b{display:block;font-size:22px;line-height:1.2;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .big .k span{font-size:11.5px;color:var(--ink3);display:block;margin-top:4px}
+  .big .k.hot b{color:var(--p0)}
+  .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .badge{font-size:12px;padding:4px 10px;border-radius:6px;background:#f3f5fa;border:1px solid var(--line);color:var(--ink2)}
+  .badge b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Project 永夜微光 · 设计稿 v2.1（v2.0 修订稿）</div>
+  <h1>B 档全开的可行性复核：六个风险，六处修订</h1>
+  <p class="sub">你选了 <b>B 档 / 建筑全开 / Boss 失败走救援 / 音效默认开</b>，这四个决定我全部接受，不再动摇。本文档做三件事：先讲清<b>我打算怎么落地</b>（具体到文件和函数），再补做一轮<b>针对性的调研</b>（v2.0 只看了好评，这次专门看好评背后被骂的地方），然后<b>诚实列出 B 档做完之后会好在哪里、会坏在哪里</b>，并给出修订。结论一句话：<b>方案能做，但 v2.0 的排期是错的——第一批不该是音效。</b></p>
+  <div class="status">v2.1 复核稿 · 未动代码 · 等确认后开工</div>
+
+  <div class="toc">
+    <a href="#s00">00 一页结论</a>
+    <a href="#s01">01 我打算怎么做</a>
+    <a href="#s02">02 补做的调研</a>
+    <a href="#s03">03 优缺点分析</a>
+    <a href="#s04">04 六处修订</a>
+    <a href="#s05">05 三处新增</a>
+    <a href="#s06">06 修订后方案</a>
+    <a href="#s07">07 分批交付</a>
+    <a href="#s08">08 待你确认</a>
+  </div>
+</header>
+
+<!-- ========== 00 ========== -->
+<section id="s00">
+  <h2><span class="n">00</span>一页结论</h2>
+
+  <p class="lead">你的四个选择我照单执行。但复核完之后，<b>v2.0 里有五处排期和设计要改</b>，其中第一条如果不改，后面 85% 的工作量等于白做。</p>
+
+  <div class="big">
+    <div class="k hot"><b>118<span style="font-size:13px">分钟</span></b><span>现在单局实际时长（100 天 × 71 秒）</span></div>
+    <div class="k"><b>20<span style="font-size:13px">分钟</span></b><span>微信小游戏爆款的 D0 时长参考线</span></div>
+    <div class="k hot"><b>0<span style="font-size:13px">行</span></b><span>core.js 里的存档代码（1822 行中的存量）</span></div>
+    <div class="k"><b>80<span style="font-size:13px">次</span></b><span>100 天里会弹出的升级选择次数</span></div>
+  </div>
+
+  <h3>五处改动</h3>
+  <table class="diff">
+    <tr><th style="width:20%">v2.0 原本</th><th style="width:31%">复核发现的问题</th><th style="width:29%">v2.1 怎么改</th><th style="width:20%">后果</th></tr>
+    <tr>
+      <td>第 1 批做音效</td>
+      <td>音效是锦上添花。现在的局 118 分钟、无存档、切后台进度全丢，玩家<b>根本走不到听音效的那一天</b></td>
+      <td>第 1 批改成 <b>存档 + 章节化 + 断点续玩</b>；音效挪到第 2 批</td>
+      <td><span class="tag t-p0">致命</span></td>
+    </tr>
+    <tr>
+      <td>100 天一口气打完</td>
+      <td>118 分钟是爆款 D0 的 5.9 倍。按微信的数据，第 4、5 章的内容有 85% 的玩家永远看不到</td>
+      <td>拆成 <b>5 章 × 20 天</b>，章末结算可退，任意时刻自动存档</td>
+      <td><span class="tag t-p0">致命</span></td>
+    </tr>
+    <tr>
+      <td>章节机制：酸雨让篝火 -40%、飞行怪无视路障</td>
+      <td>这正是 Thronefall 被玩家骂得最狠的一条：<b>「来了一波全剋死你的敌人，前面投的资源全废，翻不了身」</b></td>
+      <td>所有章节机制改成<b>「换解法」而不是「废解法」</b>——篝火在酸雨里变成照明与修理，不是变废纸</td>
+      <td><span class="tag t-p0">致命</span></td>
+    </tr>
+    <tr>
+      <td>20 卡池 + 三选一，拿到就弹</td>
+      <td>100 天约 80 次全屏暂停，且最后所有人都会拿满同样的卡。Slay the Spire 的经验是：<b>「跳过」才是构筑类游戏最关键的选项</b></td>
+      <td>18 卡；<b>二选一 + 跳过换 12 木</b>；图纸入库，黄昏统一结算，一次最多 2 张</td>
+      <td><span class="tag t-p1">重要</span></td>
+    </tr>
+    <tr>
+      <td>12 个事件，每 3~5 天随机触发</td>
+      <td>Death Road to Canada 的教训：事件太密，玩家会觉得自己<b>「被剧情带着走」而不是在开车</b></td>
+      <td>10 个事件，每章固定 2 个节点（如第 3 / 17 天），<b>不随机</b>，后果全部写死</td>
+      <td><span class="tag t-p1">重要</span></td>
+    </tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>没变的部分（照你选的执行）：</b>5 种建筑全开 + 3 条升级分支、情报系统（热力条 / 波次条 / 威胁图标 / Boss 预警）、18 张卡 + 4 条进化、5 章 5 Boss + 血月夜、Boss 夜失败走救援（扣一半木头继续）、音效默认开。</p>
+  </div>
+
+  <h3>总账</h3>
+  <p>6 批，约 <b>3760 行</b>新增（v2.0 估的是 3600，多出来的 160 行是存档和探针升级），4 个新文件，回归测试 <b>78 → 约 161 项</b>。每批都能单独试玩验收，你随时可以喊停。</p>
+
+  <div class="askbox">
+    <p><b>为什么我要在这一步停下来重新算一遍：</b>不是我改主意了。是我在写 v2.0 的时候只统计了「内容够不够」，没统计「这些内容玩家能不能活着看到」。这两个数字一摆出来，排期就必须动。</p>
+  </div>
+</section>
+
+<!-- ========== 01 ========== -->
+<section id="s01">
+  <h2><span class="n">01</span>我打算怎么做</h2>
+
+  <p class="lead">这一节回答你的第一个要求：<b>先总结我要怎么做</b>。下面全部按真实代码结构写，不是概念图。</p>
+
+  <h3>1.1 现在的地基（先说清楚我动的是什么）</h3>
+  <table>
+    <tr><th>文件</th><th class="num">现状</th><th>结构</th><th>这次要动多少</th></tr>
+    <tr>
+      <td><code>minigame/js/core.js</code></td>
+      <td class="num">1822 行</td>
+      <td>已经拆得不错：<code>updateTravel / updateDusk / updateNight</code> 三段分开，<code>updateMonsters / updateBuildings / updateArrows</code> 各管一摊，绘制按 <code>drawSky / drawRoad / drawOrb / drawCar / drawBuildingOne / drawMonsterOne / drawHUD</code> 分层。<b>常量散落在 90~130 行</b>（约 40 个 <code>var</code>）。</td>
+      <td>改 8 个模块，新增约 1500 行，最终约 3300 行</td>
+    </tr>
+    <tr>
+      <td><code>minigame/game.js</code></td>
+      <td class="num">74 行</td>
+      <td>微信适配层：canvas 创建、<code>onPointer</code> / <code>onDrag</code> 桥接</td>
+      <td>加音频解锁、本地存储、前后台切换，约 +90 行</td>
+    </tr>
+    <tr>
+      <td><code>tools/test_core.js</code></td>
+      <td class="num">429 行 / 78 项</td>
+      <td>mock ctx Proxy + 受控时钟 + 手动 raf，纯 Node 跑</td>
+      <td>+83 项，共约 161 项，约 900 行</td>
+    </tr>
+    <tr>
+      <td><code>tools/balance_probe.js</code></td>
+      <td class="num">128 行</td>
+      <td>自动玩家只会躲球、不会打牌</td>
+      <td>加「贪心打牌 AI」，否则加了卡池之后探针数据全废，约 +80 行</td>
+    </tr>
+  </table>
+
+  <h3>1.2 四个新文件</h3>
+  <table>
+    <tr><th>文件</th><th class="num">估计</th><th>职责</th><th>为什么单独拆</th></tr>
+    <tr><td><code>js/save.js</code></td><td class="num">~180 行</td><td>状态序列化、版本号迁移、<code>wx.setStorageSync</code> / localStorage 双后端</td><td>存档是最容易出「老档进新版本直接报错」的地方，必须独立且带版本号</td></tr>
+    <tr><td><code>js/audio.js</code></td><td class="num">~320 行</td><td>WebAudio 合成 14 个音效 + 主音量总线 + 解锁逻辑 + 静音兜底</td><td>纯函数式，不依赖 game state，可以单独在浏览器里试听</td></tr>
+    <tr><td><code>js/cards.js</code></td><td class="num">~380 行</td><td>18 张卡定义、子池抽样、二选一算法、进化判定</td><td>卡池是数据，不该埋在 <code>makePickCards()</code> 里</td></tr>
+    <tr><td><code>js/events.js</code></td><td class="num">~300 行</td><td>10 个事件定义、5 章配置表、Boss 定义</td><td>以后加事件只改这一个文件</td></tr>
+  </table>
+
+  <h3>1.3 六个批次（顺序是这次最关键的改动）</h3>
+  <table>
+    <tr><th style="width:7%">批次</th><th style="width:26%">做什么</th><th style="width:15%">新文件</th><th class="num" style="width:9%">改动量</th><th style="width:43%">你验收时看什么（一句话）</th></tr>
+    <tr>
+      <td><b>第 1 批</b></td>
+      <td><b>存档 + 章节化 + 断点续玩</b><br><span class="small">每章 20 天、章末结算页、随时退出不丢、重开时「继续 / 新开」</span></td>
+      <td><code>save.js</code></td>
+      <td class="num">+380</td>
+      <td>玩到第 7 天，直接把浏览器关掉，重新打开——还在第 7 天黄昏</td>
+    </tr>
+    <tr>
+      <td><b>第 2 批</b></td>
+      <td><b>表现层</b><br><span class="small">14 个合成音效、4 种打击反馈、画面质感（三层绘制 + 环境叙事 + 色调层）</span></td>
+      <td><code>audio.js</code></td>
+      <td class="num">+560</td>
+      <td>静音和有声各玩一天，能明显感觉是两件事；截图前后对比不再像半成品</td>
+    </tr>
+    <tr>
+      <td><b>第 3 批</b></td>
+      <td><b>情报系统</b><br><span class="small">车道热力条、波次进度、威胁图标、Boss 提前一天预警</span></td>
+      <td>—</td>
+      <td class="num">+420</td>
+      <td>黄昏布防时你能指着屏幕说「今晚 3、4 道压力大，篝火往那放」</td>
+    </tr>
+    <tr>
+      <td><b>第 4 批</b></td>
+      <td><b>构筑系统</b><br><span class="small">18 卡 + 二选一/跳过 + 4 条进化线 + 黄昏统一结算</span></td>
+      <td><code>cards.js</code></td>
+      <td class="num">+700</td>
+      <td>连跑 5 局，5 次的卡组和打法都不一样</td>
+    </tr>
+    <tr>
+      <td><b>第 5 批</b></td>
+      <td><b>建筑体系</b><br><span class="small">路障 / 油桶 / 信号塔 + 篝火箭塔的 Lv3 二选一分支</span></td>
+      <td>—</td>
+      <td class="num">+900</td>
+      <td>5 种建筑两两之间，你都能说出「什么时候选它不选另一个」</td>
+    </tr>
+    <tr>
+      <td><b>第 6 批</b></td>
+      <td><b>节奏系统</b><br><span class="small">5 章 5 Boss、血月夜、8 个固定节点事件、救援机制</span></td>
+      <td><code>events.js</code></td>
+      <td class="num">+800</td>
+      <td>第 1 天和第 40 天玩起来不像同一个游戏</td>
+    </tr>
+  </table>
+
+  <div class="warnbox">
+    <p><b>为什么第 1 批必须是存档，而不是音效：</b>第 2~6 批总共约 3400 行，全部是在「一局能打完」这个前提下才有意义。如果一局打不完，你验收时每次只能看到前 10 天——那时候我做的 18 张卡你只会摸到 3 张，5 个 Boss 你一个都见不到。这不是浪费你的时间，是浪费 85% 的代码。</p>
+  </div>
+
+  <h3>1.4 每批我会交付什么</h3>
+  <p>六件事，每批都一样，不用你再问：</p>
+  <ol>
+    <li>改完的代码（<code>core.js</code> 及其他文件）</li>
+    <li>跑一遍 <code>tools/test_core.js</code>，全绿才算完；红了先修再给你</li>
+    <li>跑 <code>tools/balance_probe.js</code>，给出这一批之后的存活天数分布（判断有没有把平衡搞崩）</li>
+    <li>重新生成 <code>demo/preview.html</code>，你可以直接在浏览器里玩</li>
+    <li>出 2~3 张场景截图（白天 / 黄昏 / 夜晚各一张），放在 <code>screenshots/</code></li>
+    <li>更新设计文档 + 推到 GitHub（<code>mizuki-aki/MyHub</code>）</li>
+  </ol>
+
+  <h3>1.5 我会怎么改 core.js（函数级）</h3>
+  <table>
+    <tr><th style="width:30%">现有</th><th style="width:32%">改法</th><th>原因</th></tr>
+    <tr><td>90~130 行的 40 个 <code>var</code> 常量</td><td>收进一张 <code>CFG</code> 表，保留同名局部引用</td><td>5 种建筑 + 3 分支 + 5 章之后，常量会涨到 100+ 个。散着放，改一个数值要翻半天文件</td></tr>
+    <tr><td><code>reset()</code></td><td>拆成 <code>newRun(seed)</code> 和 <code>loadRun(snapshot)</code>，共用 <code>resetRun()</code></td><td>存档恢复必须走同一个初始化路径，否则会出现「读档后某个字段是 undefined」的诡异 bug</td></tr>
+    <tr><td><code>makePickCards()</code></td><td>搬到 <code>cards.js</code>，改为 <code>drawCards(S, n)</code></td><td>现在里面写死 3 张卡。18 张之后这里是数据表，不是逻辑</td></tr>
+    <tr><td><code>applyLoot()</code></td><td>图纸改记 <code>S.pendingCards++</code>，不再立刻 <code>makePickCards()</code></td><td>现在一拿到图纸就全屏弹卡 + 暂停主循环。行进中被弹 8 次，节奏碎得没法看</td></tr>
+    <tr><td><code>updateDusk()</code></td><td>拆成「情报展示 5s（停表）→ 事件选择（如有）→ 布防计时」三段</td><td>现在黄昏只有 15s。要塞情报 + 事件 + 布防三件事，不够</td></tr>
+    <tr><td><code>updateNight()</code></td><td>加 <code>waves[]</code> 配置驱动，不再用 <code>spawnTimer</code> 单一循环</td><td>Boss 夜、血月夜、5 章都要不同的波次结构</td></tr>
+    <tr><td><code>drawHUD()</code></td><td>拆出 <code>drawIntelPanel()</code> / <code>drawCardPicker()</code> / <code>drawEventDialog()</code></td><td>现在一个函数 109 行，再塞东西会失控</td></tr>
+    <tr><td>无</td><td>新增 <code>checkpoint()</code>，在每天黄昏开始时调用</td><td>存档点选在黄昏，因为这是「昨天已结算、今天还没打」的唯一干净时刻</td></tr>
+  </table>
+</section>
+
+<!-- ========== 02 ========== -->
+<section id="s02">
+  <h2><span class="n">02</span>补做的调研：v2.0 漏看的四款</h2>
+
+  <p class="lead">v2.0 的九款竞品，我看的是「它们做对了什么」。这次换一个角度：<b>看它们做对之后，被玩家骂在哪里。</b>另外补两款和我们的结构更像的产品——它们的单局时长和我们的量级一致，正好能验证「118 分钟」这个数字到底能不能接受。</p>
+
+  <h3>2.1 Dome Keeper · 2 人团队，Steam 610 万美元</h3>
+  <div class="grid2">
+    <div class="box">
+      <h4>抄什么</h4>
+      <p><b>单循环 2~3 分钟，天然就是停止点。</b>玩家原话：「一次完整循环约 2-3 分钟，所以很容易找到自然的暂停位置」。它把「一局 20-40 分钟」拆成了十几个可以随时收手的小段。</p>
+      <p><b>矿永远挖不完。</b>计时器永远比你想挖的少一点，这是它的核心张力——和我们「15 秒搜 8 个球、永远差一两个」是同一个东西。</p>
+      <p><b>资源只留 3 种。</b>开发者明确说：2 种太简单，超过 3 种信息量就过载。</p>
+      <div class="src">Bippinbits，Ludum Dare 48 的 72 小时原型，Steam「特别好评」21000+ 条</div>
+    </div>
+    <div class="box">
+      <h4>它被骂什么</h4>
+      <p><b>「每局都很爽，但打完之后觉得空」</b>——因为它没有一个 overarching goal，纯靠循环本身撑。</p>
+      <p>这一点我们反而有优势：<b>100 天 / 800 户 / 救援中心</b>本身就是一条明确的目标线。v2.0 说过我们有「双胜利」，Dome Keeper 缺的正是这个。</p>
+      <div class="src">Player reviews: 缺乏 overarching goal；同时被赞「节奏完美」</div>
+    </div>
+  </div>
+  <div class="askbox">
+    <p><b>对我们的直接含义：</b>我们的「一天」= 它的「一次循环」，是 71 秒，比它的 2-3 分钟还短。<b>这意味着我们的游戏天生就适合分次玩</b>——只要做存档。不做存档，等于把这个天然优势扔掉了。</p>
+  </div>
+
+  <h3>2.2 Death Road to Canada · 公路 + 随机事件 + 资源</h3>
+  <div class="grid2">
+    <div class="box">
+      <h4>抄什么</h4>
+      <p><b>局长由难度决定：9 天到 999 天。</b>想快就 30 分钟一局，想长就 2 小时。把「局有多长」做成玩家可选项，而不是设计者拍板。</p>
+      <p><b>事件后果全部写死，不掷骰。</b>玩家骂「纯运气」骂了十年，它靠「每个选项的代价明确」缓和了一部分。</p>
+      <p><b>士气是隐性杀手。</b>不是「血条」，是「还愿不愿意走下去」。我们的对应物可以是「车况」。</p>
+      <div class="src">Rocketcat Games，2016 年发售，十年后仍有活跃社区</div>
+    </div>
+    <div class="box">
+      <h4>它被骂什么</h4>
+      <p><b>「开车途中事件来得太快，几乎没有空隙。玩家觉得自己是被带着走，而不是在开车。」</b></p>
+      <p><b>「武器耐久、队友血量、很多东西完全不给信息」</b>——死了不知道为啥。</p>
+      <p>这两条正好对应我们要做的 S4 情报系统（做对了）和 S3 事件系统（v2.0 做错了：12 个事件、每 3~5 天一次，太密）。</p>
+      <div class="src">Kotaku / BagoGames 评测，「lack of information」被反复提到</div>
+    </div>
+  </div>
+
+  <h3>2.3 Thronefall 的差评（v2.0 只引了好评）</h3>
+  <div class="warnbox">
+    <p><b>玩家原话（中文评测）：</b>「兵种和建筑升级选项无法更换，这点是导致很难玩出畅快感的问题。举个例子：为了应付一堆怪物决定投资猎人，结果下一波全都变成攻城武器？来了一次飞行怪所以决定把农田升级防空功能，结果后面全都陆地怪？此类没办法后悔的选择，导致前面投资的资源无法完美发挥，或后面某一轮刚好来了一波全剋死你的敌人，导致很难有畅快体验。」</p>
+  </div>
+  <p>这段话，几乎一字不差地预言了我们 v2.0 的 S3 设计：</p>
+  <table>
+    <tr><th>v2.0 写的章节机制</th><th>玩家的实际感受</th></tr>
+    <tr><td>第 3 章「酸雨：篝火伤害 -40%」</td><td>「我建了三排篝火，第 41 天突然变成废纸」</td></tr>
+    <tr><td>第 4 章「飞行怪无视路障，直扑后排」</td><td>「我铺了两排路障，第 61 天开始它们没用」</td></tr>
+  </table>
+  <p>另外两条差评也要记：<b>「一局全破至少半小时起跳」</b>（我们 118 分钟，是它的 4 倍）、<b>「后面地图越来越大、玩法越来越复杂」</b>（复杂化本身也有代价）。</p>
+
+  <h3>2.4 Slay the Spire 的「跳过」——构筑类的隐藏关键</h3>
+  <div class="quote">高水平玩家在 Ascension 20 的跳过率是 40~60%。也就是说，超过一半的卡牌奖励是被主动放弃的。「跳过」不是放弃决策，是保全选择空间。而卡池越大，真正可行的牌反而越少——这叫「选择的幻觉」。</div>
+  <p>这条对我们有两个直接冲击：</p>
+  <ol>
+    <li><b>三选一必须能跳过。</b>没有跳过键，玩家会被迫拿一张「凑合的卡」，然后抱怨「这游戏净给我没用的东西」。v2.0 漏了这个键。</li>
+    <li><b>18 张卡里，8 张纯数值卡可能是陷阱。</b>如果每局只是「箭塔伤害 +20%」× 5 层，那不叫构筑，叫线性养成。所以 v2.1 把数值卡压到 6 张，机制卡提到 8 张，进化卡 4 张。</li>
+  </ol>
+
+  <h3>2.5 平台数据：118 分钟到底意味着什么</h3>
+  <table>
+    <tr><th>指标</th><th class="num">行业参考线</th><th class="num">我们（现状）</th><th>判断</th></tr>
+    <tr><td>D0 单次时长（小游戏爆款公式）</td><td class="num">1200 秒 ≈ 20 分钟</td><td class="num">7080 秒 ≈ 118 分钟</td><td><span class="tag t-p0">5.9 倍</span></td></tr>
+    <tr><td>D1 次日留存参考线</td><td class="num">&gt; 20%</td><td class="num">未知</td><td>没上线，测不了</td></tr>
+    <tr><td>单次会话低于 2 分钟</td><td class="num">玩法太浅的信号</td><td class="num">—</td><td>我们不在这个问题里</td></tr>
+    <tr><td>微信用户日均时长</td><td class="num">60 分钟（可多次累加）</td><td class="num">—</td><td><b>关键：玩家愿意一天玩 60 分钟，但不会一次坐 2 小时</b></td></tr>
+  </table>
+  <p class="small">数据来源：腾讯新闻《Puzzle 爆款公式》（D0 1200s / D1 留存 20% / D1 时长 2400s+）、微信公开课（MAU 5 亿、日均时长超 60 分钟）、QuestMobile（IAA 小游戏人均 60 分钟）。</p>
+
+  <h3>2.6 技术核实：音效「默认开」的三个坑</h3>
+  <table>
+    <tr><th style="width:26%">坑</th><th style="width:36%">现象</th><th>应对</th></tr>
+    <tr>
+      <td>WebAudio 必须由用户手势解锁</td>
+      <td>iOS 上首次进游戏没声音，点一下才响；<code>requestAnimationFrame</code> 里调的 <code>play()</code> 不算手势</td>
+      <td>在「点击开始」的 <code>touchstart</code> 回调里 <code>resume()</code> 并播一段 0.1 秒静音。我们的首发交互正好是点开始，天然有解锁点</td>
+    </tr>
+    <tr>
+      <td><b>iOS 物理静音键会彻底静音 WebAudio</b></td>
+      <td>不是权限问题，是系统底层拦截，<code>resume()</code> 也没用。用户「明明默认开了却没声音」</td>
+      <td>小游戏侧用 <code>wx.setInnerAudioOption({ obeyMuteSwitch: false })</code>；失败时在设置面板显示「检测到系统静音」提示，<b>不要静默失败</b></td>
+    </tr>
+    <tr>
+      <td>切后台回来 BGM / 音效断掉</td>
+      <td>接个电话回来就没声了</td>
+      <td>监听 <code>wx.onShow</code> / <code>visibilitychange</code>，回前台重新 <code>resume()</code></td>
+    </tr>
+  </table>
+  <div class="okbox">
+    <p><b>结论：</b>音效默认开这个决定我保留，但要在设置里加一个可见的「音效：开 / 关」开关，并且在检测到系统静音时给一行提示。否则玩家会以为是 bug。</p>
+  </div>
+</section>
+<!-- ========== 03 ========== -->
+<section id="s03">
+  <h2><span class="n">03</span>诚实的优缺点：B 档全开之后会怎样</h2>
+
+  <p class="lead">先说你最想知道的：<b>这套东西做完，游戏会变成什么样。</b>我分两半讲，好的那一半不吹，坏的那一半不藏。</p>
+
+  <h3>3.1 会好在哪里（六条，都对得上具体改动）</h3>
+  <div class="grid2">
+    <div class="box">
+      <h4>① 每个格子第一次值得犹豫</h4>
+      <p>5 种建筑 × 3 条升级分支 × 45 格。现在的问题是「看到空格就填」，做完之后前排要放路障还是油桶、后排发电机放哪、篝火要不要为了照亮箭塔而牺牲伤害——这些都会变成真问题。</p>
+    </div>
+    <div class="box">
+      <h4>② 每局开局真的不一样</h4>
+      <p>18 张卡里每局抽 12 张 + 5 章事件 + 血月。第 2 局不会重复第 1 局的路径，这是「肉鸽」和「线性养成」的分界线。</p>
+    </div>
+    <div class="box">
+      <h4>③ 有记忆点</h4>
+      <p>5 个 Boss 夜 + 每 5 天一次血月。玩家事后回忆一局，会记得「第 30 天那个血月我差点崩了」，而不是「我活了 67 天」。</p>
+    </div>
+    <div class="box">
+      <h4>④ 死得明白</h4>
+      <p>情报系统让玩家知道今晚压哪条道；结算页能回答「死在第几波、哪条道、因为什么」。这是 Kingdom 2C 被骂了十年的那个坑，我们绕开它。</p>
+    </div>
+    <div class="box">
+      <h4>⑤ 手感从「PPT」变成「游戏」</h4>
+      <p>14 个音效 + 命中停顿 + 三级震屏 + 飘字分级 + 受击闪白。这一项的体感提升幅度，实测通常大于「加 3 种建筑」。</p>
+    </div>
+    <div class="box">
+      <h4>⑥ 有终点</h4>
+      <p>100 天 / 800 户 / 救援中心。这是 Dome Keeper 被玩家批评缺失的东西——它每局都爽，但「打完觉得空」。我们天生有这条线。</p>
+    </div>
+  </div>
+
+  <h3>3.2 会坏在哪里（六条，附数字）</h3>
+
+  <div class="diag">
+    <div class="idx">R1</div>
+    <div>
+      <b>玩不完。</b>现在一天 = 15s 行进 + 15s 黄昏 + 30s 夜晚 + 约 11s 搜刮 = <b>71 秒</b>；100 天 = <b>118 分钟</b>。
+      而 <code>core.js</code> 1822 行里，存档代码是 <b>0 行</b>（grep <code>storage/memory/save</code> 只命中 <code>ctx.save()</code>）。
+      切后台被系统回收 = 两个小时的进度归零。
+      <br><span class="small">补充：微信小游戏爆款的 D0 单次时长参考线是 1200 秒（20 分钟），我们是它的 5.9 倍。</span>
+    </div>
+    <div class="sev sev-3">致命</div>
+  </div>
+
+  <div class="diag">
+    <div class="idx">R2</div>
+    <div>
+      <b>章节机制会废掉玩家已经投入的资源。</b>v2.0 里「第 3 章酸雨：篝火 -40%」「第 4 章飞行怪无视路障」，本质是<b>否定玩家前 40 天的建造成果</b>。
+      Thronefall 的玩家原话是「来了一波全剋死你的敌人，前面投的资源全废，翻不了身」——这条我们正在照抄。
+      <br><span class="small">我们的建筑不能退款、不能改建，一旦被机制否定，唯一出路是重开一局。这在小游戏里等于劝退。</span>
+    </div>
+    <div class="sev sev-3">致命</div>
+  </div>
+
+  <div class="diag">
+    <div class="idx">R3</div>
+    <div>
+      <b>升级选择会多到烦。</b>一天 8 个悬浮球，图纸期望约 <b>0.7~0.9 张/天</b>（工厂 20%、医院 16%），100 天就是 <b>70~90 次</b>全屏弹窗 + 主循环暂停。
+      更大的问题在卡池：18 张卡被拿 80 次，平均每张 4~5 层——<b>最后所有人都会拿满同样的卡</b>，构筑差异归零。
+    </div>
+    <div class="sev sev-2">重要</div>
+  </div>
+
+  <div class="diag">
+    <div class="idx">R4</div>
+    <div>
+      <b>黄昏 15 秒塞不下三件事。</b>v2.0 要在黄昏做：情报卡（3 项）+ 事件（3 选 1）+ 布防（45 格）。
+      现在黄昏只有 15s，加完这三样，玩家会变成「手忙脚乱地读字，然后来不及布防」。
+    </div>
+    <div class="sev sev-2">重要</div>
+  </div>
+
+  <div class="diag">
+    <div class="idx">R5</div>
+    <div>
+      <b>平衡探针会瞎掉。</b><code>tools/balance_probe.js</code> 里的自动玩家只会躲球、不会打牌、不会布防。
+      加了 18 张卡之后，它跑出来的存活天数<b>不代表任何真实玩家</b>。这是隐藏工作量：探针得先会打牌，才能验证数值。
+    </div>
+    <div class="sev sev-2">重要</div>
+  </div>
+
+  <div class="diag">
+    <div class="idx">R6</div>
+    <div>
+      <b>做完还是「简陋」——只是内容多了。</b>B 档约 3760 行，<b>全是逻辑，0 行美术</b>。路面、店铺、越野车、救援中心仍然是 Canvas 矢量几何。
+      你说的「太简陋」如果有一半指的是<b>画面</b>，那 B 档解决不了。这是 v2.0 漏掉的一整块。
+    </div>
+    <div class="sev sev-2">重要</div>
+  </div>
+
+  <table>
+    <tr><th style="width:8%">编号</th><th style="width:32%">风险</th><th style="width:15%">触发概率</th><th style="width:15%">后果严重度</th><th>修订位置</th></tr>
+    <tr><td>R1</td><td>玩家玩不完 / 进度丢失</td><td>100%</td><td>致命</td><td>4.1 存档 + 章节化</td></tr>
+    <tr><td>R2</td><td>章节机制否定投资，玩家重开</td><td>高</td><td>致命</td><td>4.2 换解法不废解法 + 整备期</td></tr>
+    <tr><td>R3</td><td>升级过密 + 构筑趋同</td><td>高</td><td>重要</td><td>4.3 降频 + 子池 + 层数上限</td></tr>
+    <tr><td>R4</td><td>黄昏决策超载</td><td>中</td><td>重要</td><td>4.4 情报与布防并行</td></tr>
+    <tr><td>R5</td><td>平衡无法验证</td><td>100%</td><td>重要</td><td>4.5 探针加打牌 AI</td></tr>
+    <tr><td>R6</td><td>画面仍然简陋</td><td>高</td><td>重要</td><td>4.6 表现层加画面质感</td></tr>
+  </table>
+</section>
+
+<!-- ========== 04 ========== -->
+<section id="s04">
+  <h2><span class="n">04</span>六处修订（v2.0 → v2.1 的 diff）</h2>
+
+  <p class="lead">这一节是本文档的核心。六条修订，每条都能追溯到上面一个风险。</p>
+
+  <h3>4.1 存档 + 章节化：让 118 分钟变成「可以随时收起的一段」</h3>
+
+  <p>不改胜利条件——<b>100 天 / 800 户 / 救援中心，一个字都不动</b>。改的只是「这 100 天怎么被打断」。</p>
+
+  <div class="flow">
+    <div class="step"><b>第 1~20 天</b><span>第 1 章 · 基础</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>章末结算页</b><span>数据 + 解锁下一章</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>第 21~40 天</b><span>第 2 章 · 黑影</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>……</b><span>5 章打完 = 到达救援中心</span></div>
+  </div>
+
+  <table>
+    <tr><th style="width:22%">项</th><th style="width:33%">规则</th><th>为什么</th></tr>
+    <tr><td>存档时机</td><td>每天<b>黄昏开始时</b>自动存</td><td>这是唯一干净的时刻：昨天已结算、今天还没打。存这里不会出现「读档后怪打了一半」</td></tr>
+    <tr><td>存档内容</td><td>天数、章、木/能量/耐久、建筑列表、卡牌与层数、已建进化、事件已触发标记、Boss 已打标记、随机种子</td><td>种子也要存，否则读档后今天的球会重新洗，玩家能刷</td></tr>
+    <tr><td>退出行为</td><td>任意时刻可退（不需要暂停菜单），重开时弹「继续第 7 天黄昏 / 新开一局」</td><td>小游戏的退出是物理行为（划掉卡片），拦不住，只能适应</td></tr>
+    <tr><td>章边界</td><td>章末出结算页：本局搜了几户、建了几个、死了几个建筑、拿了哪些卡。然后「进入第 2 章 / 先休息」</td><td>给一个自然的收手点。这是 Dome Keeper「2-3 分钟一个循环」的等价物</td></tr>
+    <tr><td>单章时长</td><td>20 天 × 71 秒 ≈ <b>24 分钟</b></td><td>正好落在微信爆款 D0 参考线（20 分钟）附近</td></tr>
+    <tr><td>版本迁移</td><td>存档带 <code>v</code> 字段。版本不一致时提示「旧档无法继续」，不尝试兼容</td><td>设计还在变，做兼容是给自己挖坑。真上线前再补一次迁移</td></tr>
+  </table>
+
+  <div class="warnbox">
+    <p><b>这一条会改变游戏的第一印象：</b>现在玩家打开就是第 1 天，然后连续两小时。改完之后，第 1 章 24 分钟一个完整段落，有开头（第 1 天的教学）有结尾（第 20 天的结算）。<b>这是 B 档能不能留住人的分水岭。</b></p>
+  </div>
+
+  <h3>4.2 章节机制：换解法，不废解法</h3>
+
+  <p>原则只有一句：<b>任何章节机制，最多让某种建筑「不再是最优」，绝不能让它「完全无用」。</b></p>
+
+  <table>
+    <tr><th style="width:9%">章</th><th style="width:26%">v2.0 的机制</th><th style="width:24%">问题</th><th>v2.1 改成</th></tr>
+    <tr>
+      <td>3</td>
+      <td><span class="tag t-del">酸雨：篝火伤害 -40%</span></td>
+      <td>建了 3 排篝火的玩家，第 41 天开始全部变废纸</td>
+      <td><b>酸雨腐蚀：所有建筑每 8s 掉 2 血；但篝火不再受腐蚀，且光照范围 +1 格。</b>篝火从「输出」转成「抗腐蚀的基建与照明」，仍是最优解之一；箭塔开始需要靠修理撑住</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><span class="tag t-del">飞行怪无视路障</span></td>
+      <td>铺路障的玩家觉得被骗了</td>
+      <td><b>飞行怪飞越路障，但落地后有 3 秒硬直；硬直期间路障的「身后减伤」对它生效。</b>路障从「拦」变成「反空降陷阱」——作用变了，没有消失</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>黑影瞬移越过建筑</td>
+      <td>轻微，可接受</td>
+      <td>保留，但补一条：<b>瞬移冷却 2 秒，落地闪白 0.5 秒</b>（给箭塔集火窗口）</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>所有怪 +1 随机词条</td>
+      <td>可以，是增强不是否定</td>
+      <td>保留</td>
+    </tr>
+  </table>
+
+  <div class="okbox">
+    <p><b>配套的关键设计：整备期。</b>在每次章节切换那天（第 21 / 41 / 61 / 81 天），给玩家一次<b>全建筑无损拆除 + 全额返还</b>的机会。理由是：Thronefall 被骂的核心不是「有克制关系」，而是<b>「没办法后悔」</b>。</p>
+    <p>我们不需要做无限撤销，只需要在「规则变化的那一刻」给一次重新规划的权利。代价是 4 天，收益是玩家不会因为一次误判而重开。</p>
+  </div>
+
+  <h3>4.3 升级节奏：从「撞到就弹」到「黄昏统一结算」</h3>
+
+  <table>
+    <tr><th style="width:18%">项</th><th style="width:24%">现在</th><th style="width:26%">问题</th><th>v2.1</th></tr>
+    <tr><td>触发时机</td><td>拿到图纸立刻全屏弹卡、主循环暂停</td><td>行进中被弹 7~8 次，节奏碎掉</td><td>入库不弹；<b>黄昏开始时统一结算</b></td></tr>
+    <tr><td>每次数量</td><td>1 张 1 次</td><td>—</td><td>黄昏最多弹 <b>2 次</b>，多余的排队到下一黄昏</td></tr>
+    <tr><td>选项数</td><td>三选一</td><td>不能跳过，会被迫拿凑合卡</td><td><b>二选一 + 跳过（+12 木）</b></td></tr>
+    <tr><td>卡池</td><td>—</td><td>18 张全开，每局一样</td><td>18 张里<b>每局抽 12 张</b>作为本局卡池</td></tr>
+    <tr><td>层数上限</td><td>无</td><td>会堆到 8 层，变成纯数值</td><td>数值卡 <b>5 层</b>、机制卡 <b>3 层</b>、进化卡 <b>1 层</b></td></tr>
+    <tr><td>总次数</td><td>70~90 次</td><td>过多，且会拿满同样的卡</td><td>图纸率降到约 0.55 张/天 → <b>全程约 55 次</b></td></tr>
+  </table>
+
+  <p class="small">算一下：55 次选择 vs 12 张卡最多 60 个升级位 —— 刚好「不可能全拿满」，每一步都得放弃点什么。这才是构筑。</p>
+
+  <p>另外加一道保险：<b>同一张卡连续 2 次没被选，本局不再出现</b>。避免「每次都刷出你不想要的卡」的厌恶感。</p>
+
+  <h3>4.4 黄昏时间重排：情报和布防并行，只有事件停表</h3>
+
+  <table>
+    <tr><th style="width:22%">环节</th><th style="width:16%">计时</th><th>说明</th></tr>
+    <tr><td>天色过渡 + 情报面板滑入</td><td><b>不停表</b></td><td>布防时间同时在走。玩家可以一边读情报一边建，熟练了根本不看过渡</td></tr>
+    <tr><td>布防</td><td>15s</td><td>现有逻辑不变。热力条常驻在屏幕下方，随时能看</td></tr>
+    <tr><td>事件（仅 10 天有）</td><td><b>停表</b></td><td>需要读文字做选择，必须停表。10 次 × 约 5s = 全程只增加 50 秒</td></tr>
+  </table>
+  <p>这样黄昏的时长几乎不变（只多 50 秒/局），但信息量翻倍。</p>
+
+  <h3>4.5 探针升级：让自动玩家会打牌</h3>
+  <p>现在 <code>balance_probe.js</code> 的自动玩家只有两条规则：往球的方向打方向、有钱就建。加了卡池之后它必须会选卡，否则它测出来的存活天数没有参考价值。</p>
+  <table>
+    <tr><th style="width:30%">升级项</th><th>规则</th></tr>
+    <tr><td>选卡优先级</td><td>前 10 天缺输出 → 攻击类；中期缺木 → 经济类；后期缺生存 → 防御类。按 <code>weight = 输出0.4 + 生存0.35 + 经济0.25</code> 打分选最高</td></tr>
+    <tr><td>跳过判定</td><td>两张卡的评分都低于阈值 → 跳过换木（模拟真实玩家的「不想污染卡池」行为）</td></tr>
+    <tr><td>布防规则</td><td>按热力条最高的两条车道优先建，而不是「从左到右铺满」</td></tr>
+  </table>
+  <p class="small">这 80 行的价值：它是唯一能告诉你「加了 18 张卡之后，第 3 章是不是突然变简单了」的工具。不做，我就只能凭感觉调数值。</p>
+
+  <h3>4.6 表现层加一块：画面质感（不只是音效）</h3>
+  <p>你说「太简陋」，我认为一半是玩法、一半是画面。B 档的 3760 行里原本<b>一行美术都没有</b>。不加素材（主包 4MB 装不下），但可以靠绘制手法把画面拉起来：</p>
+  <table>
+    <tr><th style="width:26%">手法</th><th>具体做法</th><th class="num" style="width:9%">成本</th></tr>
+    <tr><td>三层绘制</td><td>每个建筑/车/怪改为「地面投影 → 主体色块 → 顶部高光」三次绘制。现在是一坨色块，加了投影立刻有体积</td><td class="num">+120 行</td></tr>
+    <tr><td>统一描边</td><td>所有实体加 1.5px 深色描边，色板收紧到 12 个颜色。矢量图的「廉价感」主要来自颜色太杂</td><td class="num">+60 行</td></tr>
+    <tr><td>环境叙事</td><td>路面裂缝、翻倒的车、歪的路灯、干涸的血迹、散落的纸箱——全部代码画，按里程种子生成，不重复</td><td class="num">+150 行</td></tr>
+    <tr><td>色调层</td><td>行进暖黄 / 黄昏橙红 / 夜晚冷蓝之外，加「雨」「雾」「尘埃」三种全屏叠加层，按章节切换</td><td class="num">+90 行</td></tr>
+    <tr><td>光的扩散</td><td>篝火/车灯用径向渐变 + 加法混合，而不是现在的一圈实心圆</td><td class="num">+50 行</td></tr>
+  </table>
+  <p>合计约 470 行，<b>0 KB 素材</b>。这一块的效果比「再加两种怪」明显得多，因为它作用在每一帧的每一个物体上。</p>
+</section>
+
+<!-- ========== 05 ========== -->
+<section id="s05">
+  <h2><span class="n">05</span>三处新增：给玩家「现在能做点什么」</h2>
+
+  <p class="lead">v2.0 的诊断里我写过一条病：「夜晚没有主动权，玩家只能看着」。但方案里没给解法。这次补上三个，都很便宜。</p>
+
+  <h3>5.1 车灯：夜晚的主动技能</h3>
+  <div class="grid2">
+    <div class="box">
+      <h4>怎么做</h4>
+      <p>夜间点击任意车道 → 车灯照过去，持续 <b>6 秒</b>，消耗 <b>1 点能量</b>。被照亮的车道：怪移速 <b>-40%</b>，该道上箭塔攻速 <b>+20%</b>。冷却 4 秒。</p>
+    </div>
+    <div class="box">
+      <h4>为什么值得</h4>
+      <p>夜晚从「看屏幕」变成「握着方向盘」。而且它和情报系统天然咬合：<b>热力条告诉你哪条道压力大，车灯就是你的回应手段。</b>情报从「知道」变成「能用」。</p>
+      <p class="small">成本约 120 行。风险：如果玩家不点，等于没做——所以第 1 章会有一次强制引导。</p>
+    </div>
+  </div>
+
+  <h3>5.2 深搜：撞到球之后还有一个选择</h3>
+  <p>现在是「碰到就搜，固定 1.4 秒，拿一份战利品」。改成碰上有两个选项：</p>
+  <table>
+    <tr><th style="width:20%">操作</th><th style="width:14%">耗时</th><th style="width:26%">收益</th><th>代价</th></tr>
+    <tr><td>轻搜（松手）</td><td>1.4s</td><td>正常战利品</td><td>无</td></tr>
+    <tr><td><b>深搜（按住不动）</b></td><td>2.8s</td><td><b>双倍战利品</b>，图纸概率翻倍</td><td>下夜<b>该车道怪量 +30%</b>（翻得越久，动静越大）</td></tr>
+  </table>
+  <p>这是 Organ Trail「跑得快但坏车 / 跑得慢但费粮」的对应物，也是我们唯一能同时消耗时间和制造风险的机制。而且它天然和「15 秒预算」冲突——<b>深搜两次，今天就少搜一户。</b>决策立刻变痛。</p>
+
+  <h3>5.3 每日战报：闭合一天</h3>
+  <p>黄昏开头，情报面板上方一行小字：<code>第 7 天 · 搜 7 户 · +86 木 · 耐久 108/120 · 漏 1</code>。</p>
+  <p>作用是让「一天」有一个句号。Dome Keeper 的循环感来自「2-3 分钟一次明确的阶段切换」，我们已经有阶段切换，缺的是一个<b>总结</b>。成本约 30 行。</p>
+</section>
+<!-- ========== 06 ========== -->
+<section id="s06">
+  <h2><span class="n">06</span>修订后的完整方案（可直接当实施清单）</h2>
+
+  <p class="lead">下面所有表格都是<b>最终版</b>，可以直接照着写代码。相对 v2.0 改动的地方用底色标出。</p>
+
+  <h3>6.1 建筑（5 种，每种两种身份）</h3>
+  <table>
+    <tr><th>建筑</th><th class="num">木</th><th class="num">血</th><th>显性职能</th><th>隐性职能（这才是取舍的来源）</th></tr>
+    <tr><td>篝火</td><td class="num">10</td><td class="num">180</td><td>十字 5 格，18/s 灼烧 + 减速 45%</td><td>相邻箭塔射程 +0.8 格（火光引导瞄准）</td></tr>
+    <tr><td>箭塔</td><td class="num">25</td><td class="num">140</td><td>射程 4.2 格，14 伤害 / 1s</td><td>每击杀 +1 木（自给自足，越打越富）</td></tr>
+    <tr><td><b>路障</b></td><td class="num">6</td><td class="num">240</td><td>纯阻挡，无伤害，血厚</td><td>身后一格内建筑受伤 -30%</td></tr>
+    <tr><td><b>油桶</b></td><td class="num">12</td><td class="num">60</td><td>一次性：3 格内 120 伤害 + 点燃 3s</td><td>会被自己人打爆（箭矢误伤也算）——双刃剑</td></tr>
+    <tr><td><b>信号塔</b></td><td class="num">35</td><td class="num">100</td><td>每 8s 使 3 格内 1 只怪转向相邻车道</td><td>被标记目标受箭塔伤害 +50%</td></tr>
+  </table>
+
+  <h4>Lv3 升级分支（二选一，选完不可改）</h4>
+  <table>
+    <tr><th style="width:16%">建筑</th><th style="width:42%">分支 A</th><th style="width:42%">分支 B</th></tr>
+    <tr><td>篝火</td><td><b>烽火</b>：范围 +1 格（9 格），伤害 18 → 26</td><td><b>灯塔</b>：范围 +2 格（25 格），伤害归零，纯视野 + 减速</td></tr>
+    <tr><td>箭塔</td><td><b>连射塔</b>：冷却 1.0 → 0.45s，伤害 14 → 9（打密度）</td><td><b>狙击塔</b>：冷却 1.0 → 1.8s，伤害 14 → 48，穿透 2 只（打精英）</td></tr>
+    <tr><td>路障</td><td><b>铁刺</b>：被咬时反弹 10 伤害</td><td><b>沙袋</b>：血量 240 → 400，身后减伤 30% → 45%</td></tr>
+  </table>
+  <p class="small">v2.0 只给了篝火和箭塔两条分支，路障缺一条。补上之后，5 种建筑里 3 种可升级，决策空间从 30 种布局涨到 42 种。</p>
+
+  <h3>6.2 卡池（18 张，每局抽 12 张）</h3>
+  <table>
+    <tr><th style="width:8%">类</th><th style="width:30%">卡</th><th style="width:10%">层数</th><th>效果</th></tr>
+    <tr><td rowspan="6"><b>数值</b><br><span class="small">6 张</span></td><td>磨刀石</td><td class="num">5</td><td>箭塔伤害 +18%</td></tr>
+    <tr><td>助燃</td><td class="num">5</td><td>篝火伤害 +20%</td></tr>
+    <tr><td>加固</td><td class="num">5</td><td>建筑血量 +20%</td></tr>
+    <tr><td>精打细算</td><td class="num">5</td><td>战利品木头 +12%</td></tr>
+    <tr><td>改装引擎</td><td class="num">5</td><td>行进速度 +6%</td></tr>
+    <tr><td>钢板</td><td class="num">5</td><td>车耐久上限 +20</td></tr>
+    <tr><td rowspan="8"><b>机制</b><br><span class="small">8 张</span></td><td>溅射</td><td class="num">3</td><td>箭矢命中时对相邻格造成 50% 伤害</td></tr>
+    <tr><td>穿透</td><td class="num">3</td><td>箭矢可多穿 1 只（叠加）</td></tr>
+    <tr><td>扩光</td><td class="num">3</td><td>篝火十字臂长 +1</td></tr>
+    <tr><td>尖刺</td><td class="num">3</td><td>路障被咬反弹 12 伤害</td></tr>
+    <tr><td>连锁</td><td class="num">3</td><td>油桶爆炸会引爆相邻油桶</td></tr>
+    <tr><td>寒霜</td><td class="num">3</td><td>篝火 3 格内怪移速 -25%</td></tr>
+    <tr><td>自修</td><td class="num">3</td><td>每 5s 修理全场建筑 3 血</td></tr>
+    <tr><td>多一个球</td><td class="num">3</td><td>每天 +1 个悬浮球（+1 户可搜）</td></tr>
+    <tr><td rowspan="4"><b>进化</b><br><span class="small">4 张</span></td><td>烽火台</td><td class="num">1</td><td>篝火 Lv3 + 箭塔 Lv3 → 光照内箭塔攻速 +40%，篝火伤害 +50%</td></tr>
+    <tr><td>铁丝网</td><td class="num">1</td><td>路障 + 油桶 → 路障被摧毁时原地爆炸 80 伤害</td></tr>
+    <tr><td>瞭望塔</td><td class="num">1</td><td>箭塔 + 信号塔 → 射程 +2，对被标记目标伤害 +100%</td></tr>
+    <tr><td>熔炉</td><td class="num">1</td><td><b>篝火 + 信号塔</b> → 信号塔获得篝火光环；被标记目标受篝火伤害 +80%</td></tr>
+  </table>
+  <div class="askbox">
+    <p><b>顺手修一个 v2.0 的内部矛盾：</b>v2.0 的「熔炉」写的是「篝火 + 发电机」，但我们根本没有发电机这个建筑（5 种里没有）。v2.1 把它改成「篝火 + 信号塔」，效果也重写成闭环的加伤，不再是空引用。</p>
+  </div>
+
+  <h3>6.3 五章结构与章节机制（全部改成「换解法」）</h3>
+  <table>
+    <tr><th class="num">章</th><th class="num">天</th><th>新机制</th><th>新怪</th><th class="num">Boss 夜</th><th class="num">整备期</th></tr>
+    <tr><td>1</td><td class="num">1–20</td><td>无（教学章：前 3 天只有 2 条道、3 个球）</td><td>僵尸 / 骷髅弓手 / 史莱姆</td><td class="num">18</td><td class="num">—</td></tr>
+    <tr><td>2</td><td class="num">21–40</td><td><b>黑影瞬移</b>：越过第一排建筑，冷却 2s，落地闪白 0.5s</td><td>黑影</td><td class="num">38</td><td class="num">21</td></tr>
+    <tr><td>3</td><td class="num">41–60</td><td><b>酸雨腐蚀</b>：全场建筑每 8s -2 血；<b>篝火免疫且光照 +1 格</b></td><td>酸液怪（远程腐蚀）</td><td class="num">58</td><td class="num">41</td></tr>
+    <tr><td>4</td><td class="num">61–80</td><td><b>飞行怪飞越路障</b>，但落地硬直 3s，此时吃路障身后减伤</td><td>翼怪</td><td class="num">78</td><td class="num">61</td></tr>
+    <tr><td>5</td><td class="num">81–100</td><td>所有怪 +1 随机词条；夜长 36s</td><td>混合编队（无单一解法）</td><td class="num">100</td><td class="num">81</td></tr>
+  </table>
+  <p><b>Boss 夜从章中挪到章末前 2 天</b>（v2.0 是第 10/30/50/70 夜）。理由：Boss 是章节高潮，打完要有 1~2 天喘息和结算，这样「打完 Boss → 收尾 → 章末结算页」才是一个完整的段落。</p>
+  <p><b>整备期</b>：当天可全建筑无损拆除、全额返还木头。让玩家面对新机制时能重新规划，而不是重开一局。</p>
+
+  <h3>6.4 血月夜</h3>
+  <p>每 5 天一次（第 5/15/25…，避开 Boss 夜）。三件事：怪量 ×1.5、<b>战利品木头 ×2</b>、屏幕色调偏红。<b>木翻倍是关键</b>——它让血月从「难熬的一天」变成「值得冒险的一天」，玩家会主动想在血月多搜几户。</p>
+
+  <h3>6.5 十个事件（固定节点，全程各出现一次）</h3>
+  <table>
+    <tr><th class="num">天</th><th>事件</th><th>选项 A</th><th>选项 B</th><th>选项 C</th></tr>
+    <tr><td class="num">3</td><td>废弃加油站</td><td>+30 木</td><td>+1 油桶（下夜免费建）</td><td>绕路，能量 +10</td></tr>
+    <tr><td class="num">17</td><td>幸存者求助</td><td>花 20 木 → 1 张升级卡</td><td>拒绝（无消耗）</td><td>—</td></tr>
+    <tr><td class="num">23</td><td>暴雨</td><td>照常行进（视野 -30%，怪血 -30%）</td><td>扎营（跳过行进，直接布防）</td><td>—</td></tr>
+    <tr><td class="num">37</td><td>车祸现场</td><td>立刻获得 2 个随机建筑</td><td>拆零件：车耐久 +40</td><td>—</td></tr>
+    <tr><td class="num">43</td><td>废弃电台</td><td>听到救援中心位置：里程 +20</td><td>拆电池：能量 +30</td><td>—</td></tr>
+    <tr><td class="num">57</td><td>可疑的商人</td><td>花 40 木抽 1 张进化卡</td><td>花 10 木买情报（下夜热力精确到个位）</td><td>离开</td></tr>
+    <tr><td class="num">63</td><td>断桥</td><td>耗 25 木修桥（继续）</td><td>绕路：今天少搜 3 户，但能量 +15</td><td>—</td></tr>
+    <tr><td class="num">77</td><td>车队残骸</td><td>搜刮：+60 木，但车耐久 -25</td><td>只拿油：能量 +20</td><td>—</td></tr>
+    <tr><td class="num">83</td><td>夜行者</td><td>收留（下 3 夜多 1 个免费箭塔）</td><td>赶走（+15 木）</td><td>—</td></tr>
+    <tr><td class="num">97</td><td>最后的抉择</td><td>把一半木头分给幸存者 → 终局 Boss 血量 -25%</td><td>全留下（终局 Boss 血量不变）</td><td>—</td></tr>
+  </table>
+  <p class="small">全部后果写死，没有概率。第 97 天那个是「终局前置」——让玩家在最后 3 天做一个会影响结局的选择，比纯数值奖励有意义得多。</p>
+
+  <h3>6.6 十四个音效（WebAudio 合成，0 KB）</h3>
+  <table>
+    <tr><th style="width:26%">事件</th><th style="width:26%">音色</th><th>合成方式</th></tr>
+    <tr><td>箭塔射击</td><td>短促「绷」</td><td>三角波 660→440Hz，衰减 80ms</td></tr>
+    <tr><td>箭矢命中</td><td>闷响</td><td>白噪声 + 低通 800Hz，60ms</td></tr>
+    <tr><td>篝火燃烧</td><td>持续噼啪</td><td>循环噪声 + 随机脉冲，音量随光照强度</td></tr>
+    <tr><td>怪撕咬建筑</td><td>金属刮擦</td><td>噪声 + 高通 2kHz + 快颤音</td></tr>
+    <tr><td>怪死亡</td><td>下滑「咽气」</td><td>锯齿 220→80Hz，120ms</td></tr>
+    <tr><td>绿怪爆炸</td><td>低沉轰</td><td>正弦 60Hz + 噪声爆，200ms</td></tr>
+    <tr><td>拾取战利品</td><td>上扬双音</td><td>正弦 880→1320Hz，间隔 60ms</td></tr>
+    <tr><td>建筑落成</td><td>撞击 + 尘土</td><td>正弦 90Hz + 长噪声尾</td></tr>
+    <tr><td>建筑倒塌</td><td>碎裂</td><td>噪声 + 下行滤波扫频</td></tr>
+    <tr><td>车辆受击</td><td>金属撞</td><td>方波 180Hz + 噪声，30ms 抖动</td></tr>
+    <tr><td>夜晚降临</td><td>下行长音</td><td>锯齿 400→100Hz，1.2s</td></tr>
+    <tr><td>胜利 / 失败</td><td>三和弦</td><td>大调 / 小调三个正弦叠加</td></tr>
+    <tr><td><b>车灯开启</b></td><td>电流嗡</td><td>方波 120Hz + 高通扫频，150ms</td></tr>
+    <tr><td><b>选卡</b></td><td>清脆点击</td><td>正弦 1200Hz，40ms，带轻微下滑</td></tr>
+  </table>
+
+  <h3>6.7 数值草案</h3>
+  <table>
+    <tr><th class="num">章</th><th class="num">怪血倍率</th><th class="num">同屏上限</th><th class="num">刷怪间隔</th><th class="num">夜长</th><th class="num">能量 / 户</th></tr>
+    <tr><td>1</td><td class="num">1.00 → 1.57</td><td class="num">4 → 15</td><td class="num">9.2 → 6.8s</td><td class="num">30s</td><td class="num">1</td></tr>
+    <tr><td>2</td><td class="num">1.57 → 2.14</td><td class="num">15 → 18</td><td class="num">6.8 → 5.4s</td><td class="num">30s</td><td class="num">1</td></tr>
+    <tr><td>3</td><td class="num">2.14 → 2.71</td><td class="num">18</td><td class="num">5.4 → 4.4s</td><td class="num">30s</td><td class="num">1</td></tr>
+    <tr><td>4</td><td class="num">2.71 → 3.28</td><td class="num">18</td><td class="num">4.4s</td><td class="num">36s</td><td class="num">2</td></tr>
+    <tr><td>5</td><td class="num">3.28 → 3.85</td><td class="num">18</td><td class="num">4.0s</td><td class="num">36s</td><td class="num">2</td></tr>
+  </table>
+  <p><b>经济调整：</b>初始木 80 → <b>70</b>（建筑变多，前期必须做选择）；箭塔击杀 +1 木（越打越富的正循环）；血月木 ×2。这三条要在第 5 批之后用探针重跑，不能拍脑袋定死。</p>
+</section>
+
+<!-- ========== 07 ========== -->
+<section id="s07">
+  <h2><span class="n">07</span>分批交付、验收标准与测试计划</h2>
+
+  <table>
+    <tr><th style="width:6%">批</th><th style="width:20%">内容</th><th class="num" style="width:7%">行数</th><th style="width:32%">验收标准（你会看到什么）</th><th style="width:19%">测试增量</th><th class="num" style="width:8%">累计</th></tr>
+    <tr>
+      <td><b>1</b></td><td>存档 + 章节化 + 断点续玩 + 整备期</td><td class="num">+380</td>
+      <td>玩到第 7 天直接关掉浏览器，重开还在第 7 天黄昏；打完第 20 天出结算页</td>
+      <td>存档往返 12 项 + 章节边界 6 项</td><td class="num">96</td>
+    </tr>
+    <tr>
+      <td><b>2</b></td><td>14 音效 + 4 打击反馈 + 画面质感</td><td class="num">+560</td>
+      <td>静音/有声对比是两个游戏；截图不再像半成品</td>
+      <td>音频解锁 4 项 + 反馈不崩 4 项</td><td class="num">104</td>
+    </tr>
+    <tr>
+      <td><b>3</b></td><td>情报：热力条 / 波次条 / 威胁图标 / Boss 预警</td><td class="num">+420</td>
+      <td>布防时能指出「今晚 3、4 道压力大」</td>
+      <td>预告准确率 8 项（误差必须为 0）</td><td class="num">112</td>
+    </tr>
+    <tr>
+      <td><b>4</b></td><td>18 卡 + 二选一/跳过 + 4 进化 + 子池</td><td class="num">+700</td>
+      <td>连跑 5 局，5 次卡组都不同；跳过键好用</td>
+      <td>卡池随机性 12 项 + 进化判定 6 项</td><td class="num">130</td>
+    </tr>
+    <tr>
+      <td><b>5</b></td><td>路障 / 油桶 / 信号塔 + 3 条升级分支</td><td class="num">+900</td>
+      <td>5 种建筑两两都能说出取舍理由</td>
+      <td>第二职能 10 项 + 分支 6 项</td><td class="num">146</td>
+    </tr>
+    <tr>
+      <td><b>6</b></td><td>5 章 + 5 Boss + 血月 + 10 事件 + 救援</td><td class="num">+800</td>
+      <td>第 1 天和第 40 天不像同一个游戏；Boss 失败能继续</td>
+      <td>章节/事件/Boss 15 项</td><td class="num">161</td>
+    </tr>
+  </table>
+
+  <p class="small">测试总数从 v2.0 估的 130 涨到 161，因为多了存档往返和章节边界两组。所有测试仍是纯 Node 无头跑，不需要浏览器。</p>
+
+  <div class="okbox">
+    <p><b>止损点：</b>第 1 批做完你就可以判断「章节化这条路对不对」——因为那时游戏会第一次变成「24 分钟一段」。如果这个方向你不喜欢，只损失 380 行，后面全部可以按原样继续（章节化是可以拆掉的，它不侵入战斗逻辑）。</p>
+  </div>
+</section>
+
+<!-- ========== 08 ========== -->
+<section id="s08">
+  <h2><span class="n">08</span>待你确认</h2>
+
+  <p class="lead">你上一轮的四个决定（B / 全开 / 救援 / 默认开）我已经固化进方案，不会再问。现在只剩<b>三个新问题</b>——都是这次复核才冒出来的，需要你拍板。</p>
+
+  <table>
+    <tr><th class="num" style="width:5%">#</th><th style="width:26%">问题</th><th style="width:46%">选项</th><th style="width:23%">我的建议</th></tr>
+    <tr>
+      <td class="num">1</td>
+      <td><b>要不要章节化？</b><br><span class="small">100 天不变，只是切成 5 段，每段 20 天、章末可退</span></td>
+      <td>① 要（5 章 × 20 天，章末结算页，随时可退）<br>② 不要（保持一口气 118 分钟，只做自动存档）<br>③ 要，但改成 4 章 × 25 天</td>
+      <td><b>①</b>。不改胜利条件，只改「能不能中断」。这是 B 档唯一的地基</td>
+    </tr>
+    <tr>
+      <td class="num">2</td>
+      <td><b>升级改成「二选一 + 跳过」吗？</b><br><span class="small">替代原来的三选一</span></td>
+      <td>① 二选一 + 跳过（+12 木）<br>② 保持三选一，但加跳过键<br>③ 保持三选一，不加跳过</td>
+      <td><b>①</b>。二选一更快、更痛；跳过是构筑类的关键选项（Slay the Spire 高水平玩家跳过率 40~60%）</td>
+    </tr>
+    <tr>
+      <td class="num">3</td>
+      <td><b>车灯和深搜要不要做？</b><br><span class="small">两个都是「给玩家主动权」的小系统</span></td>
+      <td>① 两个都做（合计 +200 行）<br>② 只做车灯（夜晚不再干看）<br>③ 只做深搜（搜刮时多一层风险决策）<br>④ 都不做</td>
+      <td><b>①</b>。它们是唯二能解决「夜晚没事干」的手段，而且都很便宜</td>
+    </tr>
+  </table>
+
+  <div class="askbox">
+    <p><b>回「按建议」= 章节化 / 二选一+跳过 / 两个都做</b>，我就从第 1 批（存档 + 章节化）开工。</p>
+    <p>也可以只回你关心的那一条，比如「1 要，2 保持三选一，3 只做车灯」——我按你的来，不影响其他部分。</p>
+  </div>
+
+  <h3>还有两件小事</h3>
+  <ol>
+    <li><b>GitHub Pages 还没开。</b>我没有你的账号权限，需要你在仓库里点一次：Settings → Pages → Source 选 <code>main</code> / <code>(root)</code> → Save。开完 <code>https://mizuki-aki.github.io/MyHub/</code> 就能访问落地页。</li>
+    <li><b>微信开发者工具的真机验收还欠着。</b>重点是三件事：拖拽控车会不会带动页面滚动、触摸坐标有没有偏移、夜间帧率。这个只能你在那边跑一次。</li>
+  </ol>
+</section>
+
+<footer style="margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px">
+  <p>永夜微光 · v2.1 可行性复核稿 · 本文档不含代码改动 · 等确认后开工</p>
+  <p>调研补充：Dome Keeper、Death Road to Canada、Thronefall 差评侧、Slay the Spire 跳过机制、微信小游戏平台数据（腾讯新闻 / 微信公开课 / QuestMobile）、iOS WebAudio 静音限制。共 4 轮检索。</p>
+</footer>
+
+</div>
+</body>
+</html>
