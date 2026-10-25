@@ -1,7 +1,7 @@
 /* 永夜微光 v3 · 公路探索 核心逻辑无头测试 */
 const ROOT = 'C:/Users/Admin/WorkBuddy/2026-10-24-07-47-40';
 const createGame = require(ROOT + '/minigame/js/core.js');
-const manifest = require(ROOT + '/minigame/js/assets.js');
+const manifest = require(ROOT + '/minigame/js/theme.js').sprites || {};   // assets.js 已并入 theme.js
 
 const W = 375, H = 700;
 

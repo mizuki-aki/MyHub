@@ -12,7 +12,7 @@ minigame/
 ├── game.json           竖屏配置
 ├── project.config.json compileType: game
 ├── js/game.js          玩法主体（约 2000 行，含封面/存储/震动/分享）
-├── js/theme.js         ★ 素材快速替换层
+├── js/theme.js         ★ 素材快速替换层（素材清单 + 缺图回退）
 ├── js/core.js          旧架构参考实现（未引用，包内可留可删）
 └── images/yuxia.png    小鱼头像（21KB，可整体替换）
 ```
@@ -35,8 +35,11 @@ minigame/
 | 触控 | `wx.onTouchStart/Move/End/Cancel` → 与浏览器鼠标同一路径 |
 | 存档 | 最好成绩 `wx.setStorageSync("yy_best_v1")`（通关天数 / 最远百分比） |
 | 震动 | 撞球 light、闷囊/败局 heavy |
-| 分享 | `wx.onShareAppMessage`：按进度动态生成文案 |
+| 分享 | `wx.onShareAppMessage`（好友/群）+ `wx.onShareTimeline`（朋友圈），文案按进度动态生成 |
 | 适配 | 逻辑分辨率 375×780 等比缩放居中，dpr 上限 2；极端宽屏（平板）两侧留黑边 |
+| 安全区 | 按 `wx.getSystemInfoSync().safeArea` 换算：HUD 下移避开刘海/灵动岛，底部面板上抬避开 Home 横条 |
+| 切后台 | `wx.onHide` 暂停 + 自动存档；`wx.onShow` 恢复并复位时间基准 |
+| 错误兜底 | `wx.onError` 打印堆栈到日志，避免白屏无痕 |
 
 ## 自测
 
@@ -50,9 +53,12 @@ node tools/shot.mjs "file://.../tools/harness.html" shots/x.png 390 844 1600 "YY
 
 基线：贪心 3 局 89~90 天 / 802~807 户全胜。
 
-## 上架前清单
+## 上架
 
-- [ ] `project.config.json` 换正式 AppID
-- [ ] 微信开发者工具真机预览（iOS / Android 各一台）
-- [ ] 后台配置「服务类目」（休闲游戏）与隐私协议（本作不收集任何数据）
-- [ ] 包体积检查（当前 ~100KB，远低于 4MB 主包限制）
+完整可勾选清单见 **[`docs/上架清单_v1.0.md`](../docs/上架清单_v1.0.md)**（个人主体）。
+
+上架物料已经做好：图标在 `docs/store/`，5 张截图在 `screenshots/store/`，简介文案在 `docs/store/README.md`。
+
+剩下的硬阻塞只有一个：
+
+- [ ] `project.config.json` 换正式 AppID（当前 `touristappid` 是测试号）

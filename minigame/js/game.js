@@ -150,6 +150,9 @@ function cellAt(sx, sy) {
 
 /* ============================ 2. 画布适配 ============================ */
 var dpr = 1, OX = 0, OY = 0;
+/* 安全区（逻辑单位）：SA_TOP = 刘海/灵动岛需要下移的量，SA_BOT = 底部 Home 横条需要上移的量。
+   只在微信端由 safeArea 换算；浏览器调试可用 YY.simSafe(t, b) 注入，用于截图验证。 */
+var SA_TOP = 0, SA_BOT = 0;
 function fit() {
   if (IS_WX) {
     var si = wx.getSystemInfoSync();
@@ -159,6 +162,14 @@ function fit() {
     OX = (sw - W * SCALE) / 2;
     OY = (sh - H * SCALE) / 2;
     dpr = Math.min(si.pixelRatio || 1, 2);
+    /* 安全区：safeArea 是屏幕 CSS 像素，画布等比缩放居中，所以先减掉黑边 OY 再除 SCALE */
+    var sa = si.safeArea;
+    if (sa && typeof sa.top === "number" && typeof sa.bottom === "number") {
+      SA_TOP = Math.max(0, (sa.top - OY) / SCALE);
+      SA_BOT = Math.max(0, ((OY + H * SCALE) - sa.bottom) / SCALE);
+    } else {
+      SA_TOP = 0; SA_BOT = 0;
+    }
     cv.width  = Math.round(sw * dpr);
     cv.height = Math.round(sh * dpr);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1435,15 +1446,20 @@ function drawFx() {
 
 /* ============================ 15. 渲染 · HUD ============================ */
 function drawHUD() {
-  // 顶部渐隐底
+  /* 顶部渐隐底：高度跟着安全区长，否则刘海里那一条会露出路面亮色 */
   ctx.save();
-  var g = ctx.createLinearGradient(0, 0, 0, 116);
+  var gh = 116 + SA_TOP;
+  var g = ctx.createLinearGradient(0, 0, 0, gh);
   g.addColorStop(0, "rgba(7,9,13,.94)");
   g.addColorStop(0.7, "rgba(7,9,13,.55)");
   g.addColorStop(1, "rgba(7,9,13,0)");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, 116);
+  ctx.fillRect(0, 0, W, gh);
   ctx.restore();
+
+  /* 整层 HUD 下移安全区高度，避开刘海 / 灵动岛 */
+  ctx.save();
+  ctx.translate(0, SA_TOP);
 
   /* --- 第一行：天 / 章 / 路程百分比 --- */
   txt("DAY " + S.day, 14, 18, 12, "#ffcf7a", "left", "700", "monospace");
@@ -1488,6 +1504,8 @@ function drawHUD() {
     txt(S.msg, W / 2 + 9, 103, 11, "#ffdca8", "center", "500");
     ctx.restore();
   }
+
+  ctx.restore();
 }
 
 function drawRes(label, val, col, x, y) {
@@ -1518,7 +1536,9 @@ function drawStageBar() {
 
 /* ============================ 16. 渲染 · 面板 ============================ */
 function drawPanel() {
-  var y0 = baseY + 4;
+  /* 底部整体上移安全区高度：黄昏「跳过」按钮原本距画布底只有 20px，
+     iPhone 的 Home 横条（≈34pt 安全区）会压住它，还容易误触 */
+  var y0 = baseY + 4 - SA_BOT;
   ctx.save();
   var g = ctx.createLinearGradient(0, y0 - 20, 0, H);
   g.addColorStop(0, "rgba(7,9,13,0)");
@@ -2011,7 +2031,7 @@ function drawCover() {
   ctx.restore();
 
   /* ---- 公路：一条斜向远方的冷黑路面（呼应游戏内风格） ---- */
-  var roadTop = H * 0.375, roadBot = H * 0.80;
+  var roadTop = H * 0.375, roadBot = H * 0.87;
   var roadWTop = W * 0.10, roadWBot = W * 0.86;
   var cx = W * 0.5;
   var roadTilt = 26;  // 左高右低，带斜角
@@ -2162,7 +2182,7 @@ function drawCover() {
 
   /* ---- 小鱼：放大、带暖描边、轻微浮动 ---- */
   var avatarR = Math.min(56, W * 0.14);
-  var avatarY = H * 0.245 + Math.sin(tt * 1.2) * 2.5;
+  var avatarY = H * 0.274 + Math.sin(tt * 1.2) * 2.5;
   drawAvatar(W / 2, avatarY, avatarR);
 
   /* ---- 底部按钮区 ---- */
@@ -2172,7 +2192,7 @@ function drawCover() {
 
   if (sv) {
     var svPct = Math.floor(clamp((sv.totalHouse || 0) / HOUSE_TOTAL, 0, 1) * 100);
-    var contY = H * 0.615;
+    var contY = H * 0.665;
     /* 继续按钮：实心绿，发光 */
     ctx.save();
     ctx.shadowColor = "rgba(127,224,176,.55)";
@@ -2200,7 +2220,7 @@ function drawCover() {
     ctx.fillText("重新开始", W / 2, ry2 + rh2 / 2);
     coverBtn = { x: bx2, y: ry2, w: bw2, h: rh2 };
   } else {
-    var by2 = H * 0.645;
+    var by2 = H * 0.700;
     ctx.save();
     ctx.shadowColor = "rgba(255,170,80,.6)";
     ctx.shadowBlur = 20 * breathe;
@@ -2223,7 +2243,7 @@ function drawCover() {
     ctx.fillStyle = "rgba(159,176,200,.6)";
     ctx.font = "10px monospace";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(bs, W / 2, H * 0.855);
+    ctx.fillText(bs, W / 2, H * 0.928);
   }
 }
 
@@ -2252,18 +2272,59 @@ function startGame() {
   say("小鱼：路还长。天要黑了。", 3.4);
 }
 
-/* 分享 */
+/* 分享文案：按当前进度动态生成，好友与朋友圈共用 */
+function shareTitle() {
+  var pct = Math.floor(clamp(S.totalHouse / HOUSE_TOTAL, 0, 1) * 100);
+  return (S.over && S.won)
+    ? "我用了 " + S.day + " 天，走到了救援中心"
+    : "我在这条永夜公路上走到了 " + pct + "%";
+}
+
 if (IS_WX) {
+  /* 分享菜单：好友/群 + 朋友圈两条路径都打开 */
   try {
-    wx.showShareMenu && wx.showShareMenu({ withShareTicket: false });
+    wx.showShareMenu && wx.showShareMenu({
+      withShareTicket: false,
+      menus: ["shareAppMessage", "shareTimeline"]
+    });
+  } catch (e) {}
+
+  try {
     wx.onShareAppMessage(function () {
-      var pct = Math.floor(clamp(S.totalHouse / HOUSE_TOTAL, 0, 1) * 100);
-      return {
-        title: (S.over && S.won)
-          ? "我用了 " + S.day + " 天，走到了救援中心"
-          : "我在这条永夜公路上走到了 " + pct + "%",
-        query: "from=share"
-      };
+      return { title: shareTitle(), query: "from=share" };
+    });
+  } catch (e) {}
+
+  /* 朋友圈：基础库 2.11.3+ 支持，低版本没有这个方法，静默跳过 */
+  try {
+    wx.onShareTimeline && wx.onShareTimeline(function () {
+      return { title: shareTitle(), query: "from=timeline" };
+    });
+  } catch (e) {}
+
+  /* 错误兜底：至少把崩溃留在日志里，而不是白屏无痕 */
+  try {
+    wx.onError && wx.onError(function (err) {
+      var msg = (err && err.message) ? err.message : String(err);
+      var stk = (err && err.stack) ? err.stack : "";
+      console.error("[yy] error: " + msg + "\n" + stk);
+    });
+  } catch (e) {}
+
+  /* 切后台：主动暂停 + 存一次档。不暂停的话回来会白跑一段（dt 虽有 0.05 上限兜底，
+     但连播多帧仍然会推进），不存档则可能被系统杀进程丢掉当天进度。 */
+  var bgPaused = false;
+  try {
+    wx.onHide && wx.onHide(function () {
+      if (!cover && S && !S.over) {
+        bgPaused = true;
+        S.paused = true;
+        try { saveGame(); } catch (e) {}
+      }
+    });
+    wx.onShow && wx.onShow(function () {
+      if (bgPaused) { bgPaused = false; S.paused = false; }
+      last = 0;   // 复位时间基准，避免回前台第一帧 dt 异常
     });
   } catch (e) {}
 }
@@ -2288,6 +2349,9 @@ GG.YY = {
   cont: continueGame,
   savedInfo: function () { var sv = loadSave(); return sv ? { day: sv.day, house: sv.totalHouse } : null; },
   showCover: function () { cover = true; S.paused = true; },
+  /* 注入安全区内边距（逻辑单位），仅用于浏览器端截图验证刘海 / Home 横条避让 */
+  simSafe: function (t, b) { SA_TOP = t || 0; SA_BOT = b || 0; },
+  safeInsets: function () { return { top: SA_TOP, bottom: SA_BOT }; },
   build: function (col, row, type) { S.buildType = type; tryBuild(col, row); },
   restart: restart,
   nextDay: nextDay,

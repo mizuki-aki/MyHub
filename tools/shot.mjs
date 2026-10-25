@@ -1,14 +1,14 @@
 /**
  * 截图工具：用 CDP 精确控制视口，并抓 console 错误。
  * 用法：
- *   node tools/shot.mjs <url> <out.png> [width] [height] [waitMs] [jsToEval]
+ *   node tools/shot.mjs <url> <out.png> [width] [height] [waitMs] [jsToEval] [deviceScaleFactor]
  */
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
 const CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const [url, out, wArg, hArg, waitArg, evalJs] = process.argv.slice(2);
+const [url, out, wArg, hArg, waitArg, evalJs, dsfArg] = process.argv.slice(2);
 if (!url || !out) {
   console.error("usage: node tools/shot.mjs <url> <out.png> [w] [h] [waitMs] [js]");
   process.exit(1);
@@ -16,6 +16,7 @@ if (!url || !out) {
 const W = parseInt(wArg || "390", 10);
 const H = parseInt(hArg || "844", 10);
 const WAIT = parseInt(waitArg || "1800", 10);
+const DSF = parseFloat(dsfArg || "2");   // 出商店图时传 3，得到 1170×2532
 const PORT = 9333 + Math.floor(Math.random() * 200);
 
 const userDir = path.join(process.env.TEMP || "/tmp", "cdp-shot-" + Date.now());
@@ -84,7 +85,7 @@ try {
   await send(ws, "Runtime.enable");
   await send(ws, "Page.enable");
   await send(ws, "Emulation.setDeviceMetricsOverride", {
-    width: W, height: H, deviceScaleFactor: 2, mobile: true
+    width: W, height: H, deviceScaleFactor: DSF, mobile: true
   });
 
   await send(ws, "Page.navigate", { url });
@@ -101,7 +102,7 @@ try {
   if (!shot || !shot.data) throw new Error("截图失败");
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
   fs.writeFileSync(path.resolve(out), Buffer.from(shot.data, "base64"));
-  console.log("shot ->", out, W + "x" + H);
+  console.log("shot ->", out, Math.round(W * DSF) + "x" + Math.round(H * DSF));
   if (logs.length) { console.log("---- console ----"); logs.slice(0, 20).forEach((l) => console.log(l)); }
   if (errors.length) {
     console.log("---- 页面错误 ----");
